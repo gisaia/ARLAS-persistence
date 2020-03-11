@@ -12,6 +12,7 @@ services:
       - ARLAS_SERVER_PREFIX="${ARLAS_SERVER_PREFIX:-/arlas_persistence_server}"
       - ARLAS_SERVER_APP_PATH="${ARLAS_SERVER_APP_PATH:-/}"
       - ARLAS_AUTH_ENABLED="${ARLAS_AUTH_ENABLED:-false}"
+      - ARLAS_PERSISTENCE_KEY_HEADER="${ARLAS_PERSISTENCE_KEY_HEADER:-X-Forwarded-User}"
     ports:
       - 19997:9997
     volumes:

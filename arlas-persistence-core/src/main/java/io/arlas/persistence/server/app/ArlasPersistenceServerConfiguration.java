@@ -38,6 +38,9 @@ public class ArlasPersistenceServerConfiguration extends Configuration {
     @JsonProperty("arlas_auth")
     public ArlasAuthConfiguration arlasAuthConfiguration;
 
+    @JsonProperty("key_header")
+    public String keyHeader;
+
     public void check() throws ArlasConfigurationException {
         if (arlasAuthConfiguration == null) {
             arlasAuthConfiguration = new ArlasAuthConfiguration();
