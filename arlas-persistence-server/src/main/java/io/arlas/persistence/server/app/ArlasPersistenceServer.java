@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.smoketurner.dropwizard.zipkin.ZipkinBundle;
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 import io.arlas.persistence.rest.PersistenceRestService;
+import io.arlas.persistence.server.app.core.DataService;
 import io.arlas.server.auth.AuthenticationFilter;
 import io.arlas.server.auth.AuthorizationFilter;
 import io.arlas.server.exceptions.ArlasExceptionMapper;
@@ -97,8 +98,8 @@ public class ArlasPersistenceServer extends Application<ArlasPersistenceServerCo
         environment.jersey().register(new JsonProcessingExceptionMapper());
         environment.jersey().register(new ConstraintViolationExceptionMapper());
 
-        // TODO: add REST services
-        environment.jersey().register(new PersistenceRestService());
+        DataService dataService = null; //TODO
+        environment.jersey().register(new PersistenceRestService(dataService, configuration.keyHeader));
 
         // Auth
         if (configuration.arlasAuthConfiguration.enabled) {

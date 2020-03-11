@@ -59,3 +59,6 @@ zipkin: # The ZIPIN configuration, not active by default
   servicePort: ${ARLAS_PORT:-9997} # Listening port of the service
   collector: ${ARLAS_ZIPKIN_COLLECTOR:-http}
   baseUrl: ${ARLAS_ZIPKIN_BASEURL:-http://localhost:9411} # Where is zipkin running?
+
+
+key_header: ${ARLAS_PERSISTENCE_KEY_HEADER:-X-Forwarded-User}
