@@ -1,6 +1,20 @@
 version: '3'
 
 services:
+  db:
+    image: postgres:11-alpine
+    container_name: db
+    restart: always
+    environment:
+      POSTGRES_USER: ${ARLAS_PERSISTENCE_DB_USER:-pg-user}
+      POSTGRES_PASSWORD: ${ARLAS_PERSISTENCE_DB_PASSWORD:-iAMs00perSecrEET}
+      POSTGRES_DB: arlas_persistence
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - 5432:5432
+    volumes:
+    - ${ARLAS_PERSISTENCE_CREATESQL_FILE:-/opt/app/pgCreateTable.sql}:/docker-entrypoint-initdb.d/createTable.sql:ro
+
   arlas-persistence-server:
     build:
       context: ../..
@@ -13,6 +27,11 @@ services:
       - ARLAS_SERVER_APP_PATH="${ARLAS_SERVER_APP_PATH:-/}"
       - ARLAS_AUTH_ENABLED="${ARLAS_AUTH_ENABLED:-false}"
       - ARLAS_PERSISTENCE_KEY_HEADER="${ARLAS_PERSISTENCE_KEY_HEADER:-X-Forwarded-User}"
+      - ARLAS_PERSISTENCE_DB_URL="${ARLAS_PERSISTENCE_DB_URL:-jdbc:postgresql://db:5432/arlas_persistence}"
+      - ARLAS_PERSISTENCE_DB_USER="${ARLAS_PERSISTENCE_DB_USER:-pg-user}"
+      - ARLAS_PERSISTENCE_DB_PASSWORD="${ARLAS_PERSISTENCE_DB_PASSWORD:-iAMs00perSecrEET}"
+      - ARLAS_PERSISTENCE_DB_DRIVER="${ARLAS_PERSISTENCE_DB_DRIVER:-org.postgresql.Driver}"
+      - ARLAS_PERSISTENCE_HIBERNATE_DIALECT="${ARLAS_PERSISTENCE_HIBERNATE_DIALECT:-org.hibernate.dialect.PostgreSQLDialect}"
     ports:
       - 19997:9997
     volumes:

@@ -16,21 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.arlas.persistence.server.app.core;
+package io.arlas.persistence.server.core;
 
+import io.arlas.persistence.server.model.Data;
 import io.arlas.server.exceptions.ArlasException;
 
 import java.util.List;
 
 public interface DataService {
 
-    List<String> list(String key) throws ArlasException;
+    List<Data> list(String key) throws ArlasException;
 
-    String get(String key, String id) throws ArlasException;
+    Data get(String key, String id) throws ArlasException;
 
-    String create(String key, String value) throws ArlasException;
+    Data create(String key, String value) throws ArlasException;
 
-    String update(String key, String id, String value) throws ArlasException;
+    Data update(String key, String id, String value) throws ArlasException;
 
-    String delete(String key, String id) throws ArlasException;
+    Data delete(String key, String id) throws ArlasException;
 }

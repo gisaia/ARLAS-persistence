@@ -26,7 +26,10 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.smoketurner.dropwizard.zipkin.ZipkinBundle;
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 import io.arlas.persistence.rest.PersistenceRestService;
-import io.arlas.persistence.server.app.core.DataService;
+import io.arlas.persistence.server.core.DataService;
+import io.arlas.persistence.server.dao.DataDao;
+import io.arlas.persistence.server.impl.DataServiceImpl;
+import io.arlas.persistence.server.model.Data;
 import io.arlas.server.auth.AuthenticationFilter;
 import io.arlas.server.auth.AuthorizationFilter;
 import io.arlas.server.exceptions.ArlasExceptionMapper;
@@ -38,6 +41,8 @@ import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
+import io.dropwizard.db.DataSourceFactory;
+import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.jersey.jackson.JsonProcessingExceptionMapper;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -56,6 +61,12 @@ import java.util.Optional;
 public class ArlasPersistenceServer extends Application<ArlasPersistenceServerConfiguration> {
     Logger LOGGER = LoggerFactory.getLogger(ArlasPersistenceServer.class);
 
+    private final HibernateBundle<ArlasPersistenceServerConfiguration> hibernate = new HibernateBundle<ArlasPersistenceServerConfiguration>(Data.class) {
+        @Override
+        public DataSourceFactory getDataSourceFactory(ArlasPersistenceServerConfiguration configuration) {
+            return configuration.database;
+        }
+    };
     public static void main(String... args) throws Exception {
         new ArlasPersistenceServer().run(args);
     }
@@ -78,6 +89,7 @@ public class ArlasPersistenceServer extends Application<ArlasPersistenceServerCo
             }
         });
         bootstrap.addBundle(new AssetsBundle("/assets/", "/", "index.html"));
+        bootstrap.addBundle(hibernate);
     }
 
     @Override
@@ -98,7 +110,8 @@ public class ArlasPersistenceServer extends Application<ArlasPersistenceServerCo
         environment.jersey().register(new JsonProcessingExceptionMapper());
         environment.jersey().register(new ConstraintViolationExceptionMapper());
 
-        DataService dataService = null; //TODO
+        final DataDao dataDao = new DataDao(hibernate.getSessionFactory());
+        DataService dataService = new DataServiceImpl(dataDao);
         environment.jersey().register(new PersistenceRestService(dataService, configuration.keyHeader));
 
         // Auth
