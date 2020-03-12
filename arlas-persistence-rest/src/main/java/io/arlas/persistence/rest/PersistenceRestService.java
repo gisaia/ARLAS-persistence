@@ -21,10 +21,12 @@ package io.arlas.persistence.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.persistence.server.app.Documentation;
-import io.arlas.persistence.server.app.core.DataService;
+import io.arlas.persistence.server.core.DataService;
+import io.arlas.persistence.server.model.Data;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.utils.ResponseFormatter;
+import io.dropwizard.hibernate.UnitOfWork;
 import io.swagger.annotations.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -68,10 +70,11 @@ public class PersistenceRestService {
             notes = Documentation.LIST_OPERATION,
             consumes = UTF8JSON
     )
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = String.class),
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = Data.class),
             @ApiResponse(code = 404, message = "Key not found.", response = Error.class),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
 
+    @UnitOfWork
     public Response list(
             @Context HttpHeaders headers,
 
@@ -100,10 +103,11 @@ public class PersistenceRestService {
             notes = Documentation.GET_OPERATION,
             consumes = UTF8JSON
     )
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = String.class),
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = Data.class),
             @ApiResponse(code = 404, message = "Key or id not found.", response = Error.class),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
 
+    @UnitOfWork
     public Response get(
             @Context HttpHeaders headers,
 
@@ -139,9 +143,10 @@ public class PersistenceRestService {
             notes = Documentation.CREATE_OPERATION,
             consumes = UTF8JSON
     )
-    @ApiResponses(value = {@ApiResponse(code = 201, message = "Successful operation", response = String.class),
+    @ApiResponses(value = {@ApiResponse(code = 201, message = "Successful operation", response = Data.class),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
 
+    @UnitOfWork
     public Response create(
             @Context UriInfo uriInfo,
             @Context HttpHeaders headers,
@@ -177,10 +182,11 @@ public class PersistenceRestService {
             notes = Documentation.UPDATE_OPERATION,
             consumes = UTF8JSON
     )
-    @ApiResponses(value = {@ApiResponse(code = 201, message = "Successful operation", response = String.class),
+    @ApiResponses(value = {@ApiResponse(code = 201, message = "Successful operation", response = Data.class),
             @ApiResponse(code = 404, message = "Key or id not found.", response = Error.class),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
 
+    @UnitOfWork
     public Response update(
             @Context UriInfo uriInfo,
             @Context HttpHeaders headers,
@@ -222,10 +228,11 @@ public class PersistenceRestService {
             notes = Documentation.DELETE_OPERATION,
             consumes = UTF8JSON
     )
-    @ApiResponses(value = {@ApiResponse(code = 202, message = "Successful operation", response = String.class),
+    @ApiResponses(value = {@ApiResponse(code = 202, message = "Successful operation", response = Data.class),
             @ApiResponse(code = 404, message = "Key or id not found.", response = Error.class),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
 
+    @UnitOfWork
     public Response delete(
             @Context HttpHeaders headers,
 

@@ -62,3 +62,25 @@ zipkin: # The ZIPIN configuration, not active by default
 
 
 key_header: ${ARLAS_PERSISTENCE_KEY_HEADER:-X-Forwarded-User}
+
+database:
+  # the name of your JDBC driver
+  driverClass: ${ARLAS_PERSISTENCE_DB_DRIVER:-org.postgresql.Driver}
+  user: ${ARLAS_PERSISTENCE_DB_USER:-pg-user}
+  password: ${ARLAS_PERSISTENCE_DB_PASSWORD:-iAMs00perSecrEET}
+  # the JDBC URL
+  url: ${ARLAS_PERSISTENCE_DB_URL:-jdbc:postgresql://db:5432/arlas_persistence}
+  # any properties specific to your JDBC driver:
+  properties:
+    charSet: UTF-8
+    hibernate.dialect: ${ARLAS_PERSISTENCE_HIBERNATE_DIALECT:-org.hibernate.dialect.PostgreSQLDialect}
+  # the maximum amount of time to wait on an empty pool before throwing an exception
+  maxWaitForConnection: 1s
+  # the SQL query to run when validating a connection's liveness
+  validationQuery: "/* MyApplication Health Check */ SELECT 1"
+  # the minimum number of connections to keep open
+  minSize: 8
+  # the maximum number of connections to keep open
+  maxSize: 32
+  # whether or not idle connections should be validated
+  checkConnectionWhileIdle: false

@@ -23,9 +23,18 @@ import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 import io.arlas.server.app.ArlasAuthConfiguration;
 import io.arlas.server.exceptions.ArlasConfigurationException;
 import io.dropwizard.Configuration;
+import io.dropwizard.db.DataSourceFactory;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
 public class ArlasPersistenceServerConfiguration extends Configuration {
+    @Valid
+    @NotNull
+    @JsonProperty("database")
+    public DataSourceFactory database = new DataSourceFactory();
+
     @JsonProperty("zipkin")
     public ZipkinFactory zipkinConfiguration;
 
