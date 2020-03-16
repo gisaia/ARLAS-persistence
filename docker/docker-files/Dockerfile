@@ -1,7 +1,7 @@
 #####################
 # COMPILATION STAGE #
 #####################
-FROM maven:3.5-jdk-8-alpine as build
+FROM maven:3.5-jdk-8 as build
 WORKDIR /opt/build
 
 # selectively add the POM file
@@ -17,11 +17,11 @@ RUN mvn install \
 ###################
 # PACKAGING STAGE #
 ###################
-FROM openjdk:8-jre-alpine
+FROM openjdk:8
 WORKDIR /opt/app
 
 # install script dependencies
-RUN apk add --update bash netcat-openbsd curl && rm -rf /var/cache/apk/*
+RUN apt-get update && apt-get install -y bash netcat-openbsd curl
 
 # application placed into /opt/app
 WORKDIR /opt/app

@@ -23,15 +23,16 @@ import io.arlas.server.exceptions.ArlasException;
 
 import java.util.List;
 
-public interface DataService {
+public interface PersistenceService {
+    String collection = "user_data";
 
-    List<Data> list(String key) throws ArlasException;
+    List<Data> list(String type, String key) throws ArlasException;
 
-    Data get(String key, String id) throws ArlasException;
+    Data getById(String id) throws ArlasException;
 
-    Data create(String key, String value) throws ArlasException;
+    Data create(String type, String key, String value) throws ArlasException;
 
-    Data update(String key, String id, String value) throws ArlasException;
+    Data update(String id, String value) throws ArlasException;
 
-    Data delete(String key, String id) throws ArlasException;
+    Data delete(String id) throws ArlasException;
 }

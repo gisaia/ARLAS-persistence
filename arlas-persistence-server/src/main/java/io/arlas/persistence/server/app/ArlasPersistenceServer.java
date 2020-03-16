@@ -26,9 +26,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.smoketurner.dropwizard.zipkin.ZipkinBundle;
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 import io.arlas.persistence.rest.PersistenceRestService;
-import io.arlas.persistence.server.core.DataService;
-import io.arlas.persistence.server.dao.DataDao;
-import io.arlas.persistence.server.impl.DataServiceImpl;
+import io.arlas.persistence.server.core.PersistenceService;
+import io.arlas.persistence.server.impl.GoogleFirestorePersistenceServiceImpl;
+import io.arlas.persistence.server.impl.HibernatePersistenceServiceImpl;
 import io.arlas.persistence.server.model.Data;
 import io.arlas.server.auth.AuthenticationFilter;
 import io.arlas.server.auth.AuthorizationFilter;
@@ -110,9 +110,21 @@ public class ArlasPersistenceServer extends Application<ArlasPersistenceServerCo
         environment.jersey().register(new JsonProcessingExceptionMapper());
         environment.jersey().register(new ConstraintViolationExceptionMapper());
 
-        final DataDao dataDao = new DataDao(hibernate.getSessionFactory());
-        DataService dataService = new DataServiceImpl(dataDao);
-        environment.jersey().register(new PersistenceRestService(dataService, configuration.keyHeader));
+
+        PersistenceService persistenceService = null;
+        switch (configuration.engine) {
+            case "hibernate":
+                persistenceService = new HibernatePersistenceServiceImpl(hibernate.getSessionFactory());
+                break;
+            case "firestore":
+                persistenceService = new GoogleFirestorePersistenceServiceImpl();
+                break;
+            default:
+                LOGGER.error("Engine not supported: " + configuration.engine +  " (valid values are: 'hibernate' or 'firestore').");
+                System.exit(1);
+                break;
+        }
+        environment.jersey().register(new PersistenceRestService(persistenceService, configuration.keyHeader));
 
         // Auth
         if (configuration.arlasAuthConfiguration.enabled) {

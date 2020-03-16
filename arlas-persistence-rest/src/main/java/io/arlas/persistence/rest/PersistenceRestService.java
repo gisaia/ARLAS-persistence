@@ -21,7 +21,7 @@ package io.arlas.persistence.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.persistence.server.app.Documentation;
-import io.arlas.persistence.server.core.DataService;
+import io.arlas.persistence.server.core.PersistenceService;
 import io.arlas.persistence.server.model.Data;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.response.Error;
@@ -29,8 +29,6 @@ import io.arlas.server.utils.ResponseFormatter;
 import io.dropwizard.hibernate.UnitOfWork;
 import io.swagger.annotations.*;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -48,14 +46,13 @@ import javax.ws.rs.core.*;
         schemes = { SwaggerDefinition.Scheme.HTTP, SwaggerDefinition.Scheme.HTTPS })
 
 public class PersistenceRestService {
-    protected static Logger LOGGER = LoggerFactory.getLogger(PersistenceRestService.class);
     public static final String UTF8JSON = MediaType.APPLICATION_JSON + ";charset=utf-8";
 
-    private DataService dataService;
+    private PersistenceService persistenceService;
     private String keyHeader;
 
-    public PersistenceRestService(DataService dataService, String keyHeader) {
-        this.dataService = dataService;
+    public PersistenceRestService(PersistenceService persistenceService, String keyHeader) {
+        this.persistenceService = persistenceService;
         this.keyHeader = keyHeader;
     }
 
@@ -78,6 +75,13 @@ public class PersistenceRestService {
     public Response list(
             @Context HttpHeaders headers,
 
+            @ApiParam(
+                    name = "type", value = Documentation.TYPE,
+                    allowMultiple = false,
+                    defaultValue = "hibernate",
+                    required = true)
+            @QueryParam(value = "type") String type,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -89,7 +93,7 @@ public class PersistenceRestService {
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
         String key = getKey(headers);
-        return ResponseFormatter.getResultResponse(dataService.list(key));
+        return ResponseFormatter.getResultResponse(persistenceService.list(type, key));
     }
 
     @Timed
@@ -129,7 +133,7 @@ public class PersistenceRestService {
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
         String key = getKey(headers);
-        return ResponseFormatter.getResultResponse(dataService.get(key, id));
+        return ResponseFormatter.getResultResponse(persistenceService.getById(id));
     }
 
     @Timed
@@ -152,6 +156,13 @@ public class PersistenceRestService {
             @Context HttpHeaders headers,
 
             @ApiParam(
+                    name = "type", value = Documentation.TYPE,
+                    allowMultiple = false,
+                    defaultValue = "hibernate",
+                    required = true)
+            @QueryParam(value = "type") String type,
+
+            @ApiParam(
                     name = "value",
                     value = Documentation.VALUE,
                     required = true)
@@ -168,7 +179,7 @@ public class PersistenceRestService {
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
         String key = getKey(headers);
-        return Response.created(uriInfo.getRequestUriBuilder().build()).entity(dataService.create(key, value)).type("application/json").build();
+        return Response.created(uriInfo.getRequestUriBuilder().build()).entity(persistenceService.create(type, key, value)).type("application/json").build();
     }
 
     @Timed
@@ -214,7 +225,7 @@ public class PersistenceRestService {
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
         String key = getKey(headers);
-        return Response.created(uriInfo.getRequestUriBuilder().build()).entity(dataService.update(key, id, value)).type("application/json").build();
+        return Response.created(uriInfo.getRequestUriBuilder().build()).entity(persistenceService.update(id, value)).type("application/json").build();
     }
 
     @Timed
@@ -254,11 +265,10 @@ public class PersistenceRestService {
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
         String key = getKey(headers);
-        return Response.accepted().entity(dataService.delete(key, id)).type("application/json").build();
+        return Response.accepted().entity(persistenceService.delete(id)).type("application/json").build();
     }
 
     private String getKey(HttpHeaders headers) throws ArlasException {
-
         String key = headers.getHeaderString(keyHeader);
         if (StringUtils.isBlank(key)) {
             throw new ArlasException(keyHeader + " is empty.");

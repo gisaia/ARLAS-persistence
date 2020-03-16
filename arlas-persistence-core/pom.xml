@@ -60,5 +60,10 @@
             <version>${postgresql.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-firestore</artifactId>
+        </dependency>
+
     </dependencies>
 </project>
