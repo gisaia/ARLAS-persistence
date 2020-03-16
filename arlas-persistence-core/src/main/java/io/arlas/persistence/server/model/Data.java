@@ -20,6 +20,7 @@
 package io.arlas.persistence.server.model;
 
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import io.arlas.persistence.server.core.PersistenceService;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
@@ -28,41 +29,52 @@ import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.Objects;
 
+
 @Entity
-@Table(name = "user_data")
+@Table(name = PersistenceService.collection)
 @NamedQueries({
         @NamedQuery(
                 name = "io.arlas.persistence.server.app.model.Data.findByKey",
                 query = "select ud from Data ud "
-                        + "where ud.docKey=:key order by ud.creationDate"),
-        @NamedQuery(
-                name = "io.arlas.persistence.server.app.model.Data.findById",
-                query = "select ud from Data ud "
-                        + "where ud.docKey=:key and ud.id=:id")
-
+                        + "where ud." + Data.keyColumn + "=:key and ud." + Data.typeColumn + "=:type order by ud." + Data.dateColumn)
 })
 @TypeDef(name = "json", typeClass = JsonBinaryType.class)
 public class Data {
+    public static final String keyColumn = "docKey";
+    public static final String dateColumn = "creationDate";
+    public static final String valueColumn = "docValue";
+    public static final String typeColumn = "docType";
+
     @Id
     @Column(name = "id")
     private String id;
 
     @NotNull
-    @Column(name = "docKey")
+    @Column(name = keyColumn)
     private String docKey;
 
-    @Column(name = "creationDate")
+    @Column(name = dateColumn)
     private Date creationDate;
 
     @Type(type = "json")
-    @Column(name = "docValue", columnDefinition = "json")
+    @Column(name = valueColumn, columnDefinition = "json")
     private String docValue;
+
+    @NotNull
+    @Column(name = typeColumn)
+    private String docType;
+
 
     public Data() {}
 
-    public Data(String docKey, String docValue, String id) {
+    public Data(String docType, String docKey, String docValue, String id) {
+        this(docType, docKey, docValue, id, new Date());
+    }
+
+    public Data(String docType, String docKey, String docValue, String id, Date creationDate) {
+        this.docType = docType;
         this.docKey = docKey;
-        this.creationDate = new Date();
+        this.creationDate = creationDate;
         this.docValue = docValue;
         this.id = id;
     }
@@ -75,7 +87,13 @@ public class Data {
         return docKey;
     }
 
-    public Date getCreationDate() { return creationDate; }
+    public String getDocType() {
+        return docType;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
 
     public String getDocValue() {
         return docValue;
@@ -89,10 +107,15 @@ public class Data {
         this.docKey = doc_key;
     }
 
+    public void setDocType(String docType) {
+        this.docType = docType;
+    }
+
     public void setCreationDate(Date date) { this.creationDate = date; }
 
     public void setDocValue(String docValue) {
         this.docValue = docValue;
+        this.creationDate = new Date();
     }
 
     @Override
@@ -103,11 +126,23 @@ public class Data {
         return getId().equals(data.getId()) &&
                 getDocKey().equals(data.getDocKey()) &&
                 getCreationDate().equals(data.getCreationDate()) &&
-                Objects.equals(getDocValue(), data.getDocValue());
+                Objects.equals(getDocValue(), data.getDocValue()) &&
+                getDocType().equals(data.getDocType());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getDocKey(), getCreationDate(), getDocValue());
+        return Objects.hash(getId(), getDocKey(), getCreationDate(), getDocValue(), getDocType());
+    }
+
+    @Override
+    public String toString() {
+        return "Data{" +
+                "id='" + id + '\'' +
+                ", docKey='" + docKey + '\'' +
+                ", creationDate=" + creationDate +
+                ", docValue='" + docValue + '\'' +
+                ", docType='" + docType + '\'' +
+                '}';
     }
 }

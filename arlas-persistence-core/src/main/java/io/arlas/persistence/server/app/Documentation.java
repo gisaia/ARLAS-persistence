@@ -21,12 +21,12 @@ package io.arlas.persistence.server.app;
 
 public class Documentation {
 
-    public static final String LIST_OPERATION = "Fetch a list of data related to a key.";
-    public static final String KEY = "The indexation key for the data.";
-    public static final String GET_OPERATION = "Fetch an entry given its key and id.";
     public static final String ID = "The id of the data.";
+    public static final String VALUE = "Value to be persisted.";
+    public static final String TYPE = "Type of the document.";
+    public static final String LIST_OPERATION = "Fetch a list of data related to a key.";
+    public static final String GET_OPERATION = "Fetch an entry given its key and id.";
     public static final String DELETE_OPERATION = "Delete an entry given its key and id.";
     public static final String CREATE_OPERATION = "Store a new piece of data for the provided key (auto generate id)";
-    public static final String VALUE = "Value to be persisted.";
     public static final String UPDATE_OPERATION = "Update an existing value.";
 }

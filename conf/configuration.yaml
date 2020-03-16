@@ -62,14 +62,15 @@ zipkin: # The ZIPIN configuration, not active by default
 
 
 key_header: ${ARLAS_PERSISTENCE_KEY_HEADER:-X-Forwarded-User}
+persistence_engine: ${ARLAS_PERSISTENCE_ENGINE:-hibernate}
 
 database:
   # the name of your JDBC driver
-  driverClass: ${ARLAS_PERSISTENCE_DB_DRIVER:-org.postgresql.Driver}
-  user: ${ARLAS_PERSISTENCE_DB_USER:-pg-user}
-  password: ${ARLAS_PERSISTENCE_DB_PASSWORD:-iAMs00perSecrEET}
+  driverClass: ${ARLAS_PERSISTENCE_HIBERNATE_DRIVER:-org.postgresql.Driver}
+  user: ${ARLAS_PERSISTENCE_HIBERNATE_USER:-pg-user}
+  password: ${ARLAS_PERSISTENCE_HIBERNATE_PASSWORD:-iAMs00perSecrEET}
   # the JDBC URL
-  url: ${ARLAS_PERSISTENCE_DB_URL:-jdbc:postgresql://db:5432/arlas_persistence}
+  url: ${ARLAS_PERSISTENCE_HIBERNATE_URL:-jdbc:postgresql://db:5432/arlas_persistence}
   # any properties specific to your JDBC driver:
   properties:
     charSet: UTF-8

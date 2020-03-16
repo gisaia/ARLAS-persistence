@@ -31,7 +31,6 @@ import javax.validation.constraints.NotNull;
 
 public class ArlasPersistenceServerConfiguration extends Configuration {
     @Valid
-    @NotNull
     @JsonProperty("database")
     public DataSourceFactory database = new DataSourceFactory();
 
@@ -49,6 +48,9 @@ public class ArlasPersistenceServerConfiguration extends Configuration {
 
     @JsonProperty("key_header")
     public String keyHeader;
+
+    @JsonProperty("persistence_engine")
+    public String engine;
 
     public void check() throws ArlasConfigurationException {
         if (arlasAuthConfiguration == null) {
