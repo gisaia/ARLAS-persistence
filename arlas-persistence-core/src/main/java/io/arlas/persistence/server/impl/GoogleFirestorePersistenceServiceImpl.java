@@ -19,12 +19,15 @@
 
 package io.arlas.persistence.server.impl;
 
+import com.google.api.gax.rpc.FailedPreconditionException;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
 import io.arlas.persistence.server.core.PersistenceService;
 import io.arlas.persistence.server.model.Data;
+import io.arlas.persistence.server.utils.SortOrder;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.NotFoundException;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,26 +55,40 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
 
 
     @Override
-    public List<Data> list(String type, String key) throws ArlasException {
+    public Pair<Long, List<Data>> list(String type, String key, Integer size, Integer page, SortOrder order) throws ArlasException {
         try {
-            return db.collection(PersistenceService.collection)
-                    .whereEqualTo(Data.typeColumn, type)
-                    .whereEqualTo(Data.keyColumn, key)
-                    .get()
-                    .get()
-                    .getDocuments()
-                    .stream()
-                    .map(d -> {
-                        try {
-                            return toData(d.getId(), d);
-                        } catch (NotFoundException e) {
-                            //can't happen in this case
-                            return null;
-                        }
-                    })
-                    .collect(Collectors.toList());
+            return Pair.of(
+                    new Long(db.collection(PersistenceService.collection)
+                            .whereEqualTo(Data.typeColumn, type)
+                            .whereEqualTo(Data.keyColumn, key)
+                            .get()
+                            .get()
+                            .size()),
+
+                    db.collection(PersistenceService.collection)
+                            .whereEqualTo(Data.typeColumn, type)
+                            .whereEqualTo(Data.keyColumn, key)
+                            .orderBy(Data.dateColumn, order == SortOrder.ASC ? Query.Direction.ASCENDING : Query.Direction.DESCENDING)
+                            .limit(size)
+                            .offset((page - 1) * size)
+                            .get()
+                            .get()
+                            .getDocuments()
+                            .stream()
+                            .map(d -> {
+                                try {
+                                    return toData(d.getId(), d);
+                                } catch (NotFoundException e) { //can't happen in this case
+                                    return null;
+                                }
+                            })
+                            .filter(d -> d != null)
+                            .collect(Collectors.toList()));
+        } catch (FailedPreconditionException e) {
+            LOGGER.error(e.getMessage()); // happens when index is missing
+            throw new ArlasException("Error listing document: " + e.getMessage());
         } catch (InterruptedException | ExecutionException e) {
-            throw new ArlasException("Error listing document", e);
+            throw new ArlasException("Error listing document: " + e.getMessage());
         }
     }
 

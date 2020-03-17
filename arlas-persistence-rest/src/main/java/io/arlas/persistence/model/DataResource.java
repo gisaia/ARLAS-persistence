@@ -16,25 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.arlas.persistence.server.core;
 
-import io.arlas.persistence.server.model.Data;
-import io.arlas.persistence.server.utils.SortOrder;
-import io.arlas.server.exceptions.ArlasException;
-import org.apache.commons.lang3.tuple.Pair;
+package io.arlas.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-public interface PersistenceService {
-    String collection = "user_data";
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class DataResource {
 
-    Pair<Long, List<Data>> list(String type, String key, Integer size, Integer page, SortOrder order) throws ArlasException;
+    @JsonProperty("count")
+    public Integer count = null;
 
-    Data getById(String id) throws ArlasException;
+    @JsonProperty("total")
+    public Long total = null;
 
-    Data create(String type, String key, String value) throws ArlasException;
+    @JsonProperty("_links")
+    public Map<String, Link> links = null;
 
-    Data update(String id, String value) throws ArlasException;
-
-    Data delete(String id) throws ArlasException;
+    @JsonProperty("data")
+    public List<DataWithLinks> data = new ArrayList<>();
 }

@@ -16,25 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.arlas.persistence.server.core;
+package io.arlas.persistence.server.utils;
 
-import io.arlas.persistence.server.model.Data;
-import io.arlas.persistence.server.utils.SortOrder;
-import io.arlas.server.exceptions.ArlasException;
-import org.apache.commons.lang3.tuple.Pair;
+import java.util.Locale;
 
-import java.util.List;
+public enum SortOrder {
+    ASC {
+        public String toString() {
+            return "asc";
+        }
+    },
+    DESC {
+        public String toString() {
+            return "desc";
+        }
+    };
 
-public interface PersistenceService {
-    String collection = "user_data";
+    private SortOrder() {
+    }
 
-    Pair<Long, List<Data>> list(String type, String key, Integer size, Integer page, SortOrder order) throws ArlasException;
-
-    Data getById(String id) throws ArlasException;
-
-    Data create(String type, String key, String value) throws ArlasException;
-
-    Data update(String id, String value) throws ArlasException;
-
-    Data delete(String id) throws ArlasException;
+    public static SortOrder fromString(String op) {
+        return valueOf(op.toUpperCase(Locale.ROOT));
+    }
 }
