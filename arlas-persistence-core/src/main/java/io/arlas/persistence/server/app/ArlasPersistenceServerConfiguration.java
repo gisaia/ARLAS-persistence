@@ -28,6 +28,7 @@ import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.Arrays;
 
 public class ArlasPersistenceServerConfiguration extends Configuration {
     @Valid
@@ -40,12 +41,14 @@ public class ArlasPersistenceServerConfiguration extends Configuration {
     @JsonProperty("swagger")
     public SwaggerBundleConfiguration swaggerBundleConfiguration;
 
-    @JsonProperty("arlas_cors_enabled")
-    public Boolean arlascorsenabled;
+    @NotNull
+    @JsonProperty("arlas_cors")
+    public ArlasCorsConfiguration arlasCorsConfiguration;
 
     @JsonProperty("arlas_auth")
     public ArlasAuthConfiguration arlasAuthConfiguration;
 
+    @NotNull
     @JsonProperty("key_header")
     public String keyHeader;
 
@@ -56,6 +59,16 @@ public class ArlasPersistenceServerConfiguration extends Configuration {
         if (arlasAuthConfiguration == null) {
             arlasAuthConfiguration = new ArlasAuthConfiguration();
             arlasAuthConfiguration.enabled = false;
+        }
+        if(arlasCorsConfiguration.allowedHeaders == null){
+            throw new ArlasConfigurationException("Arlas Alllowed Headers Configuration configuration missing in config file.");
+        }else{
+            boolean keyHeaderIsAllowed = Arrays.stream(arlasCorsConfiguration.allowedHeaders.split(","))
+                    .map(String::trim)
+                    .anyMatch(header-> header.equals(keyHeader));
+            if(!keyHeaderIsAllowed){
+                throw new ArlasConfigurationException("Key header is not in Arlas Alllowed Headers.");
+            }
         }
     }
 }

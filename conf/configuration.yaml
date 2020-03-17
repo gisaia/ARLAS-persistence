@@ -40,7 +40,12 @@ logging:
 swagger: # Configuration of SWAGGER for generating documentation and APIs
   resourcePackage: io.arlas.persistence.rest # The java package to process for extracting the APIs
 
-arlas_cors_enabled: ${ARLAS_SERVER_CORS_ENABLED:-true}
+arlas_cors:
+  allowed_origins: ${ARLAS_CORS_ALLOWED_ORIGINS:-"*"}
+  allowed_headers: ${ARLAS_CORS_ALLOWED_HEADERS:-"X-Requested-With,Content-Type,Accept,Origin,Authorization,X-Forwarded-User"}
+  allowed_methods: ${ARLAS_CORS_ALLOWED_METHODS:-"OPTIONS,GET,PUT,POST,DELETE,HEAD"}
+  allowed_credentials: ${ARLAS_CORS_ALLOWED_CREDENTIALS:-true}
+  exposed_headers: ${ARLAS_CORS_EXPOSED_HEADERS:-"Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,Location"}
 
 arlas_auth:
   enabled: ${ARLAS_AUTH_ENABLED:-false}
