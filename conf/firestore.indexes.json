@@ -1,0 +1,41 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "user_data",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "docKey",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "docType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "creationDate",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "user_data",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "docKey",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "docType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "creationDate",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

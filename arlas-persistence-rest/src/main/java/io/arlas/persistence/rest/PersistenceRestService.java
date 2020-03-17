@@ -20,9 +20,12 @@
 package io.arlas.persistence.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import io.arlas.persistence.model.DataResource;
+import io.arlas.persistence.model.DataWithLinks;
 import io.arlas.persistence.server.app.Documentation;
 import io.arlas.persistence.server.core.PersistenceService;
 import io.arlas.persistence.server.model.Data;
+import io.arlas.persistence.server.utils.SortOrder;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.utils.ResponseFormatter;
@@ -49,10 +52,12 @@ public class PersistenceRestService {
     public static final String UTF8JSON = MediaType.APPLICATION_JSON + ";charset=utf-8";
 
     private PersistenceService persistenceService;
+    private DataHALService halService;
     private String keyHeader;
 
     public PersistenceRestService(PersistenceService persistenceService, String keyHeader) {
         this.persistenceService = persistenceService;
+        this.halService = new DataHALService();
         this.keyHeader = keyHeader;
     }
 
@@ -67,20 +72,44 @@ public class PersistenceRestService {
             notes = Documentation.LIST_OPERATION,
             consumes = UTF8JSON
     )
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = Data.class),
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = DataResource.class),
             @ApiResponse(code = 404, message = "Key not found.", response = Error.class),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
 
     @UnitOfWork
     public Response list(
+            @Context UriInfo uriInfo,
             @Context HttpHeaders headers,
 
             @ApiParam(
                     name = "type", value = Documentation.TYPE,
                     allowMultiple = false,
-                    defaultValue = "hibernate",
+                    defaultValue = "pref",
                     required = true)
             @QueryParam(value = "type") String type,
+
+            @ApiParam(name = "size", value = "Page Size",
+                    defaultValue = "10",
+                    allowableValues = "range[1, infinity]",
+                    type = "integer",
+                    required = false)
+            @DefaultValue("10")
+            @QueryParam(value = "size") Integer size,
+
+            @ApiParam(name = "page", value = "Page ID",
+                    defaultValue = "1",
+                    allowableValues = "range[1, infinity]",
+                    type = "integer",
+                    required = false)
+            @DefaultValue("1")
+            @QueryParam(value = "page") Integer page,
+
+            @ApiParam(name = "order", value = "Date sort order",
+                    defaultValue = "desc",
+                    allowableValues = "desc,asc",
+                    type = "string",
+                    required = false)
+            @QueryParam(value = "order") SortOrder order,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
@@ -93,7 +122,7 @@ public class PersistenceRestService {
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
         String key = getKey(headers);
-        return ResponseFormatter.getResultResponse(persistenceService.list(type, key));
+        return ResponseFormatter.getResultResponse(halService.dataListToResource(persistenceService.list(type, key, size, page, order), uriInfo, page, size, order));
     }
 
     @Timed
@@ -107,12 +136,13 @@ public class PersistenceRestService {
             notes = Documentation.GET_OPERATION,
             consumes = UTF8JSON
     )
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = Data.class),
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = DataWithLinks.class),
             @ApiResponse(code = 404, message = "Key or id not found.", response = Error.class),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
 
     @UnitOfWork
     public Response get(
+            @Context UriInfo uriInfo,
             @Context HttpHeaders headers,
 
             @ApiParam(
@@ -133,7 +163,7 @@ public class PersistenceRestService {
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
         String key = getKey(headers);
-        return ResponseFormatter.getResultResponse(persistenceService.getById(id));
+        return ResponseFormatter.getResultResponse(halService.dataWithLinks(persistenceService.getById(id), uriInfo));
     }
 
     @Timed
@@ -147,7 +177,7 @@ public class PersistenceRestService {
             notes = Documentation.CREATE_OPERATION,
             consumes = UTF8JSON
     )
-    @ApiResponses(value = {@ApiResponse(code = 201, message = "Successful operation", response = Data.class),
+    @ApiResponses(value = {@ApiResponse(code = 201, message = "Successful operation", response = DataWithLinks.class),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
 
     @UnitOfWork
@@ -179,7 +209,10 @@ public class PersistenceRestService {
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
         String key = getKey(headers);
-        return Response.created(uriInfo.getRequestUriBuilder().build()).entity(persistenceService.create(type, key, value)).type("application/json").build();
+        return Response.created(uriInfo.getRequestUriBuilder().build())
+                .entity(halService.dataWithLinks(persistenceService.create(type, key, value), uriInfo))
+                .type("application/json")
+                .build();
     }
 
     @Timed
@@ -193,7 +226,7 @@ public class PersistenceRestService {
             notes = Documentation.UPDATE_OPERATION,
             consumes = UTF8JSON
     )
-    @ApiResponses(value = {@ApiResponse(code = 201, message = "Successful operation", response = Data.class),
+    @ApiResponses(value = {@ApiResponse(code = 201, message = "Successful operation", response = DataWithLinks.class),
             @ApiResponse(code = 404, message = "Key or id not found.", response = Error.class),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
 
@@ -225,7 +258,10 @@ public class PersistenceRestService {
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
         String key = getKey(headers);
-        return Response.created(uriInfo.getRequestUriBuilder().build()).entity(persistenceService.update(id, value)).type("application/json").build();
+        return Response.created(uriInfo.getRequestUriBuilder().build())
+                .entity(halService.dataWithLinks(persistenceService.update(id, value), uriInfo))
+                .type("application/json")
+                .build();
     }
 
     @Timed

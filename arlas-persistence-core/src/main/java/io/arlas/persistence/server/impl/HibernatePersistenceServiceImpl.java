@@ -21,11 +21,14 @@ package io.arlas.persistence.server.impl;
 
 import io.arlas.persistence.server.core.PersistenceService;
 import io.arlas.persistence.server.model.Data;
+import io.arlas.persistence.server.utils.SortOrder;
 import io.arlas.persistence.server.utils.UUIDHelper;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.NotFoundException;
 import io.dropwizard.hibernate.AbstractDAO;
+import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,11 +44,25 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
     }
 
     @Override
-    public List<Data> list(String type, String key) throws ArlasException {
-        return list(
-                namedQuery("io.arlas.persistence.server.app.model.Data.findByKey")
-                        .setParameter("type", type)
-                        .setParameter("key", key));
+    public Pair<Long, List<Data>> list(String type, String key, Integer size, Integer page, SortOrder order) throws ArlasException {
+
+        Long totalCount = currentSession().createQuery("SELECT count(ud) FROM Data ud"
+                + "    where ud." + Data.keyColumn + "=:key"
+                + "      and ud." + Data.typeColumn + "=:type", Long.class)
+                .setParameter("type", type)
+                .setParameter("key", key)
+                .uniqueResult();
+
+        Query query = currentSession().createQuery("from Data ud"
+                + "    where ud." + Data.keyColumn + "=:key"
+                + "      and ud." + Data.typeColumn + "=:type"
+                + " order by ud." + Data.dateColumn + " " + order.toString())
+                .setParameter("type", type)
+                .setParameter("key", key)
+                .setMaxResults(size)
+                .setFirstResult((page - 1) * size);
+
+        return Pair.of(totalCount, list(query));
     }
 
     @Override
