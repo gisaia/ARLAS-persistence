@@ -27,6 +27,7 @@
         <postgresql.version>42.2.10</postgresql.version>
         <hibernate.types.version>2.9.5</hibernate.types.version>
         <google.cloud.bom.version>4.2.0</google.cloud.bom.version>
+        <jackson.databind.version>2.9.9.3</jackson.databind.version>
 
         <!-- TESTS -->
         <junit.version>4.13</junit.version>
