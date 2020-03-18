@@ -133,25 +133,23 @@ public class ArlasPersistenceServer extends Application<ArlasPersistenceServerCo
         }
 
         //cors
-        if (configuration.arlascorsenabled) {
-            configureCors(environment);
-        }
+        configureCors(environment,configuration.arlasCorsConfiguration);
 
         //filters
         environment.jersey().register(PrettyPrintFilter.class);
         environment.jersey().register(InsensitiveCaseFilter.class);
     }
 
-    private void configureCors(Environment environment) {
+    private void configureCors(Environment environment, ArlasCorsConfiguration configuration) {
         CrossOriginFilter filter = new CrossOriginFilter();
         final FilterRegistration.Dynamic cors = environment.servlets().addFilter("CrossOriginFilter", filter);
 
         // Configure CORS parameters
-        cors.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, "*");
-        cors.setInitParameter(CrossOriginFilter.ALLOWED_HEADERS_PARAM, "X-Requested-With,Content-Type,Accept,Origin,Authorization");
-        cors.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "OPTIONS,GET,PUT,POST,DELETE,HEAD");
-        cors.setInitParameter(CrossOriginFilter.ALLOW_CREDENTIALS_PARAM, "true");
-        cors.setInitParameter(CrossOriginFilter.EXPOSED_HEADERS_PARAM, "Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,Location");
+        cors.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, configuration.allowedOrigins);
+        cors.setInitParameter(CrossOriginFilter.ALLOWED_HEADERS_PARAM, configuration.allowedHeaders);
+        cors.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, configuration.allowedMethods);
+        cors.setInitParameter(CrossOriginFilter.ALLOW_CREDENTIALS_PARAM, String.valueOf(configuration.allowedCredentials));
+        cors.setInitParameter(CrossOriginFilter.EXPOSED_HEADERS_PARAM, configuration.exposedHeaders);
 
         // Add URL mapping
         cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
