@@ -21,7 +21,7 @@ function clean_exit {
 trap clean_exit EXIT
 
 usage(){
-	echo "Usage: ./tests-integration-stage.sh --stage=DROPWIZARDSTUB"
+	echo "Usage: ./tests-integration-stage.sh --stage=REST"
 	exit 1
 }
 
@@ -67,7 +67,6 @@ function test_rest_server() {
         -e ARLAS_SERVER_HOST="arlas-persistence-server" \
         -e ARLAS_SERVER_PREFIX="arlas_persistence_server" \
         -e ARLAS_SERVER_APP_PATH=${ARLAS_SERVER_APP_PATH} \
-        -e ARLAS_SERVER_STORAGE="/tmp" \
         --net arlas_default \
         maven:3.5.0-jdk-8 \
         mvn -Dit.test=PersistenceIT verify -DskipTests=false -DfailIfNoTests=false
