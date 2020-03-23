@@ -21,9 +21,10 @@ package io.arlas.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.arlas.persistence.server.model.Data;
+import io.dropwizard.jackson.JsonSnakeCase;
 
 import java.util.Map;
-
+@JsonSnakeCase
 public class DataWithLinks extends Data {
     @JsonProperty("_links")
     public Map<String, Link> links;
