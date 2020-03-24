@@ -21,6 +21,7 @@ package io.arlas.persistence.server.model;
 
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import io.arlas.persistence.server.core.PersistenceService;
+import io.dropwizard.jackson.JsonSnakeCase;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
@@ -36,6 +37,7 @@ import java.util.Objects;
 @Entity
 @Table(name = PersistenceService.collection)
 @TypeDef(name = "json", typeClass = JsonBinaryType.class)
+@JsonSnakeCase
 public class Data {
     public static final String keyColumn = "docKey";
     public static final String dateColumn = "creationDate";
@@ -136,10 +138,10 @@ public class Data {
     public String toString() {
         return "Data{" +
                 "id='" + id + '\'' +
-                ", docKey='" + docKey + '\'' +
-                ", creationDate=" + creationDate +
-                ", docValue='" + docValue + '\'' +
-                ", docType='" + docType + '\'' +
+                ", doc_key='" + docKey + '\'' +
+                ", creation_date=" + creationDate +
+                ", doc_value='" + docValue + '\'' +
+                ", doc_type='" + docType + '\'' +
                 '}';
     }
 }

@@ -124,7 +124,7 @@ public class ArlasPersistenceServer extends Application<ArlasPersistenceServerCo
                 System.exit(1);
                 break;
         }
-        environment.jersey().register(new PersistenceRestService(persistenceService, configuration.keyHeader));
+        environment.jersey().register(new PersistenceRestService(persistenceService, configuration));
 
         // Auth
         if (configuration.arlasAuthConfiguration.enabled) {

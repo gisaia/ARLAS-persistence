@@ -83,7 +83,7 @@ public class PersistenceIT {
                 .body(generateData(1))
                 .post(arlasAppPath)
                 .then().statusCode(201)
-                .body("docValue", equalTo("{\"age\":1}"))
+                .body("doc_value", equalTo("{\"age\":1}"))
                 .extract().jsonPath().get("id");
     }
 
@@ -94,9 +94,9 @@ public class PersistenceIT {
                 .get(arlasAppPath + id)
                 .then().statusCode(200)
                 .contentType(ContentType.JSON)
-                .body("docValue", equalTo("{\"age\":1}"))
-                .body("docKey", equalTo("foo"))
-                .body("docType", equalTo(dataType));
+                .body("doc_value", equalTo("{\"age\":1}"))
+                .body("doc_key", equalTo("foo"))
+                .body("doc_type", equalTo(dataType));
     }
 
     @Test
@@ -106,16 +106,16 @@ public class PersistenceIT {
                 .body(generateData(2))
                 .put(arlasAppPath + id)
                 .then().statusCode(201)
-                .body("docValue", equalTo("{\"age\":2}"));
+                .body("doc_value", equalTo("{\"age\":2}"));
 
         given().header(identityHeader, "foo")
                 .when()
                 .get(arlasAppPath + id)
                 .then().statusCode(200)
                 .contentType(ContentType.JSON)
-                .body("docValue", equalTo("{\"age\":2}"))
-                .body("docKey", equalTo("foo"))
-                .body("docType", equalTo(dataType));
+                .body("doc_value", equalTo("{\"age\":2}"))
+                .body("doc_key", equalTo("foo"))
+                .body("doc_type", equalTo(dataType));
     }
 
     @Test
@@ -141,7 +141,7 @@ public class PersistenceIT {
                     .body(generateData(i))
                     .post(arlasAppPath)
                     .then().statusCode(201)
-                    .body("docValue", equalTo("{\"age\":"+i+"}"));
+                    .body("doc_value", equalTo("{\"age\":"+i+"}"));
         }
 
         given().header(identityHeader, "foo")

@@ -22,6 +22,7 @@ package io.arlas.persistence.rest;
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.persistence.model.DataResource;
 import io.arlas.persistence.model.DataWithLinks;
+import io.arlas.persistence.server.app.ArlasPersistenceServerConfiguration;
 import io.arlas.persistence.server.app.Documentation;
 import io.arlas.persistence.server.core.PersistenceService;
 import io.arlas.persistence.server.model.Data;
@@ -55,10 +56,10 @@ public class PersistenceRestService {
     private DataHALService halService;
     private String keyHeader;
 
-    public PersistenceRestService(PersistenceService persistenceService, String keyHeader) {
+    public PersistenceRestService(PersistenceService persistenceService, ArlasPersistenceServerConfiguration configuration) {
         this.persistenceService = persistenceService;
-        this.halService = new DataHALService();
-        this.keyHeader = keyHeader;
+        this.halService = new DataHALService(configuration.arlasBaseUri);
+        this.keyHeader = configuration.keyHeader;
     }
 
     @Timed

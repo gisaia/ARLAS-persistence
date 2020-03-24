@@ -41,6 +41,9 @@ public class ArlasPersistenceServerConfiguration extends Configuration {
     @JsonProperty("swagger")
     public SwaggerBundleConfiguration swaggerBundleConfiguration;
 
+    @JsonProperty("arlas-base-uri")
+    public String arlasBaseUri;
+
     @NotNull
     @JsonProperty("arlas_cors")
     public ArlasCorsConfiguration arlasCorsConfiguration;

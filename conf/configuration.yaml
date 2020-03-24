@@ -16,6 +16,12 @@ server:
   minThreads: ${ARLAS_SERVER_MIN_THREADS:-8}
   maxQueuedRequests: ${ARLAS_SERVER_MAX_QUEUED_REQUESTS:-1024}
 
+
+########################################################
+############ URL Masking                 ###############
+########################################################
+arlas-base-uri: ${ARLAS_BASE_URI:-http://localhost:81}
+
 ########################################################
 ############ LOGGING                     ###############
 ########################################################
@@ -35,7 +41,7 @@ logging:
       archivedFileCount: ${ARLAS_LOGGING_FILE_ARCHIVE_FILE_COUNT:-5}
 
 ########################################################
-############ ARLAS GTFS SERVER           ###############
+############ ARLAS PERSISTENCE SERVER           ###############
 ########################################################
 swagger: # Configuration of SWAGGER for generating documentation and APIs
   resourcePackage: io.arlas.persistence.rest # The java package to process for extracting the APIs
