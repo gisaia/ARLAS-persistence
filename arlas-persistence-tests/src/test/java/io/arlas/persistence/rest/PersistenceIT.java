@@ -44,13 +44,13 @@ public class PersistenceIT {
     static {
         identityHeader = Optional.ofNullable(System.getenv("ARLAS_PERSISTENCE_IDENTITY_HEADER")).orElse("X-Forwarded-User");
         dataType = Optional.ofNullable(System.getenv("ARLAS_PERSISTENCE_DATA_TYPE")).orElse("user_pref");
-        String arlasHost = Optional.ofNullable(System.getenv("ARLAS_SERVER_HOST")).orElse("localhost");
-        int arlasPort = Integer.valueOf(Optional.ofNullable(System.getenv("ARLAS_SERVER_PORT")).orElse("9997"));
+        String arlasHost = Optional.ofNullable(System.getenv("ARLAS_PERSISTENCE_HOST")).orElse("localhost");
+        int arlasPort = Integer.valueOf(Optional.ofNullable(System.getenv("ARLAS_PERSISTENCE_PORT")).orElse("9997"));
         RestAssured.baseURI = "http://" + arlasHost;
         RestAssured.port = arlasPort;
         RestAssured.basePath = "";
-        String arlasPrefix = Optional.ofNullable(System.getenv("ARLAS_SERVER_PREFIX")).orElse("/arlas_persistence_server");
-        arlasAppPath = Optional.ofNullable(System.getenv("ARLAS_SERVER_APP_PATH")).orElse("/");
+        String arlasPrefix = Optional.ofNullable(System.getenv("ARLAS_PERSISTENCE_PREFIX")).orElse("/arlas_persistence_server");
+        arlasAppPath = Optional.ofNullable(System.getenv("ARLAS_PERSISTENCE_APP_PATH")).orElse("/");
         if (arlasAppPath.endsWith("/"))
             arlasAppPath = arlasAppPath.substring(0, arlasAppPath.length() - 1);
         arlasAppPath = arlasAppPath + arlasPrefix;

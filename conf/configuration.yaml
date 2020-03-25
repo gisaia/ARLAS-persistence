@@ -2,43 +2,57 @@ server:
   requestLog:
     appenders:
       - type: file
-        currentLogFilename: ${ARLAS_SERVER_ACCESS_LOG_FILE:-arlas-persistence-access.log}
-        archivedLogFilenamePattern: ${ACCESS_SERVER_LOG_FILE_ARCHIVE:-arlas-persistence-access-%d.log.gz}
+        currentLogFilename: ${ARLAS_PERSISTENCE_ACCESS_LOG_FILE:-arlas-persistence-access.log}
+        archivedLogFilenamePattern: ${ARLAS_PERSISTENCE_LOG_FILE_ARCHIVE:-arlas-persistence-access-%d.log.gz}
   registerDefaultExceptionMappers: false
   type: simple
-  rootPath: ${ARLAS_SERVER_PREFIX:-/arlas_persistence_server}
-  applicationContextPath: ${ARLAS_SERVER_APP_PATH:-/}
-  adminContextPath: ${ARLAS_SERVER_ADMIN_PATH:-/admin}
+  rootPath: ${ARLAS_PERSISTENCE_PREFIX:-/arlas_persistence_server}
+  applicationContextPath: ${ARLAS_PERSISTENCE_APP_PATH:-/}
+  adminContextPath: ${ARLAS_PERSISTENCE_ADMIN_PATH:-/admin}
   connector:
     type: http
-    port: ${ARLAS_SERVER_PORT:-9997}
-  maxThreads: ${ARLAS_SERVER_MAX_THREADS:-1024}
-  minThreads: ${ARLAS_SERVER_MIN_THREADS:-8}
-  maxQueuedRequests: ${ARLAS_SERVER_MAX_QUEUED_REQUESTS:-1024}
+    port: ${ARLAS_PERSISTENCE_PORT:-9997}
+  maxThreads: ${ARLAS_PERSISTENCE_MAX_THREADS:-1024}
+  minThreads: ${ARLAS_PERSISTENCE_MIN_THREADS:-8}
+  maxQueuedRequests: ${ARLAS_PERSISTENCE_MAX_QUEUED_REQUESTS:-1024}
 
 
 ########################################################
 ############ URL Masking                 ###############
 ########################################################
-arlas-base-uri: ${ARLAS_BASE_URI:-http://localhost:81}
+arlas-base-uri: ${ARLAS_PERSISTENCE_BASE_URI:-}
 
 ########################################################
 ############ LOGGING                     ###############
 ########################################################
 # Configuration console and file LOGGING
 logging:
-  level: ${ARLAS_LOGGING_LEVEL:-INFO}
+  level: ${ARLAS_PERSISTENCE_LOGGING_LEVEL:-INFO}
   loggers:
-    "javax.management.mbeanserver": ${ARLAS_LOGGING_MBEAN_LEVEL:-INFO}
+    "javax.management.mbeanserver": ${ARLAS_PERSISTENCE_LOGGING_MBEAN_LEVEL:-INFO}
   appenders:
     - type: console
-      threshold:  ${ARLAS_LOGGING_CONSOLE_LEVEL:-INFO}
+      threshold:  ${ARLAS_PERSISTENCE_LOGGING_CONSOLE_LEVEL:-INFO}
     - type: file
-      currentLogFilename: ${ARLAS_LOGGING_FILE:-arlas.log}
-      threshold: ${ARLAS_LOGGING_FILE_LEVEL:-INFO}
-      archive: ${ARLAS_LOGGING_FILE_ARCHIVE:-true}
-      archivedLogFilenamePattern: ${ARLAS_LOGGING_FILE_ARCHIVE_FILE_PATTERN:-arlas-%d.log}
-      archivedFileCount: ${ARLAS_LOGGING_FILE_ARCHIVE_FILE_COUNT:-5}
+      currentLogFilename: ${ARLAS_PERSISTENCE_LOGGING_FILE:-arlas-persistence.log}
+      threshold: ${ARLAS_PERSISTENCE_LOGGING_FILE_LEVEL:-INFO}
+      archive: ${ARLAS_PERSISTENCE_LOGGING_FILE_ARCHIVE:-true}
+      archivedLogFilenamePattern: ${ARLAS_PERSISTENCE_LOGGING_FILE_ARCHIVE_FILE_PATTERN:-arlas-persistence-%d.log}
+      archivedFileCount: ${ARLAS_PERSISTENCE_LOGGING_FILE_ARCHIVE_FILE_COUNT:-5}
+
+
+
+########################################################
+############ ZIPKIN                      ###############
+########################################################
+# Zipkin let you analyze the API calls
+zipkin: # The ZIPIN configuration, not active by default
+  enabled: ${ARLAS_PERSISTENCE_ZIPKIN_ENABLED:-false} # Do we want zipkin to collect the API calls? Not by default.
+  serviceHost: ${ARLAS_PERSISTENCE_ZIPKIN_SERVICE_HOST:-127.0.0.1} # Listening IP address of the service
+  servicePort: ${ARLAS_PERSISTENCE_PORT:-9997} # Listening port of the service
+  collector: ${ARLAS_PERSISTENCE_ZIPKIN_COLLECTOR:-http}
+  baseUrl: ${ARLAS_PERSISTENCE_ZIPKIN_BASEURL:-http://localhost:9411} # Where is zipkin running?
+
 
 ########################################################
 ############ ARLAS PERSISTENCE SERVER           ###############
@@ -47,30 +61,16 @@ swagger: # Configuration of SWAGGER for generating documentation and APIs
   resourcePackage: io.arlas.persistence.rest # The java package to process for extracting the APIs
 
 arlas_cors:
-  allowed_origins: ${ARLAS_CORS_ALLOWED_ORIGINS:-"*"}
-  allowed_headers: ${ARLAS_CORS_ALLOWED_HEADERS:-"X-Requested-With,Content-Type,Accept,Origin,Authorization,X-Forwarded-User"}
-  allowed_methods: ${ARLAS_CORS_ALLOWED_METHODS:-"OPTIONS,GET,PUT,POST,DELETE,HEAD"}
-  allowed_credentials: ${ARLAS_CORS_ALLOWED_CREDENTIALS:-true}
-  exposed_headers: ${ARLAS_CORS_EXPOSED_HEADERS:-"Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,Location"}
+  allowed_origins: ${ARLAS_PERSISTENCE_CORS_ALLOWED_ORIGINS:-"*"}
+  allowed_headers: ${ARLAS_PERSISTENCE_CORS_ALLOWED_HEADERS:-"X-Requested-With,Content-Type,Accept,Origin,Authorization,X-Forwarded-User"}
+  allowed_methods: ${ARLAS_PERSISTENCE_CORS_ALLOWED_METHODS:-"OPTIONS,GET,PUT,POST,DELETE,HEAD"}
+  allowed_credentials: ${ARLAS_PERSISTENCE_CORS_ALLOWED_CREDENTIALS:-true}
+  exposed_headers: ${ARLAS_PERSISTENCE_CORS_EXPOSED_HEADERS:-"Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,Location"}
 
 arlas_auth:
   enabled: ${ARLAS_AUTH_ENABLED:-false}
   public_uris: [${ARLAS_AUTH_PUBLIC_URIS:-swagger,swagger.json}]
-  login_url: ${ARLAS_AUTH_LOGIN_URL:-}
   certificate_file: ${ARLAS_AUTH_CERT_FILE:-/opt/app/arlas.pem}
-
-
-########################################################
-############ ZIPKIN                      ###############
-########################################################
-# Zipkin let you analyze the API calls
-zipkin: # The ZIPIN configuration, not active by default
-  enabled: ${ARLAS_ZIPKIN_ENABLED:-false} # Do we want zipkin to collect the API calls? Not by default.
-  serviceHost: ${ARLAS_ZIPKIN_SERVICE_HOST:-127.0.0.1} # Listening IP address of the service
-  servicePort: ${ARLAS_PORT:-9997} # Listening port of the service
-  collector: ${ARLAS_ZIPKIN_COLLECTOR:-http}
-  baseUrl: ${ARLAS_ZIPKIN_BASEURL:-http://localhost:9411} # Where is zipkin running?
-
 
 key_header: ${ARLAS_PERSISTENCE_KEY_HEADER:-X-Forwarded-User}
 persistence_engine: ${ARLAS_PERSISTENCE_ENGINE:-hibernate}

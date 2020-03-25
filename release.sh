@@ -175,7 +175,6 @@ fi
 #########################################
 
 echo "=> Start arlas-persistence-server stack"
-export ARLAS_SERVER_NODE=""
 docker-compose -f ${DOCKER_COMPOSE} --project-name arlas up -d --build
 DOCKER_IP=$(docker-machine ip || echo "localhost")
 

@@ -22,10 +22,10 @@ services:
     image: gisaia/arlas-persistence-server:${ARLAS_VERSION:-latest}
     container_name: arlas-persistence-server
     environment:
-      - ARLAS_SERVER_HOST="${ARLAS_SERVER_HOST:-localhost}"
-      - ARLAS_SERVER_PORT="${ARLAS_SERVER_PORT:-9997}"
-      - ARLAS_SERVER_PREFIX="${ARLAS_SERVER_PREFIX:-/arlas_persistence_server}"
-      - ARLAS_SERVER_APP_PATH="${ARLAS_SERVER_APP_PATH:-/}"
+      - ARLAS_PERSISTENCE_HOST="${ARLAS_PERSISTENCE_HOST:-localhost}"
+      - ARLAS_PERSISTENCE_PORT="${ARLAS_PERSISTENCE_PORT:-9997}"
+      - ARLAS_PERSISTENCE_PREFIX="${ARLAS_PERSISTENCE_PREFIX:-/arlas_persistence_server}"
+      - ARLAS_PERSISTENCE_APP_PATH="${ARLAS_PERSISTENCE_APP_PATH:-/}"
       - ARLAS_AUTH_ENABLED="${ARLAS_AUTH_ENABLED:-false}"
       - ARLAS_PERSISTENCE_KEY_HEADER="${ARLAS_PERSISTENCE_KEY_HEADER:-X-Forwarded-User}"
       - ARLAS_PERSISTENCE_ENGINE="${ARLAS_PERSISTENCE_ENGINE:-hibernate}"
@@ -40,5 +40,5 @@ services:
       - 19997:9997
     volumes:
       - ${GOOGLE_APPLICATION_CREDENTIALS:-/tmp}:/opt/app/google-registry.json:ro
-      - ${ARLAS_AUTH_LOCAL_CERT_FILE:-/tmp}:${ARLAS_AUTH_CERT_FILE:-/opt/app/arlas.pem}:ro
+      - ${ARLAS_AUTH_LOCAL_CERT_FILE:-/tmp}:${ARLAS_AUTH_LOCAL_CERT_FILE:-/opt/app/arlas.pem}:ro
     command: ["/opt/app/start.sh"]
