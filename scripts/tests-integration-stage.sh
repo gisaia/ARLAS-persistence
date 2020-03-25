@@ -64,9 +64,9 @@ function test_rest_server() {
         -w /opt/maven \
         -v $PWD:/opt/maven \
         -v $HOME/.m2:/root/.m2 \
-        -e ARLAS_SERVER_HOST="arlas-persistence-server" \
-        -e ARLAS_SERVER_PREFIX="arlas_persistence_server" \
-        -e ARLAS_SERVER_APP_PATH=${ARLAS_SERVER_APP_PATH} \
+        -e ARLAS_PERSISTENCE_HOST="arlas-persistence-server" \
+        -e ARLAS_PERSISTENCE_PREFIX="arlas_persistence_server" \
+        -e ARLAS_PERSISTENCE_APP_PATH=${ARLAS_PERSISTENCE_APP_PATH} \
         --net arlas_default \
         maven:3.5.0-jdk-8 \
         mvn -Dit.test=PersistenceIT verify -DskipTests=false -DfailIfNoTests=false
