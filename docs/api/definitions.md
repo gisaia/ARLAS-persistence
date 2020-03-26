@@ -7,33 +7,11 @@
 
 |Name|Schema|
 |---|---|
-|**id**   <br>*mandatory*|string|
-|**dock_key**   <br>*mandatory*|string|
-|**creation_date**  <br>*mandatory*|string(date-time)|
-|**doc_value**  <br>*mandatory*|string|
-|**doc_type**  <br>*mandatory*|string|
-
-<a name="link"></a>
-### Link
-
-|Name|Schema|
-|---|---|
-|**relation**  <br>*mandatory*|string|
-|**href**  <br>*mandatory*|string|
-|**type**  <br>*mandatory*|string|
-|**method**  <br>*mandatory*|string|
-
-<a name="datawithlinks"></a>
-### DataWithLinks
-
-|Name|Schema|
-|---|---|
-|**id**   <br>*mandatory*|string|
-|**dock_key**   <br>*mandatory*|string|
-|**creation_date**  <br>*mandatory*|string(date-time)|
-|**doc_value**  <br>*mandatory*|string|
-|**doc_type**  <br>*mandatory*|string|
-|**_links**  <br>*mandatory*|< string, [Link](#link) > map|
+|**creation_date**  <br>*optional*|string (date-time)|
+|**doc_key**  <br>*required*|string|
+|**doc_type**  <br>*required*|string|
+|**doc_value**  <br>*optional*|string|
+|**id**  <br>*optional*|string|
 
 
 <a name="dataresource"></a>
@@ -41,16 +19,44 @@
 
 |Name|Schema|
 |---|---|
-|**count**  <br>*mandatory*|integer(int32)|
-|**total**  <br>*mandatory*|integer(int64)|
-|**_links**  <br>*mandatory*|< string, [Link](#link) > map|
-|**data**  <br>*optional*|<[DataWithLinks](#datawithlinks)> array|
+|**_links**  <br>*optional*|< string, [Link](#link) > map|
+|**count**  <br>*optional*|integer (int32)|
+|**data**  <br>*optional*|< [DataWithLinks](#datawithlinks) > array|
+|**total**  <br>*optional*|integer (int64)|
+
+
+<a name="datawithlinks"></a>
+### DataWithLinks
+
+|Name|Schema|
+|---|---|
+|**_links**  <br>*optional*|< string, [Link](#link) > map|
+|**creation_date**  <br>*optional*|string (date-time)|
+|**doc_key**  <br>*required*|string|
+|**doc_type**  <br>*required*|string|
+|**doc_value**  <br>*optional*|string|
+|**id**  <br>*optional*|string|
+
 
 <a name="error"></a>
 ### Error
 
 |Name|Schema|
 |---|---|
-|**status**  <br>*optional*|integer(int32)|
-|**message**  <br>*optional*|string|
 |**error**  <br>*optional*|string|
+|**message**  <br>*optional*|string|
+|**status**  <br>*optional*|integer (int32)|
+
+
+<a name="link"></a>
+### Link
+
+|Name|Schema|
+|---|---|
+|**href**  <br>*required*|string|
+|**method**  <br>*required*|string|
+|**relation**  <br>*required*|string|
+|**type**  <br>*required*|string|
+
+
+

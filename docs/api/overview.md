@@ -1,9 +1,9 @@
-# ARLAS Peristence API
+# ARLAS persistence API
 
 
 <a name="overview"></a>
 ## Overview
-Store and retrieve data from different storage systems
+persistence REST services
 
 
 ### Version information
@@ -29,7 +29,6 @@ Store and retrieve data from different storage systems
 ### Tags
 
 * persistence
-* key/value store
 
 
 

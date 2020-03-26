@@ -1,111 +1,35 @@
+
 <a name="paths"></a>
 ## Resources
 
 <a name="persistence_resource"></a>
 ### Persistence
 
-<a name="getall_1"></a>
-#### Get all data persisted
-```
-GET /persistence
-```
-
-##### Description
-Get all persistence data referenced in ARLAS-Pertistence storage for a a key and a type. The key is passed through a custom header defined in configuration.
-
-
-##### Parameters
-
-|Type|Name|Description|Schema|Default|
-|---|---|---|---|---|
-|**Query**|**type**  <br>*mandatory*|Type of the document|string|`"pref"`|
-|**Query**|**size**  <br>*optional*|Page Size|string|`10`|
-|**Query**|**page**  <br>*optional*|Page ID|string|`1`|
-|**Query**|**order**  <br>*optional*|Page ID|enum("desc,"asc")|`"desc"`|
-|**Query**|**pretty**  <br>*optional*|Pretty print|boolean|`"false"`|
-
-
-##### Responses
-
-|HTTP Code|Description|Schema|
-|---|---|---|
-|**200**|Successful operation|[DataResource](#dataresource)|
-|**404**|Key not found|[Error](#error)|
-|**500**|Arlas Server Error|[Error](#error)|
-
-
-##### Consumes
-
-* `application/json;charset=utf-8`
-
-
-##### Produces
-
-* `application/json;charset=utf-8`
-
-
-<a name="get_1"></a>
-#### Get an entry reference
-```
-GET /persistence/{id}
-```
-
-
-##### Description
-Fetch an entry given its key and id. The key is passed through a custom header defined in configuration.
-
-##### Parameters
-
-|Type|Name|Description|Schema|Default|
-|---|---|---|---|---|
-|**Path**|**id**  <br>*required*|The id of the data|string||
-|**Query**|**pretty**  <br>*optional*|Pretty print|boolean|`"false"`|
-
-
-##### Responses
-
-|HTTP Code|Description|Schema|
-|---|---|---|
-|**200**|Successful operation|[DataWithLinks](#datawithlinks)|
-|**404**|Key or id not found|[Error](#error)|
-|**500**|Arlas Server Error|[Error](#error)|
-
-
-
-##### Consumes
-
-* `application/json;charset=utf-8`
-
-
-##### Produces
-
-* `application/json;charset=utf-8`
-
-
-<a name="post_1"></a>
-#### Add an entry
+<a name="create"></a>
+#### Store a new piece of data for the provided key (auto generate id)
 ```
 POST /persistence
 ```
 
 
 ##### Description
-Store a new piece of data for the provided key and type (auto generate id)
+Store a new piece of data for the provided key (auto generate id)
+
 
 ##### Parameters
 
 |Type|Name|Description|Schema|Default|
 |---|---|---|---|---|
-|**Query**|**type**  <br>*required*|Type of the document|string||
-|**Body**|**value**  <br>*required*|Value to be persisted. Valid json as string|string||
 |**Query**|**pretty**  <br>*optional*|Pretty print|boolean|`"false"`|
+|**Query**|**type**  <br>*required*|Type of the document.|string|`"hibernate"`|
+|**Body**|**value**  <br>*required*|Value to be persisted.|string||
 
 
 ##### Responses
 
 |HTTP Code|Description|Schema|
 |---|---|---|
-|**200**|Successful operation.|[DataWithLinks](#datawithlinks)|
+|**201**|Successful operation|[DataWithLinks](#datawithlinks)|
 |**500**|Arlas Server Error.|[Error](#error)|
 
 
@@ -119,23 +43,103 @@ Store a new piece of data for the provided key and type (auto generate id)
 * `application/json;charset=utf-8`
 
 
+<a name="list"></a>
+#### Fetch a list of data related to a key.
+```
+GET /persistence
+```
 
-<a name="put_1"></a>
-#### Update an existing value
-```
-PUT /persistence/{id}
-```
 
 ##### Description
-Update an existing value with its key and id. The key is passed through a custom header defined in configuration.
+Fetch a list of data related to a key.
+
 
 ##### Parameters
 
 |Type|Name|Description|Schema|Default|
 |---|---|---|---|---|
-|**Path**|**id**  <br>*required*|The id of the data|string||
-|**Query**|**value**  <br>*required*|Value to be persisted|string||
+|**Query**|**order**  <br>*optional*|Date sort order|enum (desc, asc)|`"desc"`|
+|**Query**|**page**  <br>*optional*|Page ID|integer (int32)|`1`|
 |**Query**|**pretty**  <br>*optional*|Pretty print|boolean|`"false"`|
+|**Query**|**size**  <br>*optional*|Page Size|integer (int32)|`10`|
+|**Query**|**type**  <br>*required*|Type of the document.|string|`"pref"`|
+
+
+##### Responses
+
+|HTTP Code|Description|Schema|
+|---|---|---|
+|**200**|Successful operation|[DataResource](#dataresource)|
+|**404**|Key not found.|[Error](#error)|
+|**500**|Arlas Server Error.|[Error](#error)|
+
+
+##### Consumes
+
+* `application/json;charset=utf-8`
+
+
+##### Produces
+
+* `application/json;charset=utf-8`
+
+
+<a name="get"></a>
+#### Fetch an entry given its key and id.
+```
+GET /persistence/{id}
+```
+
+
+##### Description
+Fetch an entry given its key and id.
+
+
+##### Parameters
+
+|Type|Name|Description|Schema|Default|
+|---|---|---|---|---|
+|**Path**|**id**  <br>*required*|The id of the data.|string||
+|**Query**|**pretty**  <br>*optional*|Pretty print|boolean|`"false"`|
+
+
+##### Responses
+
+|HTTP Code|Description|Schema|
+|---|---|---|
+|**200**|Successful operation|[DataWithLinks](#datawithlinks)|
+|**404**|Key or id not found.|[Error](#error)|
+|**500**|Arlas Server Error.|[Error](#error)|
+
+
+##### Consumes
+
+* `application/json;charset=utf-8`
+
+
+##### Produces
+
+* `application/json;charset=utf-8`
+
+
+<a name="update"></a>
+#### Update an existing value.
+```
+PUT /persistence/{id}
+```
+
+
+##### Description
+Update an existing value.
+
+
+##### Parameters
+
+|Type|Name|Description|Schema|Default|
+|---|---|---|---|---|
+|**Path**|**id**  <br>*required*|The id of the data.|string||
+|**Query**|**pretty**  <br>*optional*|Pretty print|boolean|`"false"`|
+|**Body**|**value**  <br>*required*|Value to be persisted.|string||
 
 
 ##### Responses
@@ -157,22 +161,22 @@ Update an existing value with its key and id. The key is passed through a custom
 * `application/json;charset=utf-8`
 
 
-<a name="delete_1"></a>
-#### Delete an entry
+<a name="delete"></a>
+#### Delete an entry given its key and id.
 ```
 DELETE /persistence/{id}
 ```
 
 
 ##### Description
-Delete a entry given its id
+Delete an entry given its key and id.
 
 
 ##### Parameters
 
 |Type|Name|Description|Schema|Default|
 |---|---|---|---|---|
-|**Path**|**id**  <br>*required*|The id of the data|string||
+|**Path**|**id**  <br>*required*|The id of the data.|string||
 |**Query**|**pretty**  <br>*optional*|Pretty print|boolean|`"false"`|
 
 
@@ -180,7 +184,7 @@ Delete a entry given its id
 
 |HTTP Code|Description|Schema|
 |---|---|---|
-|**202**|Successful operation|[Success](#success)|
+|**202**|Successful operation|[Data](#data)|
 |**404**|Key or id not found.|[Error](#error)|
 |**500**|Arlas Server Error.|[Error](#error)|
 
@@ -193,3 +197,6 @@ Delete a entry given its id
 ##### Produces
 
 * `application/json;charset=utf-8`
+
+
+
