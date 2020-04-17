@@ -277,7 +277,7 @@ cd ${BASEDIR}
 
 if [ "$RELEASE" == "YES" ]; then
     echo "=> Tag arlas-persistence-server docker image"
-    docker tag gisaia/arlas-persistence-server:${ARLAS_persistence_VERSION} gisaia/arlas-persistence-server:latest
+    docker tag gisaia/arlas-persistence-server:latest gisaia/arlas-persistence-server:${ARLAS_persistence_VERSION}
     echo "=> Push arlas-persistence-server docker image"
     docker push gisaia/arlas-persistence-server:${ARLAS_persistence_VERSION}
     docker push gisaia/arlas-persistence-server:latest
