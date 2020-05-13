@@ -79,7 +79,7 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
     @Override
     public Data update(String id, String value) throws ArlasException {
         Data data = getById(id);
-        data.setDocValue(value);
+        data.setDocValue(value, true);
         return persist(data);
     }
 

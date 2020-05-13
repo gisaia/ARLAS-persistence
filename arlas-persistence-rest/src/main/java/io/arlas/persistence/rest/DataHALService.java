@@ -27,7 +27,6 @@ import io.arlas.persistence.server.utils.SortOrder;
 import io.arlas.server.utils.StringUtil;
 import org.apache.commons.lang3.tuple.Pair;
 
-import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.util.HashMap;
 import java.util.List;
