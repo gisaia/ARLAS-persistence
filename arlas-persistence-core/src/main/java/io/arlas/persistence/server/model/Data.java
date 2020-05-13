@@ -113,8 +113,14 @@ public class Data {
     public void setCreationDate(Date date) { this.creationDate = date; }
 
     public void setDocValue(String docValue) {
+        this.setDocValue(docValue, false);
+    }
+
+    public void setDocValue(String docValue, boolean updateCreationDate) {
         this.docValue = docValue;
-        this.creationDate = new Date();
+        if (updateCreationDate) {
+            this.creationDate = new Date();
+        }
     }
 
     @Override
