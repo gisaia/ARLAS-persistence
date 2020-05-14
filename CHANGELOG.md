@@ -1,5 +1,13 @@
 # Change Log
 
+## [v12.0.2](https://github.com/gisaia/arlas-persistence/tree/v12.0.2) (2020-05-14)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v12.0.0...v12.0.2)
+
+**Miscellaneous:**
+
+- Property `Creation Date` always return current date instead of the stored one [\#11](https://github.com/gisaia/ARLAS-persistence/issues/11)
+
 ## [v12.0.0](https://github.com/gisaia/arlas-persistence/tree/v12.0.0) (2020-03-26)
 
 [Full Changelog](https://github.com/gisaia/arlas-persistence/compare/b87267f440e058143307576b592e25a6c686b473...v12.0.0)
