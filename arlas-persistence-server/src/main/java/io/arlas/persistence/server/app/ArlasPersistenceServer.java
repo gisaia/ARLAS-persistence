@@ -112,12 +112,13 @@ public class ArlasPersistenceServer extends Application<ArlasPersistenceServerCo
 
 
         PersistenceService persistenceService = null;
+        LOGGER.info("Starting with " + configuration.engine + " persistence engine");
         switch (configuration.engine) {
             case "hibernate":
                 persistenceService = new HibernatePersistenceServiceImpl(hibernate.getSessionFactory());
                 break;
             case "firestore":
-                persistenceService = new GoogleFirestorePersistenceServiceImpl();
+                persistenceService = new GoogleFirestorePersistenceServiceImpl(configuration.firestoreCollection);
                 break;
             default:
                 LOGGER.error("Engine not supported: " + configuration.engine +  " (valid values are: 'hibernate' or 'firestore').");

@@ -26,7 +26,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.List;
 
 public interface PersistenceService {
-    String collection = "user_data";
 
     Pair<Long, List<Data>> list(String type, String key, Integer size, Integer page, SortOrder order) throws ArlasException;
 

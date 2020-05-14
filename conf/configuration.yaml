@@ -74,6 +74,7 @@ arlas_auth:
 
 key_header: ${ARLAS_PERSISTENCE_KEY_HEADER:-X-Forwarded-User}
 persistence_engine: ${ARLAS_PERSISTENCE_ENGINE:-hibernate}
+firestore_collection: ${ARLAS_PERSISTENCE_FIRESTORE_COLLECTION:-}
 
 database:
   # the name of your JDBC driver

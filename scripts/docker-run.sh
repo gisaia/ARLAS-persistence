@@ -25,7 +25,7 @@ function clean_exit {
 }
 trap clean_exit EXIT
 
-export ARLAS_DROPWIZARDSTUB_SERVER_VERSION=`xmlstarlet sel -t -v /_:project/_:version pom.xml`
+export ARLAS_PERSISTENCE_SERVER_VERSION=`xmlstarlet sel -t -v /_:project/_:version pom.xml`
 
 # GO TO PROJECT PATH
 SCRIPT_PATH=`cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd`
@@ -39,7 +39,7 @@ docker run --rm \
 	-v $HOME/.m2:/root/.m2 \
 	maven:3.5.0-jdk-8 \
 	mvn clean install
-echo "arlas-persistence-server:${ARLAS_DROPWIZARDSTUB_SERVER_VERSION}"
+echo "arlas-persistence-server:${ARLAS_PERSISTENCE_SERVER_VERSION}"
 
 echo "===> start arlas-persistence-server stack"
 docker-compose -f ${DOCKER_COMPOSE} --project-name arlas up -d ${BUILD_OPTS}
