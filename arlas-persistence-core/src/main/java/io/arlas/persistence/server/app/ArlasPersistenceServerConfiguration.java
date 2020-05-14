@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 import io.arlas.server.app.ArlasAuthConfiguration;
 import io.arlas.server.exceptions.ArlasConfigurationException;
+import io.arlas.server.utils.StringUtil;
 import io.dropwizard.Configuration;
 import io.dropwizard.db.DataSourceFactory;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
@@ -58,19 +59,27 @@ public class ArlasPersistenceServerConfiguration extends Configuration {
     @JsonProperty("persistence_engine")
     public String engine;
 
+    @JsonProperty("firestore_collection")
+    public String firestoreCollection;
+
     public void check() throws ArlasConfigurationException {
         if (arlasAuthConfiguration == null) {
             arlasAuthConfiguration = new ArlasAuthConfiguration();
             arlasAuthConfiguration.enabled = false;
         }
-        if(arlasCorsConfiguration.allowedHeaders == null){
+        if (arlasCorsConfiguration.allowedHeaders == null) {
             throw new ArlasConfigurationException("Arlas Alllowed Headers Configuration configuration missing in config file.");
-        }else{
+        } else {
             boolean keyHeaderIsAllowed = Arrays.stream(arlasCorsConfiguration.allowedHeaders.split(","))
                     .map(String::trim)
                     .anyMatch(header-> header.equals(keyHeader));
-            if(!keyHeaderIsAllowed){
+            if (!keyHeaderIsAllowed) {
                 throw new ArlasConfigurationException("Key header is not in Arlas Alllowed Headers.");
+            }
+        }
+        if ("firestore".equals(engine)) {
+            if (StringUtil.isNullOrEmpty(firestoreCollection)) {
+                throw new ArlasConfigurationException("Configuration 'firestore_collection' is required when using engine 'firestore'");
             }
         }
     }

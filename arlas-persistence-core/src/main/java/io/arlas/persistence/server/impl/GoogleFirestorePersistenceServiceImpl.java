@@ -19,9 +19,14 @@
 
 package io.arlas.persistence.server.impl;
 
+import com.google.api.gax.rpc.AlreadyExistsException;
 import com.google.api.gax.rpc.FailedPreconditionException;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
+import com.google.cloud.firestore.v1.FirestoreAdminClient;
+import com.google.firestore.admin.v1.Index;
+import com.google.firestore.admin.v1.ParentName;
+import com.google.longrunning.Operation;
 import io.arlas.persistence.server.core.PersistenceService;
 import io.arlas.persistence.server.model.Data;
 import io.arlas.persistence.server.utils.SortOrder;
@@ -31,6 +36,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -38,10 +44,47 @@ import java.util.stream.Collectors;
 public class GoogleFirestorePersistenceServiceImpl implements PersistenceService {
     protected static Logger LOGGER = LoggerFactory.getLogger(GoogleFirestorePersistenceServiceImpl.class);
 
-    private Firestore db;
+    private final String collection;
+    private final Firestore db;
 
-    public GoogleFirestorePersistenceServiceImpl() {
-        db = FirestoreOptions.getDefaultInstance().getService();
+    public GoogleFirestorePersistenceServiceImpl(String collection) {
+        this.collection = collection;
+        this.db = FirestoreOptions.getDefaultInstance().getService();
+
+        LOGGER.info("Creating indices for collection " + collection);
+        try (FirestoreAdminClient firestoreAdminClient = FirestoreAdminClient.create()) {
+            ParentName parent = ParentName.of(db.getOptions().getProjectId(), db.getOptions().getDatabaseId(), collection);
+            try {
+                firestoreAdminClient.createIndex(parent,
+                        Index.newBuilder()
+                                .addFields(Index.IndexField.newBuilder()
+                                        .setFieldPath(Data.keyColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
+                                .addFields(Index.IndexField.newBuilder()
+                                        .setFieldPath(Data.typeColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
+                                .addFields(Index.IndexField.newBuilder()
+                                        .setFieldPath(Data.dateColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
+                                .setQueryScope(Index.QueryScope.COLLECTION)
+                                .build());
+            } catch (AlreadyExistsException e) {
+                LOGGER.debug("Firestore index1 was already created");
+            } catch (Exception e) {
+                LOGGER.error("Could not create Firestore index1, it will need to be created manually", e);
+            }
+            try {
+                firestoreAdminClient.createIndex(parent, Index.newBuilder()
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.keyColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.typeColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.dateColumn).setOrder(Index.IndexField.Order.DESCENDING).build())
+                        .setQueryScope(Index.QueryScope.COLLECTION)
+                        .build());
+            } catch (AlreadyExistsException e) {
+                LOGGER.debug("Firestore index2 was already created");
+            } catch (Exception e) {
+                LOGGER.error("Could not create Firestore index2, it will need to be created manually", e);
+            }
+        } catch (IOException e) {
+            LOGGER.error("Could not create Firestore indices", e);
+        }
     }
 
     private Data toData(String id, DocumentSnapshot d) throws NotFoundException {
@@ -58,14 +101,14 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
     public Pair<Long, List<Data>> list(String type, String key, Integer size, Integer page, SortOrder order) throws ArlasException {
         try {
             return Pair.of(
-                    new Long(db.collection(PersistenceService.collection)
+                    new Long(db.collection(this.collection)
                             .whereEqualTo(Data.typeColumn, type)
                             .whereEqualTo(Data.keyColumn, key)
                             .get()
                             .get()
                             .size()),
 
-                    db.collection(PersistenceService.collection)
+                    db.collection(this.collection)
                             .whereEqualTo(Data.typeColumn, type)
                             .whereEqualTo(Data.keyColumn, key)
                             .orderBy(Data.dateColumn, order == SortOrder.ASC ? Query.Direction.ASCENDING : Query.Direction.DESCENDING)

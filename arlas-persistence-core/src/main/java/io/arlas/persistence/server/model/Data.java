@@ -35,7 +35,7 @@ import java.util.Objects;
 
 
 @Entity
-@Table(name = PersistenceService.collection)
+@Table(name = "user_data")
 @TypeDef(name = "json", typeClass = JsonBinaryType.class)
 @JsonSnakeCase
 public class Data {
