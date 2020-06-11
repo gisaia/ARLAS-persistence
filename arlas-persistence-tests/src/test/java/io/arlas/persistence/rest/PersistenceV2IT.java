@@ -31,19 +31,13 @@ import java.util.Optional;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class PersistenceIT {
+public class PersistenceV2IT {
     protected static String arlasAppPath;
-    private static final String identityHeader;
-    private static final String dataType;
     private static String id;
 
     static {
-        identityHeader = Optional.ofNullable(System.getenv("ARLAS_PERSISTENCE_IDENTITY_HEADER")).orElse("X-Forwarded-User");
-        dataType = Optional.ofNullable(System.getenv("ARLAS_PERSISTENCE_DATA_TYPE")).orElse("user_pref");
         String arlasHost = Optional.ofNullable(System.getenv("ARLAS_PERSISTENCE_HOST")).orElse("localhost");
         int arlasPort = Integer.valueOf(Optional.ofNullable(System.getenv("ARLAS_PERSISTENCE_PORT")).orElse("9997"));
         RestAssured.baseURI = "http://" + arlasHost;
@@ -60,103 +54,127 @@ public class PersistenceIT {
             arlasAppPath = arlasAppPath + "/persistence/";
     }
 
-
     @Test
-    public void test01ListEmpty() {
-        given().header(identityHeader, "foo")
-                .param("type", dataType)
+    public void test01Noresult() {
+        given().pathParam("box", "foo")
+                .pathParam("key", "bar")
                 .param("order", "asc")
                 .param("size", "1")
                 .param("page", "1")
                 .when()
-                .get(arlasAppPath)
-                .then().statusCode(200)
-                .contentType(ContentType.JSON)
-                .body("count", equalTo(0))
-                .body("total", equalTo(0));
+                .get(arlasAppPath.concat("v2/{box}/{key}"))
+                .then().statusCode(404);
     }
 
     @Test
     public void test02PostData() {
-        id = given().header(identityHeader, "foo")
-                .queryParam("type", dataType)
+         given().pathParam("box", "box1")
+                .pathParam("key", "key1")
                 .contentType("application/json")
                 .body(generateData(1))
-                .post(arlasAppPath)
+                .when()
+                .post(arlasAppPath.concat("v2/{box}/{key}"))
                 .then().statusCode(201)
                 .body("doc_value", equalTo("{\"age\":1}"))
+                .extract().jsonPath().get("id");
+
+         given().pathParam("box", "box1")
+                .pathParam("key", "key2")
+                .contentType("application/json")
+                .body(generateData(2))
+                .when()
+                .post(arlasAppPath.concat("v2/{box}/{key}"))
+                .then().statusCode(201)
+                .body("doc_value", equalTo("{\"age\":2}"))
                 .extract().jsonPath().get("id");
     }
 
     @Test
     public void test03GetData() {
-        given().header(identityHeader, "foo")
+        given().pathParam("box", "box1")
+                .pathParam("key", "key1")
                 .when()
-                .get(arlasAppPath + id)
+                .get(arlasAppPath.concat("v2/{box}/{key}"))
                 .then().statusCode(200)
                 .contentType(ContentType.JSON)
                 .body("doc_value", equalTo("{\"age\":1}"))
-                .body("doc_key", equalTo("foo"))
-                .body("doc_type", equalTo(dataType));
+                .body("doc_key", equalTo("key1"))
+                .body("doc_type", equalTo("box1"));
     }
 
     @Test
     public void test04PutData() {
-        given().header(identityHeader, "foo")
+        given().pathParam("box", "box1")
+                .pathParam("key", "key2")
                 .contentType("application/json")
-                .body(generateData(2))
-                .put(arlasAppPath + id)
-                .then().statusCode(201)
-                .body("doc_value", equalTo("{\"age\":2}"));
-
-        given().header(identityHeader, "foo")
+                .body(generateData(3))
                 .when()
-                .get(arlasAppPath + id)
+                .put(arlasAppPath.concat("v2/{box}/{key}"))
+                .then().statusCode(201)
+                .body("doc_value", equalTo("{\"age\":3}"));
+
+        given().pathParam("box", "box1")
+                .pathParam("key", "key2")
+                .when()
+                .get(arlasAppPath.concat("v2/{box}/{key}"))
                 .then().statusCode(200)
                 .contentType(ContentType.JSON)
-                .body("doc_value", equalTo("{\"age\":2}"))
-                .body("doc_key", equalTo("foo"))
-                .body("doc_type", equalTo(dataType));
+                .body("doc_value", equalTo("{\"age\":3}"))
+                .body("doc_key", equalTo("key2"))
+                .body("doc_type", equalTo("box1"));
     }
 
     @Test
     public void test05DeleteData() {
-        given().header(identityHeader, "foo")
+        given().pathParam("box", "box1")
+                .pathParam("key", "key2")
                 .contentType("application/json")
-                .delete(arlasAppPath + id)
-                .then().statusCode(202)
-                .body("id", equalTo(id));
-
-        given().header(identityHeader, "foo")
                 .when()
-                .get(arlasAppPath + id)
+                .delete(arlasAppPath.concat("v2/{box}/{key}"))
+                .then().statusCode(202)
+                .body("doc_key", equalTo("key2"));
+
+
+        given().pathParam("box", "box1")
+                .pathParam("key", "key1")
+                .contentType("application/json")
+                .when()
+                .delete(arlasAppPath.concat("v2/{box}/{key}"))
+                .then().statusCode(202)
+                .body("doc_key", equalTo("key1"));
+
+        given().pathParam("box", "box1")
+                .pathParam("key", "key1")
+                .when()
+                .get(arlasAppPath.concat("v2/{box}/{key}"))
                 .then().statusCode(404);
     }
 
     @Test
     public void test06ListWithPagination() {
         for (int i=0; i<7; i++) {
-            given().header(identityHeader, "foo")
-                    .queryParam("type", dataType)
+            given().pathParam("box", "box1")
+                    .pathParam("key", "key"+String.valueOf(i))
                     .contentType("application/json")
                     .body(generateData(i))
-                    .post(arlasAppPath)
+                    .post(arlasAppPath.concat("v2/{box}/{key}"))
                     .then().statusCode(201)
                     .body("doc_value", equalTo("{\"age\":"+i+"}"));
         }
 
-        given().header(identityHeader, "foo")
-                .param("type", dataType)
+        given().pathParam("box", "box1")
                 .param("order", "asc")
                 .param("size", "2")
                 .param("page", "4")
                 .when()
-                .get(arlasAppPath)
+                .get(arlasAppPath.concat("v2/{box}"))
                 .then().statusCode(200)
                 .contentType(ContentType.JSON)
                 .body("count", equalTo(1))
                 .body("total", equalTo(7));
     }
+
+
 
 
     protected Map<String, Object> generateData(Integer value) {

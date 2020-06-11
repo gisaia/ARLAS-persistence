@@ -26,7 +26,6 @@ import com.google.cloud.firestore.*;
 import com.google.cloud.firestore.v1.FirestoreAdminClient;
 import com.google.firestore.admin.v1.Index;
 import com.google.firestore.admin.v1.ParentName;
-import com.google.longrunning.Operation;
 import io.arlas.persistence.server.core.PersistenceService;
 import io.arlas.persistence.server.model.Data;
 import io.arlas.persistence.server.utils.SortOrder;
@@ -96,6 +95,16 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
                 d.getString(Data.valueColumn), d.getId(), d.getDate(Data.dateColumn));
     }
 
+    private Data toData(String type, String key ,DocumentSnapshot d) throws NotFoundException {
+        if (!d.exists()) {
+            throw new NotFoundException("Doc not found with key: " + key + " and type: " + type);
+        }
+
+        return new Data(d.getString(Data.typeColumn), d.getString(Data.keyColumn),
+                d.getString(Data.valueColumn), d.getId(), d.getDate(Data.dateColumn));
+    }
+
+
 
     @Override
     public Pair<Long, List<Data>> list(String type, String key, Integer size, Integer page, SortOrder order) throws ArlasException {
@@ -136,9 +145,68 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
     }
 
     @Override
+    public Pair<Long, List<String>> listKeyByType(String type, Integer size, Integer page, SortOrder order) throws ArlasException {
+        try {
+            return Pair.of(
+                    new Long(db.collection(this.collection)
+                            .whereEqualTo(Data.typeColumn, type)
+                            .get()
+                            .get()
+                            .size()),
+                    db.collection(this.collection)
+                            .whereEqualTo(Data.typeColumn, type)
+                            .orderBy(Data.dateColumn, order == SortOrder.ASC ? Query.Direction.ASCENDING : Query.Direction.DESCENDING)
+                            .limit(size)
+                            .offset((page - 1) * size)
+                            .get()
+                            .get()
+                            .getDocuments()
+                            .stream()
+                            .map(d -> {
+                                try {
+                                    return toData(d.getId(), d).getDocKey();
+                                } catch (NotFoundException e) { //can't happen in this case
+                                    return null;
+                                }
+                            })
+                            .filter(d -> d != null)
+                            .collect(Collectors.toList()));
+        } catch (FailedPreconditionException e) {
+            LOGGER.error(e.getMessage()); // happens when index is missing
+            throw new ArlasException("Error listing document: " + e.getMessage());
+        } catch (InterruptedException | ExecutionException e) {
+            throw new ArlasException("Error listing document: " + e.getMessage());
+        }
+    }
+
+
+    @Override
     public Data getById(String id) throws ArlasException {
         try {
             return toData(id, db.collection(collection).document(id).get().get());
+        } catch (InterruptedException | ExecutionException e) {
+            throw new ArlasException("Could not get document: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public Data getByTypeKey(String type, String key) throws ArlasException {
+        try {
+            List<QueryDocumentSnapshot> docRef = db.collection(collection)
+                    .whereEqualTo(Data.typeColumn, type)
+                    .whereEqualTo(Data.keyColumn, key)
+                    .get().get().getDocuments();
+            List<Data> dataList = docRef.stream()
+                    .map(d -> {
+                        try {
+                            return toData(d.getId(), d);
+                        } catch (NotFoundException e) { //can't happen in this case
+                            return null;
+                        }
+                    })
+                    .filter(d -> d != null)
+                    .collect(Collectors.toList());
+            return dataList.get(0);
         } catch (InterruptedException | ExecutionException e) {
             throw new ArlasException("Could not get document: " + e.getMessage());
         }
@@ -172,6 +240,43 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
     }
 
     @Override
+    public Data updateByTypeKey(String type, String key, String value) throws ArlasException {
+        try {
+            List<QueryDocumentSnapshot> docRef = db.collection(collection)
+                    .whereEqualTo(Data.typeColumn, type)
+                    .whereEqualTo(Data.keyColumn, key)
+                    .get().get().getDocuments();
+            List<Data> dataList = docRef.stream()
+                    .map(d -> {
+                        try {
+                            return toData(d.getId(), d);
+                        } catch (NotFoundException e) { //can't happen in this case
+                            return null;
+                        }
+                    })
+                    .filter(d -> d != null)
+                    .collect(Collectors.toList());
+
+            docRef.stream().forEach(d-> {
+                try {
+                    Data data = toData(d.getId(), d);
+                    data.setDocValue(value);
+                    String id = d.getReference().getId();
+                    Timestamp result =  d.getReference().set(data).get().getUpdateTime();
+                    LOGGER.debug("Updated doc " + id + " "   + type + " "  + key +" at " + result);
+                }  catch (InterruptedException | NotFoundException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+            });
+            return dataList.get(0);
+        } catch  (InterruptedException | ExecutionException e) {
+            throw new ArlasException("Error deleting document", e);
+        }
+    }
+
+    @Override
     public Data delete(String id) throws ArlasException {
         try {
             DocumentReference docRef = db.collection(collection).document(id);
@@ -180,7 +285,42 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
             LOGGER.debug("Delete doc " + id + " at " + result);
             return data;
         } catch (InterruptedException | ExecutionException e) {
-            throw new ArlasException("Error updating document", e);
+            throw new ArlasException("Error deleting document", e);
+        }
+    }
+
+    @Override
+    public Data deleteByTypeKey(String type, String key) throws ArlasException {
+        try {
+            List<QueryDocumentSnapshot> docRef = db.collection(collection)
+                    .whereEqualTo(Data.typeColumn, type)
+                    .whereEqualTo(Data.keyColumn, key)
+                    .get().get().getDocuments();
+             List<Data> dataList = docRef.stream()
+                    .map(d -> {
+                        try {
+                            return toData(d.getId(), d);
+                        } catch (NotFoundException e) { //can't happen in this case
+                            return null;
+                        }
+                    })
+                    .filter(d -> d != null)
+                    .collect(Collectors.toList());
+
+            docRef.stream().forEach(d-> {
+                try {
+                    String id = d.getReference().getId();
+                    Timestamp result =  d.getReference().delete().get().getUpdateTime();
+                    LOGGER.debug("Delete doc " + id + " "   + type + " "  + key +" at " + result);
+                }  catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+            });
+            return dataList.get(0);
+        } catch  (InterruptedException | ExecutionException e) {
+            throw new ArlasException("Error deleting document", e);
         }
     }
 }

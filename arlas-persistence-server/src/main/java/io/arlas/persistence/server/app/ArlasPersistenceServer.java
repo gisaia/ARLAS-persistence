@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.smoketurner.dropwizard.zipkin.ZipkinBundle;
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 import io.arlas.persistence.rest.PersistenceRestService;
+import io.arlas.persistence.rest.PersistenceV2RestService;
 import io.arlas.persistence.server.core.PersistenceService;
 import io.arlas.persistence.server.impl.GoogleFirestorePersistenceServiceImpl;
 import io.arlas.persistence.server.impl.HibernatePersistenceServiceImpl;
@@ -126,6 +127,8 @@ public class ArlasPersistenceServer extends Application<ArlasPersistenceServerCo
                 break;
         }
         environment.jersey().register(new PersistenceRestService(persistenceService, configuration));
+        environment.jersey().register(new PersistenceV2RestService(persistenceService, configuration));
+
 
         // Auth
         if (configuration.arlasAuthConfiguration.enabled) {

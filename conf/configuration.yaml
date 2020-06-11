@@ -82,7 +82,7 @@ database:
   user: ${ARLAS_PERSISTENCE_HIBERNATE_USER:-pg-user}
   password: ${ARLAS_PERSISTENCE_HIBERNATE_PASSWORD:-iAMs00perSecrEET}
   # the JDBC URL
-  url: ${ARLAS_PERSISTENCE_HIBERNATE_URL:-jdbc:postgresql://db:5432/arlas_persistence}
+  url: ${ARLAS_PERSISTENCE_HIBERNATE_URL:-jdbc:postgresql://localhost:5432/arlas_persistence}
   # any properties specific to your JDBC driver:
   properties:
     charSet: UTF-8

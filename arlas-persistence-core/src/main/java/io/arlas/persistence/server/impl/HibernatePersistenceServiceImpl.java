@@ -66,9 +66,38 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
     }
 
     @Override
+    public Pair<Long, List<String>> listKeyByType(String type, Integer size, Integer page, SortOrder order) throws ArlasException {
+        Long totalCount = currentSession().createQuery("SELECT count(ud) FROM Data ud"
+                + "      where ud." + Data.typeColumn + "=:type", Long.class)
+                .setParameter("type", type)
+                .uniqueResult();
+
+        Query query = currentSession().createQuery("SELECT ud."+  Data.keyColumn +" from Data ud"
+                + "      where ud." + Data.typeColumn + "=:type"
+                + " order by ud." + Data.dateColumn + " " + order.toString())
+                .setParameter("type", type)
+                .setMaxResults(size)
+                .setFirstResult((page - 1) * size);
+
+        return Pair.of(totalCount, list(query));
+    }
+
+    @Override
     public Data getById(String id) throws ArlasException {
         return Optional.ofNullable(get(id))
                 .orElseThrow(() -> new NotFoundException("Data with id " + id + " not found."));
+    }
+
+    @Override
+    public Data getByTypeKey(String type, String key) throws ArlasException {
+        Data data = (Data) currentSession().createQuery("from Data ud"
+                + "      where ud." + Data.typeColumn + "=:type"
+                + "      and ud." + Data.keyColumn + "=:key")
+                .setParameter("type", type)
+                .setParameter("key", key)
+                .uniqueResult();
+        return  Optional.ofNullable(data)
+                .orElseThrow(() -> new NotFoundException("Data with key " + key + " not found."));
     }
 
     @Override
@@ -84,9 +113,23 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
     }
 
     @Override
+    public Data updateByTypeKey(String type, String key, String value) throws ArlasException {
+        Data data = getByTypeKey(type,key);
+        data.setDocValue(value, true);
+        return persist(data);
+
+    }
+
+    @Override
     public Data delete(String id) throws ArlasException {
         Data data = getById(id);
         currentSession().delete(data);
         return data;
     }
+
+    @Override
+    public Data deleteByTypeKey(String type, String key) throws ArlasException {
+        Data data = getByTypeKey(type,key);
+        currentSession().delete(data);
+        return data;    }
 }

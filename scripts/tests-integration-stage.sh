@@ -69,7 +69,7 @@ function test_rest_server() {
         -e ARLAS_PERSISTENCE_APP_PATH=${ARLAS_PERSISTENCE_APP_PATH} \
         --net arlas_default \
         maven:3.5.0-jdk-8 \
-        mvn -Dit.test=PersistenceIT verify -DskipTests=false -DfailIfNoTests=false
+        mvn "-Dit.test=PersistenceIT,PersistenceV2IT" verify -DskipTests=false -DfailIfNoTests=false
 }
 
 

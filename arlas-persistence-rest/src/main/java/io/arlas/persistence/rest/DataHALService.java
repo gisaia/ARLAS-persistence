@@ -19,9 +19,7 @@
 
 package io.arlas.persistence.rest;
 
-import io.arlas.persistence.model.DataResource;
-import io.arlas.persistence.model.DataWithLinks;
-import io.arlas.persistence.model.Link;
+import io.arlas.persistence.model.*;
 import io.arlas.persistence.server.model.Data;
 import io.arlas.persistence.server.utils.SortOrder;
 import io.arlas.server.utils.StringUtil;
@@ -51,9 +49,27 @@ public class DataHALService {
         return dataResource;
     }
 
+    public KeyResource keyListToResource(Pair<Long, List<String>> keyList, UriInfo uriInfo, Integer page, Integer size, SortOrder order){
+        KeyResource keyResource = new KeyResource();
+        keyResource.total = keyList.getLeft();
+        keyResource.count = keyList.getRight().size();
+        keyResource.key = keyList.getRight().stream().map(d -> new KeyWithLinks(d)).collect(Collectors.toList());
+        keyResource.key.replaceAll(u -> keyWithLinks(u.key, uriInfo));
+        keyResource.links = pageLinks(uriInfo, page, size, keyResource.total, keyResource.key.size());
+        return keyResource;
+    }
+
     public DataWithLinks dataWithLinks(Data data, UriInfo uriInfo) {
+        return new DataWithLinks(data).withLinks(this.getLinks(data.getId(),uriInfo));
+    }
+
+    public KeyWithLinks keyWithLinks(String key, UriInfo uriInfo) {
+        return new KeyWithLinks(key).withLinks(this.getLinks(key,uriInfo));
+    }
+
+    private Map<String, Link>  getLinks(String pathParam,UriInfo uriInfo){
         String subUri = getAbsoluteUri(uriInfo) + uriInfo.getRequestUriBuilder()
-                .path(data.getId())
+                .path(pathParam)
                 .replaceQueryParam("page", null)
                 .replaceQueryParam("size", null)
                 .replaceQueryParam("type", null)
@@ -65,8 +81,10 @@ public class DataHALService {
         links.put("self", new Link("self", subUri, "GET"));
         links.put("update", new Link("update", subUri, "PUT"));
         links.put("delete", new Link("delete", subUri, "DELETE"));
-        return new DataWithLinks(data).withLinks(links);
+        return links;
     }
+
+
 
     private Map<String, Link> pageLinks(UriInfo uriInfo, Integer page, Integer size, Long total, Integer count) {
         Map<String, Link> links = new HashMap<>();

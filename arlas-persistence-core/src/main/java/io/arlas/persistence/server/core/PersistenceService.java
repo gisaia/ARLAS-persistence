@@ -29,11 +29,20 @@ public interface PersistenceService {
 
     Pair<Long, List<Data>> list(String type, String key, Integer size, Integer page, SortOrder order) throws ArlasException;
 
+    Pair<Long, List<String>>  listKeyByType(String type, Integer size, Integer page, SortOrder order) throws ArlasException;
+
     Data getById(String id) throws ArlasException;
+
+    Data getByTypeKey(String type, String key) throws ArlasException;
 
     Data create(String type, String key, String value) throws ArlasException;
 
     Data update(String id, String value) throws ArlasException;
 
+    Data updateByTypeKey(String type, String key, String value) throws ArlasException;
+
     Data delete(String id) throws ArlasException;
+
+    Data deleteByTypeKey(String type, String key) throws ArlasException;
+
 }
