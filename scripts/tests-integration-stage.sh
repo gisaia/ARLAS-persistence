@@ -16,6 +16,7 @@ function clean_exit {
   ARG=$?
 	echo "===> Exit stage ${STAGE} = ${ARG}"
   clean_docker
+  rm -rf /tmp/persist
   exit $ARG
 }
 trap clean_exit EXIT
@@ -38,6 +39,7 @@ case $i in
 esac
 done
 
+mkdir /tmp/persist/
 # GO TO PROJECT PATH
 SCRIPT_PATH=`cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd`
 cd ${SCRIPT_PATH}/..
@@ -67,7 +69,8 @@ function test_rest_server() {
         -e ARLAS_PERSISTENCE_HOST="arlas-persistence-server" \
         -e ARLAS_PERSISTENCE_PREFIX="arlas_persistence_server" \
         -e ARLAS_PERSISTENCE_APP_PATH=${ARLAS_PERSISTENCE_APP_PATH} \
-        --net arlas_default \
+        -e ARLAS_PERSISTENCE_ENGINE=${ARLAS_PERSISTENCE_ENGINE} \
+        --net arlas_persist_default \
         maven:3.5.0-jdk-8 \
         mvn -Dit.test=PersistenceIT verify -DskipTests=false -DfailIfNoTests=false
 }
@@ -77,6 +80,7 @@ function test_doc() {
     ./mkDocs.sh
 }
 
-if [ "$STAGE" == "REST" ]; then test_rest_server; fi
+if [ "$STAGE" == "REST_FILE" ]; then export ARLAS_PERSISTENCE_ENGINE="file"; test_rest_server; fi
+if [ "$STAGE" == "REST_HIBERNATE" ]; then export ARLAS_PERSISTENCE_ENGINE="hibernate"; test_rest_server; fi
 if [ "$STAGE" == "DOC" ]; then test_doc; fi
 

@@ -109,7 +109,7 @@ docker run -ti -d \
 | Environment variable | ARLAS Server configuration variable | Default |
 | --- | --- | --- |
 | ARLAS_PERSISTENCE_CORS_ALLOWED_ORIGINS | arlas_cors.allowed_origins | "*" |
-| ARLAS_PERSISTENCE_CORS_ALLOWED_HEADERS | arlas_cors.allowed_headers | "X-Requested-With,Content-Type,Accept,Origin,Authorization,X-Forwarded-User" |
+| ARLAS_PERSISTENCE_CORS_ALLOWED_HEADERS | arlas_cors.allowed_headers | "arlas-user,arlas-groups,arlas-organization,X-Requested-With,Content-Type,Accept,Origin,Authorization,X-Forwarded-User" |
 | ARLAS_PERSISTENCE_CORS_ALLOWED_METHODS | arlas_cors.allowed_methods | "OPTIONS,GET,PUT,POST,DELETE,HEAD" |
 | ARLAS_PERSISTENCE_CORS_ALLOWED_CREDENTIALS | arlas_cors.allowed_credentials | true |
 | ARLAS_PERSISTENCE_CORS_EXPOSED_HEADERS | arlas_cors.exposed_headers | "Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,Location" |
@@ -119,14 +119,19 @@ docker run -ti -d \
 | Environment variable | ARLAS Server configuration variable | Default | Description |
 | --- | --- | --- | --- |
  | ARLAS_AUTH_ENABLED | arlas_auth.enabled | false | whether auth is enabled on arlas stack |
- | ARLAS_AUTH_PUBLIC_URIS | arlas_auth.public_uris | swagger,swagger.json | Available Public URI  |
- | ARLAS_AUTH_CERT_FILE | arlas_auth.certificate_file | /opt/app/arlas.pem | Path to certificate used to valid JWT  |
+ | ARLAS_AUTH_PUBLIC_URIS | arlas_auth.public_uris | 'swagger.*' | Available Public URI  |
+ | ARLAS_AUTH_CERT_URL | arlas_auth.certificate_url | - | URL to certificate used to validate JWT  |
+ | ARLAS_HEADER_USER | arlas_auth.header_user | 'arlas-user' | HTTP header name holding the user id  |
+ | ARLAS_HEADER_GROUP | arlas_auth.header_group | 'arlas-groups' | HTTP header name holding the user groups  |
 
 ### API 
 | Environment variable | ARLAS Server configuration variable | Default | Description |
 | --- | --- | --- | --- |
-| ARLAS_PERSISTENCE_KEY_HEADER | key_header | 'X-Forwarded-User' | Custom header use to set the key of the value |
-| ARLAS_PERSISTENCE_ENGINE | persistence_engine | 'hibernate' | Determine in which mode we run the api : sql or firestore, possible values : hibernate or firestore |
+| ARLAS_PERSISTENCE_ENGINE | persistence_engine | 'file' | Determine in which mode we run the api : sql or firestore, possible values : hibernate or firestore or file|
+| ARLAS_PERSISTENCE_FIRESTORE_COLLECTION | firestore_collection | 'user_pref' | Name of the Firestore collection if relevant (required when engine is 'firestore') |
+| ARLAS_PERSISTENCE_LOCAL_FOLDER | local_folder | '/tmp/persist/' | Folder name where data is persisted (required when engine is 'file') |
+| ARLAS_ORGANIZATION_HEADER | arlas_organization_header | 'arlas-organization' | HTTP header name holding the user's organisation |
+| ARLAS_ANONYMOUS_VALUE | anonymous_value | 'anonymous' | Default value for identity headers when authentication is not enabled |
 
 
 ### Database Mandatory if persistence_engine is hibernate

@@ -1,10 +1,30 @@
 DROP TABLE IF EXISTS user_data;
--- key,id,data
+
 CREATE TABLE user_data (
     docKey VARCHAR(255) NOT NULL,
-    docType VARCHAR(255) NOT NULL,
+    docZone VARCHAR(255) NOT NULL,
+    docOwner VARCHAR(255) NOT NULL,
+    docOrganization VARCHAR(255) NOT NULL,
     id VARCHAR(255) PRIMARY KEY,
-    creationDate TIMESTAMP,
+    lastUpdateDate TIMESTAMP,
     docValue JSON
 );
-CREATE INDEX doc_key_idx ON user_data (docKey, docType);
+CREATE UNIQUE INDEX doc_key_idx_orga ON user_data (docKey, docZone,docOrganization);
+
+DROP TABLE IF EXISTS user_data_readers;
+
+CREATE TABLE user_data_readers (
+    data_id VARCHAR(255) ,
+    reader VARCHAR(255) NOT NULL,
+    FOREIGN KEY (data_id) REFERENCES user_data (id)
+);
+
+DROP TABLE IF EXISTS user_data_writers;
+
+CREATE TABLE user_data_writers (
+    data_id VARCHAR(255) ,
+    writer VARCHAR(255) NOT NULL,
+    FOREIGN KEY (data_id) REFERENCES user_data (id)
+);
+
+

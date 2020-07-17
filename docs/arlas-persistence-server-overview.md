@@ -1,13 +1,12 @@
 # ARLAS Persistence API Overview
 
 ## IMPORTANT
-- 
-- Two types of storage are available in this server:
+ 
+Three types of storage are available in this server:
+  - File system storage
   - All SQL SGBD compliant with hibernate, we use a non configurable unique table [`user_data`](../docker/docker-files/pgCreateTable.sql) in a dedicated configurable database.
   ARLAS Persistence WILL NOT CREATE the table for you, think to create table before running the server.
   - Google Cloud Firestore : think to set GOOGLE_APPLICATION_CREDENTIALS as environement variable.
-- The key used to retrieve data in the database is passed by a header. This custom header is configurable with the key `key_header`. If this header is not present on the request the server will always return Error 500.
-Think to check if the `key_header` is present in `arlas_cors.allowed_headers`configuration key.
  
 
 The ARLAS Persistence offers 3 APIs:

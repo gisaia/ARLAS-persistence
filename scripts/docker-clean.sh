@@ -12,4 +12,4 @@ function clean_exit {
 trap clean_exit EXIT
 
 echo "===> stop arlas-persistence-server stack"
-docker-compose -f ${DOCKER_COMPOSE} --project-name arlas down -v
+docker-compose -f ${DOCKER_COMPOSE} --project-name arlas_persist down -v

@@ -62,19 +62,28 @@ swagger: # Configuration of SWAGGER for generating documentation and APIs
 
 arlas_cors:
   allowed_origins: ${ARLAS_PERSISTENCE_CORS_ALLOWED_ORIGINS:-"*"}
-  allowed_headers: ${ARLAS_PERSISTENCE_CORS_ALLOWED_HEADERS:-"X-Requested-With,Content-Type,Accept,Origin,Authorization,X-Forwarded-User"}
+  allowed_headers: ${ARLAS_PERSISTENCE_CORS_ALLOWED_HEADERS:-"arlas-user,arlas-groups,arlas-organization,X-Requested-With,Content-Type,Accept,Origin,Authorization,X-Forwarded-User"}
   allowed_methods: ${ARLAS_PERSISTENCE_CORS_ALLOWED_METHODS:-"OPTIONS,GET,PUT,POST,DELETE,HEAD"}
   allowed_credentials: ${ARLAS_PERSISTENCE_CORS_ALLOWED_CREDENTIALS:-true}
   exposed_headers: ${ARLAS_PERSISTENCE_CORS_EXPOSED_HEADERS:-"Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,Location"}
 
 arlas_auth:
   enabled: ${ARLAS_AUTH_ENABLED:-false}
-  public_uris: [${ARLAS_AUTH_PUBLIC_URIS:-swagger,swagger.json}]
+  public_uris: [${ARLAS_AUTH_PUBLIC_URIS:-swagger.*}]
+  # deprecated
   certificate_file: ${ARLAS_AUTH_CERT_FILE:-/opt/app/arlas.pem}
+  certificate_url: ${ARLAS_AUTH_CERT_URL:-}
+  header_user: ${ARLAS_HEADER_USER:-arlas-user}
+  header_group: ${ARLAS_HEADER_GROUP:-arlas-groups}
+  claim_roles: ${ARLAS_CLAIM_ROLES:-http://arlas.io/roles}
+  claim_permissions: ${ARLAS_CLAIM_PERMISSIONS:-http://arlas.io/permissions}
 
-key_header: ${ARLAS_PERSISTENCE_KEY_HEADER:-X-Forwarded-User}
-persistence_engine: ${ARLAS_PERSISTENCE_ENGINE:-hibernate}
-firestore_collection: ${ARLAS_PERSISTENCE_FIRESTORE_COLLECTION:-}
+persistence_engine: ${ARLAS_PERSISTENCE_ENGINE:-file}
+firestore_collection: ${ARLAS_PERSISTENCE_FIRESTORE_COLLECTION:-user_pref}
+local_folder: ${ARLAS_PERSISTENCE_LOCAL_FOLDER:-/tmp/persist/}
+arlas_organization_header: ${ARLAS_ORGANIZATION_HEADER:-arlas-organization}
+anonymous_value: ${ARLAS_ANONYMOUS_VALUE:-anonymous}
+
 
 database:
   # the name of your JDBC driver
@@ -82,7 +91,7 @@ database:
   user: ${ARLAS_PERSISTENCE_HIBERNATE_USER:-pg-user}
   password: ${ARLAS_PERSISTENCE_HIBERNATE_PASSWORD:-iAMs00perSecrEET}
   # the JDBC URL
-  url: ${ARLAS_PERSISTENCE_HIBERNATE_URL:-jdbc:postgresql://db:5432/arlas_persistence}
+  url: ${ARLAS_PERSISTENCE_HIBERNATE_URL:-jdbc:postgresql://localhost:5432/arlas_persistence}
   # any properties specific to your JDBC driver:
   properties:
     charSet: UTF-8

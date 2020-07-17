@@ -21,24 +21,48 @@ package io.arlas.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.arlas.persistence.server.model.Data;
+import io.arlas.persistence.server.model.IdentityParam;
 import io.dropwizard.jackson.JsonSnakeCase;
+import org.hibernate.annotations.Type;
 
-import java.util.Map;
+import javax.persistence.Column;
+import javax.persistence.Id;
+import javax.validation.constraints.NotNull;
+import java.util.*;
+
+import static io.arlas.persistence.server.core.PersistenceService.intersect;
+
 @JsonSnakeCase
 public class DataWithLinks extends Data {
+
     @JsonProperty("_links")
     public Map<String, Link> links;
 
-    public DataWithLinks(Data data) {
-        this.setDocType(data.getDocType());
+    @JsonProperty("updatable")
+    public boolean updatable;
+
+    public DataWithLinks(Data data,IdentityParam identityParam) {
+        this.setDocZone(data.getDocZone());
         this.setDocKey(data.getDocKey());
-        this.setCreationDate(data.getCreationDate());
+        this.setLastUpdateDate(data.getLastUpdateDate());
         this.setDocValue(data.getDocValue());
         this.setId(data.getId());
+        this.setUpdatable(this.isUpdatable(data,identityParam));
+
+    }
+
+    public void setUpdatable(boolean updatable) {
+        this.updatable = updatable;
     }
 
     public DataWithLinks withLinks(Map<String, Link> links) {
         this.links = links;
         return this;
+    }
+
+    public boolean isUpdatable(Data data,IdentityParam identityParam) {
+        List<String> writers = Optional.ofNullable(data.getDocWriters()).orElse(new ArrayList<>());
+        return data.getDocOrganization().equals(identityParam.organization) &&
+                (data.getDocOwner().equals(identityParam.userId) || intersect(identityParam.groups, writers));
     }
 }

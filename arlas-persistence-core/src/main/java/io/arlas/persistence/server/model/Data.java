@@ -20,17 +20,15 @@
 package io.arlas.persistence.server.model;
 
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-import io.arlas.persistence.server.core.PersistenceService;
 import io.dropwizard.jackson.JsonSnakeCase;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -39,43 +37,92 @@ import java.util.Objects;
 @TypeDef(name = "json", typeClass = JsonBinaryType.class)
 @JsonSnakeCase
 public class Data {
+    public static final String idColumn = "id";
     public static final String keyColumn = "docKey";
-    public static final String dateColumn = "creationDate";
+    public static final String zoneColumn = "docZone";
+    public static final String lastUpdateDateColumn = "lastUpdateDate";
     public static final String valueColumn = "docValue";
-    public static final String typeColumn = "docType";
+    public static final String ownerColumn = "docOwner";
+    public static final String organizationColumn = "docOrganization";
+    public static final String writersColumn = "docWriters";
+    public static final String readersColumn = "docReaders";
+    public static final String docEntitiesColumn = "docEntities";
 
     @Id
-    @Column(name = "id")
+    @Column(name = idColumn)
     private String id;
 
     @NotNull
     @Column(name = keyColumn)
     private String docKey;
 
-    @Column(name = dateColumn)
-    private Date creationDate;
+    @NotNull
+    @Column(name = zoneColumn)
+    private String docZone;
 
+    @NotNull
+    @Column(name = lastUpdateDateColumn)
+    private Date lastUpdateDate;
+
+    @NotNull
     @Type(type = "json")
     @Column(name = valueColumn, columnDefinition = "json")
     private String docValue;
 
     @NotNull
-    @Column(name = typeColumn)
-    private String docType;
+    @Column(name = ownerColumn)
+    private String docOwner;
 
+    @NotNull
+    @Column(name = organizationColumn)
+    private String docOrganization;
+
+    @Transient
+    private List<String> docEntities = new ArrayList<>();
+
+    @ElementCollection
+    @CollectionTable(name = "user_data_writers", joinColumns = @JoinColumn(name = "data_id"))
+    @Column(name = "writer")
+    private List<String>  docWriters = new ArrayList<>();
+
+    @ElementCollection
+    @CollectionTable(name = "user_data_readers", joinColumns = @JoinColumn(name = "data_id"))
+    @Column(name = "reader")
+    private List<String> docReaders = new ArrayList<>();
 
     public Data() {}
 
-    public Data(String docType, String docKey, String docValue, String id) {
-        this(docType, docKey, docValue, id, new Date());
+    public Data(String id, String docKey, String docZone, String docValue, String docOwner, String docOrganization, List<String> docWriters, List<String> docReaders, Date lastUpdateDate) {
+        this.id = id;
+        this.docKey = docKey;
+        this.docZone = docZone;
+        this.lastUpdateDate = lastUpdateDate;
+        this.docValue = docValue;
+        this.docOwner = docOwner;
+        this.docOrganization = docOrganization;
+        this.docWriters = docWriters;
+        this.docReaders = docReaders;
     }
 
-    public Data(String docType, String docKey, String docValue, String id, Date creationDate) {
-        this.docType = docType;
-        this.docKey = docKey;
-        this.creationDate = creationDate;
-        this.docValue = docValue;
+    public Data(String id, String docKey, String docZone, String docValue, String docOwner, String docOrganization, List<String> docWriters, List<String> docReaders,List<String> docEntities, Date lastUpdateDate  ) {
         this.id = id;
+        this.docKey = docKey;
+        this.docZone = docZone;
+        this.lastUpdateDate =lastUpdateDate;
+        this.docValue = docValue;
+        this.docOwner = docOwner;
+        this.docOrganization = docOrganization;
+        this.docWriters = docWriters;
+        this.docReaders = docReaders;
+        this.docEntities =docEntities;
+    }
+
+    public List<String> getDocEntities() {
+        return docEntities;
+    }
+
+    public void setDocEntities(List<String> docEntities) {
+        this.docEntities = docEntities;
     }
 
     public String getId() {
@@ -86,12 +133,8 @@ public class Data {
         return docKey;
     }
 
-    public String getDocType() {
-        return docType;
-    }
-
-    public Date getCreationDate() {
-        return creationDate;
+    public String getDocZone() {
+        return docZone;
     }
 
     public String getDocValue() {
@@ -106,21 +149,59 @@ public class Data {
         this.docKey = doc_key;
     }
 
-    public void setDocType(String docType) {
-        this.docType = docType;
+    public void setDocZone(String docZone) {
+        this.docZone = docZone;
     }
-
-    public void setCreationDate(Date date) { this.creationDate = date; }
 
     public void setDocValue(String docValue) {
         this.setDocValue(docValue, false);
     }
 
-    public void setDocValue(String docValue, boolean updateCreationDate) {
+    public void setDocValue(String docValue, boolean lastUpdateDate) {
         this.docValue = docValue;
-        if (updateCreationDate) {
-            this.creationDate = new Date();
+        if (lastUpdateDate) {
+            this.lastUpdateDate = new Date();
         }
+    }
+
+    public Date getLastUpdateDate() {
+        return lastUpdateDate;
+    }
+
+    public void setLastUpdateDate(Date lastUpdateDate) {
+        this.lastUpdateDate = lastUpdateDate;
+    }
+
+    public String getDocOwner() {
+        return docOwner;
+    }
+
+    public void setDocOwner(String docOwner) {
+        this.docOwner = docOwner;
+    }
+
+    public String getDocOrganization() {
+        return docOrganization;
+    }
+
+    public void setDocOrganization(String docOrganization) {
+        this.docOrganization = docOrganization;
+    }
+
+    public List<String> getDocWriters() {
+        return docWriters;
+    }
+
+    public void setDocWriters(List<String> docWriters) {
+        this.docWriters = docWriters;
+    }
+
+    public List<String> getDocReaders() {
+        return docReaders;
+    }
+
+    public void setDocReaders(List<String> docReaders) {
+        this.docReaders = docReaders;
     }
 
     @Override
@@ -128,26 +209,34 @@ public class Data {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Data data = (Data) o;
-        return getId().equals(data.getId()) &&
-                getDocKey().equals(data.getDocKey()) &&
-                getCreationDate().equals(data.getCreationDate()) &&
-                Objects.equals(getDocValue(), data.getDocValue()) &&
-                getDocType().equals(data.getDocType());
+        return Objects.equals(id, data.id) &&
+                Objects.equals(docKey, data.docKey) &&
+                Objects.equals(docZone, data.docZone) &&
+                Objects.equals(lastUpdateDate, data.lastUpdateDate) &&
+                Objects.equals(docValue, data.docValue) &&
+                Objects.equals(docOwner, data.docOwner) &&
+                Objects.equals(docOrganization, data.docOrganization) &&
+                Objects.equals(docWriters, data.docWriters) &&
+                Objects.equals(docReaders, data.docReaders);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getDocKey(), getCreationDate(), getDocValue(), getDocType());
+        return Objects.hash(id, docKey, docZone, lastUpdateDate, docValue, docOwner, docOrganization, docWriters, docReaders);
     }
 
     @Override
     public String toString() {
         return "Data{" +
                 "id='" + id + '\'' +
-                ", doc_key='" + docKey + '\'' +
-                ", creation_date=" + creationDate +
-                ", doc_value='" + docValue + '\'' +
-                ", doc_type='" + docType + '\'' +
+                ", docKey='" + docKey + '\'' +
+                ", docZone='" + docZone + '\'' +
+                ", lastUpdateDate=" + lastUpdateDate +
+                ", docValue='" + docValue + '\'' +
+                ", docOwner='" + docOwner + '\'' +
+                ", docOrganization='" + docOrganization + '\'' +
+                ", docWriters='" + docWriters + '\'' +
+                ", docReaders='" + docReaders + '\'' +
                 '}';
     }
 }

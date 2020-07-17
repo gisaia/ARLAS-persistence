@@ -9,11 +9,11 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "docType",
+          "fieldPath": "docZone",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "creationDate",
+          "fieldPath": "lastUpdateDate",
           "order": "ASCENDING"
         }
       ]
@@ -27,11 +27,11 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "docType",
+          "fieldPath": "docZone",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "creationDate",
+          "fieldPath": "lastUpdateDate",
           "order": "DESCENDING"
         }
       ]
