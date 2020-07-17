@@ -27,6 +27,7 @@ import com.smoketurner.dropwizard.zipkin.ZipkinBundle;
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 import io.arlas.persistence.rest.PersistenceRestService;
 import io.arlas.persistence.server.core.PersistenceService;
+import io.arlas.persistence.server.impl.FileSystemPersistenceServiceImpl;
 import io.arlas.persistence.server.impl.GoogleFirestorePersistenceServiceImpl;
 import io.arlas.persistence.server.impl.HibernatePersistenceServiceImpl;
 import io.arlas.persistence.server.model.Data;
@@ -67,6 +68,7 @@ public class ArlasPersistenceServer extends Application<ArlasPersistenceServerCo
             return configuration.database;
         }
     };
+
     public static void main(String... args) throws Exception {
         new ArlasPersistenceServer().run(args);
     }
@@ -88,12 +90,16 @@ public class ArlasPersistenceServer extends Application<ArlasPersistenceServerCo
                 return configuration.zipkinConfiguration;
             }
         });
+        String engine = System.getenv("ARLAS_PERSISTENCE_ENGINE");
+        if (engine != null && engine.equalsIgnoreCase("\"hibernate\"")) {
+            bootstrap.addBundle(hibernate);
+        }
         bootstrap.addBundle(new AssetsBundle("/assets/", "/", "index.html"));
-        bootstrap.addBundle(hibernate);
     }
 
     @Override
     public void run(ArlasPersistenceServerConfiguration configuration, Environment environment) throws Exception {
+
         LOGGER.info("Raw configuration: " + (new ObjectMapper()).writer().writeValueAsString(configuration));
         configuration.check();
         LOGGER.info("Checked configuration: " + (new ObjectMapper()).writer().writeValueAsString(configuration));
@@ -110,7 +116,6 @@ public class ArlasPersistenceServer extends Application<ArlasPersistenceServerCo
         environment.jersey().register(new JsonProcessingExceptionMapper());
         environment.jersey().register(new ConstraintViolationExceptionMapper());
 
-
         PersistenceService persistenceService = null;
         LOGGER.info("Starting with " + configuration.engine + " persistence engine");
         switch (configuration.engine) {
@@ -120,8 +125,11 @@ public class ArlasPersistenceServer extends Application<ArlasPersistenceServerCo
             case "firestore":
                 persistenceService = new GoogleFirestorePersistenceServiceImpl(configuration.firestoreCollection);
                 break;
+            case "file":
+                persistenceService = new FileSystemPersistenceServiceImpl(configuration.localFolder);
+                break;
             default:
-                LOGGER.error("Engine not supported: " + configuration.engine +  " (valid values are: 'hibernate' or 'firestore').");
+                LOGGER.error("Engine not supported: " + configuration.engine +  " (valid values are: 'hibernate' or 'firestore' or 'file').");
                 System.exit(1);
                 break;
         }

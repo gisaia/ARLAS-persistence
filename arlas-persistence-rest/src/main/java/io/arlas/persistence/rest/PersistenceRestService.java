@@ -25,7 +25,7 @@ import io.arlas.persistence.model.DataWithLinks;
 import io.arlas.persistence.server.app.ArlasPersistenceServerConfiguration;
 import io.arlas.persistence.server.app.Documentation;
 import io.arlas.persistence.server.core.PersistenceService;
-import io.arlas.persistence.server.model.Data;
+import io.arlas.persistence.server.model.IdentityParam;
 import io.arlas.persistence.server.utils.SortOrder;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.response.Error;
@@ -33,14 +33,18 @@ import io.arlas.server.utils.ResponseFormatter;
 import io.dropwizard.hibernate.UnitOfWork;
 import io.swagger.annotations.*;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import java.util.*;
 
-@Path("/persistence")
-@Api(value = "/persistence")
+
+@Path("/persist")
+@Api(value = "/persist")
 @SwaggerDefinition(
         info = @Info(contact = @Contact(email = "contact@gisaia.com", name = "Gisaia", url = "http://www.gisaia.com/"),
                 title = "ARLAS persistence API",
@@ -50,20 +54,28 @@ import javax.ws.rs.core.*;
         schemes = { SwaggerDefinition.Scheme.HTTP, SwaggerDefinition.Scheme.HTTPS })
 
 public class PersistenceRestService {
+    Logger LOGGER = LoggerFactory.getLogger(PersistenceRestService.class);
     public static final String UTF8JSON = MediaType.APPLICATION_JSON + ";charset=utf-8";
 
-    private PersistenceService persistenceService;
-    private DataHALService halService;
-    private String keyHeader;
+    private final PersistenceService persistenceService;
+    private final DataHALService halService;
+    private final String userHeader;
+    private final String organizationHeader;
+    private final String groupsHeader;
+    private final String anonymousValue;
+
 
     public PersistenceRestService(PersistenceService persistenceService, ArlasPersistenceServerConfiguration configuration) {
         this.persistenceService = persistenceService;
         this.halService = new DataHALService(configuration.arlasBaseUri);
-        this.keyHeader = configuration.keyHeader;
+        this.userHeader = configuration.arlasAuthConfiguration.headerUser;
+        this.organizationHeader = configuration.organizationHeader;
+        this.groupsHeader = configuration.arlasAuthConfiguration.headerGroup;
+        this.anonymousValue = configuration.anonymousValue;
     }
 
     @Timed
-    @Path("/")
+    @Path("resources/{zone}")
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
@@ -74,101 +86,132 @@ public class PersistenceRestService {
             consumes = UTF8JSON
     )
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = DataResource.class),
-            @ApiResponse(code = 404, message = "Key not found.", response = Error.class),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
+            @ApiResponse(code = 404, message = "Zone not found.", response = Error.class),
+            @ApiResponse(code = 500, message = "Arlas Persistence Error.", response = Error.class)})
 
     @UnitOfWork
     public Response list(
             @Context UriInfo uriInfo,
             @Context HttpHeaders headers,
 
-            @ApiParam(
-                    name = "type", value = Documentation.TYPE,
-                    allowMultiple = false,
+            @ApiParam(name = "zone", value = Documentation.ZONE,
                     defaultValue = "pref",
                     required = true)
-            @QueryParam(value = "type") String type,
+            @PathParam(value = "zone") String zone,
 
             @ApiParam(name = "size", value = "Page Size",
                     defaultValue = "10",
                     allowableValues = "range[1, infinity]",
-                    type = "integer",
-                    required = false)
+                    type = "integer")
             @DefaultValue("10")
             @QueryParam(value = "size") Integer size,
 
             @ApiParam(name = "page", value = "Page ID",
                     defaultValue = "1",
                     allowableValues = "range[1, infinity]",
-                    type = "integer",
-                    required = false)
+                    type = "integer")
             @DefaultValue("1")
             @QueryParam(value = "page") Integer page,
 
             @ApiParam(name = "order", value = "Date sort order",
                     defaultValue = "desc",
                     allowableValues = "desc,asc",
-                    type = "string",
-                    required = false)
+                    type = "string")
             @QueryParam(value = "order") SortOrder order,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(
-                    name = "pretty", value = io.arlas.server.app.Documentation.FORM_PRETTY,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+            @ApiParam(name = "pretty", value = io.arlas.server.app.Documentation.FORM_PRETTY,
+                    defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
-        String key = getKey(headers);
-        return ResponseFormatter.getResultResponse(halService.dataListToResource(persistenceService.list(type, key, size, page, order), uriInfo, page, size, order));
+        IdentityParam identityparam = getIdentityParam(headers);
+        return ResponseFormatter.getResultResponse(
+                halService.dataListToResource(
+                        persistenceService.list(zone, identityparam, size, page, order), uriInfo, page, size, order, identityparam));
     }
 
     @Timed
-    @Path("/{id}")
+    @Path("resources/{zone}/{key}")
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
     @ApiOperation(
-            value = Documentation.GET_OPERATION,
+            value = Documentation.GET_FROM_KEY_ZONE_OPERATION,
             produces = UTF8JSON,
-            notes = Documentation.GET_OPERATION,
+            notes = Documentation.GET_FROM_KEY_ZONE_OPERATION,
             consumes = UTF8JSON
     )
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = DataWithLinks.class),
-            @ApiResponse(code = 404, message = "Key or id not found.", response = Error.class),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
+            @ApiResponse(code = 404, message = "Key or zone not found.", response = Error.class),
+            @ApiResponse(code = 500, message = "Arlas Persistence Error.", response = Error.class)})
 
     @UnitOfWork
     public Response get(
             @Context UriInfo uriInfo,
             @Context HttpHeaders headers,
 
-            @ApiParam(
-                    name = "id",
-                    value = Documentation.ID,
-                    allowMultiple = false,
+            @ApiParam(name = "zone", value = Documentation.ZONE,
+                    defaultValue = "pref",
                     required = true)
-            @PathParam(value = "id") String id,
+            @PathParam(value = "zone") String zone,
+
+            @ApiParam(name = "key", value = Documentation.KEY,
+                    required = true)
+            @PathParam(value = "key") String key,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(
-                    name = "pretty", value = io.arlas.server.app.Documentation.FORM_PRETTY,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+            @ApiParam(name = "pretty", value = io.arlas.server.app.Documentation.FORM_PRETTY,
+                    defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
-        String key = getKey(headers);
-        return ResponseFormatter.getResultResponse(halService.dataWithLinks(persistenceService.getById(id), uriInfo));
+        IdentityParam identityparam = getIdentityParam(headers);
+        DataWithLinks dataWithLinks = new DataWithLinks(persistenceService.get(zone, key, identityparam), identityparam);
+        return ResponseFormatter.getResultResponse(halService.dataWithLinks(dataWithLinks, uriInfo, identityparam));
     }
 
     @Timed
-    @Path("/")
+    @Path("groups/{zone}")
+    @GET
+    @Produces(UTF8JSON)
+    @Consumes(UTF8JSON)
+    @ApiOperation(
+            value = Documentation.GET_GROUPS_OPERATION,
+            produces = UTF8JSON,
+            notes = Documentation.GET_GROUPS_OPERATION,
+            consumes = UTF8JSON
+    )
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = DataWithLinks.class),
+            @ApiResponse(code = 404, message = "Zone not found.", response = Error.class),
+            @ApiResponse(code = 500, message = "Arlas Persistence Error.", response = Error.class)})
+
+    @UnitOfWork
+    public Response getGroupsByZone(
+            @Context UriInfo uriInfo,
+            @Context HttpHeaders headers,
+
+            @ApiParam(name = "zone", value = Documentation.ZONE,
+                    defaultValue = "pref",
+                    required = true)
+            @PathParam(value = "zone") String zone,
+
+            // --------------------------------------------------------
+            // ----------------------- FORM -----------------------
+            // --------------------------------------------------------
+            @ApiParam(name = "pretty", value = io.arlas.server.app.Documentation.FORM_PRETTY,
+                    defaultValue = "false")
+            @QueryParam(value = "pretty") Boolean pretty
+    ) {
+        IdentityParam identityparam = getIdentityParam(headers);
+        return ResponseFormatter.getResultResponse(PersistenceService.getGroupsForZone(zone, identityparam));
+    }
+
+
+    @Timed
+    @Path("resources/{zone}/{key}")
     @POST
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
@@ -186,15 +229,22 @@ public class PersistenceRestService {
             @Context UriInfo uriInfo,
             @Context HttpHeaders headers,
 
-            @ApiParam(
-                    name = "type", value = Documentation.TYPE,
-                    allowMultiple = false,
-                    defaultValue = "hibernate",
+            @ApiParam(name = "zone", value = Documentation.ZONE,
+                    defaultValue = "pref",
                     required = true)
-            @QueryParam(value = "type") String type,
+            @PathParam(value = "zone") String zone,
 
-            @ApiParam(
-                    name = "value",
+            @ApiParam(name = "key", value = Documentation.KEY,
+                    required = true)
+            @PathParam(value = "key") String key,
+
+            @ApiParam(name = "readers", value = Documentation.READERS)
+            @QueryParam(value = "readers") List<String> readers,
+
+            @ApiParam(name = "writers", value = Documentation.WRITERS)
+            @QueryParam(value = "writers") List<String> writers,
+
+            @ApiParam(name = "value",
                     value = Documentation.VALUE,
                     required = true)
             @NotNull @Valid String value,
@@ -202,22 +252,23 @@ public class PersistenceRestService {
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(
-                    name = "pretty", value = io.arlas.server.app.Documentation.FORM_PRETTY,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+            @ApiParam(name = "pretty", value = io.arlas.server.app.Documentation.FORM_PRETTY,
+                    defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
-        String key = getKey(headers);
+        IdentityParam identityparam = getIdentityParam(headers);
+        Set<String> readersSet = Optional.ofNullable(readers).map(r -> new HashSet<>(readers)).orElse(new HashSet<>());
+        Set<String> writersSet = Optional.ofNullable(writers).map(r -> new HashSet<>(writers)).orElse(new HashSet<>());
+        DataWithLinks dataWithLinks = new DataWithLinks(
+                persistenceService.create(zone, key, identityparam, readersSet, writersSet, value), identityparam);
         return Response.created(uriInfo.getRequestUriBuilder().build())
-                .entity(halService.dataWithLinks(persistenceService.create(type, key, value), uriInfo))
+                .entity(halService.dataWithLinks(dataWithLinks, uriInfo, identityparam))
                 .type("application/json")
                 .build();
     }
 
     @Timed
-    @Path("/{id}")
+    @Path("resources/{id}")
     @PUT
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
@@ -236,37 +287,52 @@ public class PersistenceRestService {
             @Context UriInfo uriInfo,
             @Context HttpHeaders headers,
 
-            @ApiParam(
-                    name = "id",
+            @ApiParam(name = "id",
                     value = Documentation.ID,
-                    allowMultiple = false,
                     required = true)
             @PathParam(value = "id") String id,
 
-            @ApiParam(
-                    name = "value",
+            @ApiParam(name = "key", value = Documentation.KEY)
+            @QueryParam(value = "zone") String key,
+
+            @ApiParam(name = "readers", value = Documentation.READERS)
+            @QueryParam(value = "readers") List<String> readers,
+
+            @ApiParam(name = "writers", value = Documentation.WRITERS)
+            @QueryParam(value = "writers") List<String> writers,
+
+            @ApiParam(name = "value",
                     value = Documentation.VALUE,
                     required = true)
             @NotNull @Valid String value,
+
+            @ApiParam(name = "last_update",
+                    value = Documentation.LAST_UPDATE,
+                    required = true)
+            @QueryParam(value = "last_update")  Long lastUpdate,
+
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
             @ApiParam(name = "pretty", value = io.arlas.server.app.Documentation.FORM_PRETTY,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+                    defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
-        String key = getKey(headers);
+        IdentityParam identityparam = getIdentityParam(headers);
+        Set<String> readersSet = Optional.ofNullable(readers).map(r-> new HashSet<>(readers)).orElse(new HashSet<>());
+        Set<String> writersSet = Optional.ofNullable(writers).map(r-> new HashSet<>(writers)).orElse(new HashSet<>());
+        Date lastUpdateDate = new Date(lastUpdate);
+        DataWithLinks dataWithLinks = new DataWithLinks(
+                persistenceService.update(id, key, identityparam, readersSet, writersSet, value, lastUpdateDate), identityparam);
         return Response.created(uriInfo.getRequestUriBuilder().build())
-                .entity(halService.dataWithLinks(persistenceService.update(id, value), uriInfo))
+                .entity(halService.dataWithLinks(dataWithLinks, uriInfo, identityparam))
                 .type("application/json")
                 .build();
     }
 
     @Timed
-    @Path("/{id}")
+    @Path("resources/{id}")
     @DELETE
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
@@ -276,41 +342,90 @@ public class PersistenceRestService {
             notes = Documentation.DELETE_OPERATION,
             consumes = UTF8JSON
     )
-    @ApiResponses(value = {@ApiResponse(code = 202, message = "Successful operation", response = Data.class),
+    @ApiResponses(value = {@ApiResponse(code = 202, message = "Successful operation", response = DataWithLinks.class),
             @ApiResponse(code = 404, message = "Key or id not found.", response = Error.class),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
 
     @UnitOfWork
-    public Response delete(
+    public Response deleteById(
             @Context HttpHeaders headers,
-
-            @ApiParam(
-                    name = "id",
+            @Context UriInfo uriInfo,
+            @ApiParam(name = "id",
                     value = Documentation.ID,
-                    allowMultiple = false,
                     required = true)
             @PathParam(value = "id") String id,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(
-                    name = "pretty", value = io.arlas.server.app.Documentation.FORM_PRETTY,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+            @ApiParam(name = "pretty", value = io.arlas.server.app.Documentation.FORM_PRETTY,
+                    defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
-        String key = getKey(headers);
-        return Response.accepted().entity(persistenceService.delete(id)).type("application/json").build();
+        IdentityParam identityparam = getIdentityParam(headers);
+        DataWithLinks dataWithLinks =new DataWithLinks(persistenceService.deleteById(id, identityparam), identityparam);
+        return Response.accepted().entity(halService.dataWithLinks(dataWithLinks, uriInfo, identityparam))
+                .type("application/json")
+                .build();
     }
 
-    private String getKey(HttpHeaders headers) throws ArlasException {
+    @Timed
+    @Path("resources/{zone}/{key}")
+    @DELETE
+    @Produces(UTF8JSON)
+    @Consumes(UTF8JSON)
+    @ApiOperation(
+            value = Documentation.DELETE_OPERATION,
+            produces = UTF8JSON,
+            notes = Documentation.DELETE_OPERATION,
+            consumes = UTF8JSON
+    )
+    @ApiResponses(value = {@ApiResponse(code = 202, message = "Successful operation", response = DataWithLinks.class),
+            @ApiResponse(code = 404, message = "Zone or key not found.", response = Error.class),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
+
+    @UnitOfWork
+    public Response delete(
+            @Context HttpHeaders headers,
+            @Context UriInfo uriInfo,
+
+            @ApiParam(name = "zone", value = Documentation.ZONE,
+                    defaultValue = "pref",
+                    required = true)
+            @PathParam(value = "zone") String zone,
+
+            @ApiParam(name = "key", value = Documentation.KEY,
+                    required = true)
+            @PathParam(value = "key") String key,
+
+            // --------------------------------------------------------
+            // ----------------------- FORM -----------------------
+            // --------------------------------------------------------
+            @ApiParam(name = "pretty", value = io.arlas.server.app.Documentation.FORM_PRETTY,
+                    defaultValue = "false")
+            @QueryParam(value = "pretty") Boolean pretty
+    ) throws ArlasException {
+        IdentityParam identityparam = getIdentityParam(headers);
+        DataWithLinks dataWithLinks =new DataWithLinks(persistenceService.delete(zone,key,identityparam),identityparam);
+        return Response.accepted().entity(halService.dataWithLinks(dataWithLinks, uriInfo,identityparam))
+                .type("application/json")
+                .build();
+    }
+
+    private String getKey(HttpHeaders headers, String keyHeader) {
         String key = headers.getHeaderString(keyHeader);
         if (StringUtils.isBlank(key)) {
-            throw new ArlasException(keyHeader + " is empty.");
+            key = this.anonymousValue;
         }
 
         return key;
+    }
+
+    private IdentityParam getIdentityParam(HttpHeaders headers) {
+        String userId = getKey(headers, this.userHeader);
+        String organization = getKey(headers, this.organizationHeader);
+        List<String> groups = Arrays.asList(getKey(headers, this.groupsHeader).trim().split("\\s*,+\\s*,*\\s*"));
+        LOGGER.info("User: " + userId + "/ Org: " + organization + "/ Groups: " + groups.toString());
+        return new IdentityParam(userId, organization, groups);
     }
 }

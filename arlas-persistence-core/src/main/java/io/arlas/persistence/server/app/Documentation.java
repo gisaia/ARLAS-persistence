@@ -22,11 +22,17 @@ package io.arlas.persistence.server.app;
 public class Documentation {
 
     public static final String ID = "The id of the data.";
+    public static final String KEY = "The key of the data.";
     public static final String VALUE = "Value to be persisted.";
-    public static final String TYPE = "Type of the document.";
-    public static final String LIST_OPERATION = "Fetch a list of data related to a key.";
-    public static final String GET_OPERATION = "Fetch an entry given its key and id.";
+    public static final String ZONE = "Zone of the document.";
+    public static final String LIST_OPERATION = "Fetch a list of data related to a zone.";
+    public static final String GET_GROUPS_OPERATION = "Returns the users' groups allowed to interact with the given zone.";
+    public static final String GET_FROM_KEY_ZONE_OPERATION = "Fetch an entry given its zone and key.";
     public static final String DELETE_OPERATION = "Delete an entry given its key and id.";
-    public static final String CREATE_OPERATION = "Store a new piece of data for the provided key (auto generate id)";
+    public static final String CREATE_OPERATION = "Store a new piece of data for the provided zone and key (auto generate id).";
     public static final String UPDATE_OPERATION = "Update an existing value.";
+    public static final String READERS =  "Comma separated values of groups authorized to read the data.";
+    public static final String WRITERS =  "Comma separated values of groups authorized to modify the data.";
+    public static final String LAST_UPDATE = "Previous date value of last modification known by client.";
+
 }

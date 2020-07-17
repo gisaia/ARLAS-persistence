@@ -26,9 +26,11 @@ import com.google.cloud.firestore.*;
 import com.google.cloud.firestore.v1.FirestoreAdminClient;
 import com.google.firestore.admin.v1.Index;
 import com.google.firestore.admin.v1.ParentName;
-import com.google.longrunning.Operation;
 import io.arlas.persistence.server.core.PersistenceService;
+import io.arlas.persistence.server.exceptions.ConflictException;
+import io.arlas.persistence.server.exceptions.ForbidenException;
 import io.arlas.persistence.server.model.Data;
+import io.arlas.persistence.server.model.IdentityParam;
 import io.arlas.persistence.server.utils.SortOrder;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.NotFoundException;
@@ -37,9 +39,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class GoogleFirestorePersistenceServiceImpl implements PersistenceService {
     protected static Logger LOGGER = LoggerFactory.getLogger(GoogleFirestorePersistenceServiceImpl.class);
@@ -47,7 +50,7 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
     private final String collection;
     private final Firestore db;
 
-    public GoogleFirestorePersistenceServiceImpl(String collection) {
+    public GoogleFirestorePersistenceServiceImpl(String collection) throws ArlasException {
         this.collection = collection;
         this.db = FirestoreOptions.getDefaultInstance().getService();
 
@@ -55,26 +58,23 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
         try (FirestoreAdminClient firestoreAdminClient = FirestoreAdminClient.create()) {
             ParentName parent = ParentName.of(db.getOptions().getProjectId(), db.getOptions().getDatabaseId(), collection);
             try {
-                firestoreAdminClient.createIndex(parent,
-                        Index.newBuilder()
-                                .addFields(Index.IndexField.newBuilder()
-                                        .setFieldPath(Data.keyColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
-                                .addFields(Index.IndexField.newBuilder()
-                                        .setFieldPath(Data.typeColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
-                                .addFields(Index.IndexField.newBuilder()
-                                        .setFieldPath(Data.dateColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
-                                .setQueryScope(Index.QueryScope.COLLECTION)
-                                .build());
+                firestoreAdminClient.createIndex(parent, Index.newBuilder()
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.keyColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.zoneColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.lastUpdateDateColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
+                        .setQueryScope(Index.QueryScope.COLLECTION)
+                        .build());
             } catch (AlreadyExistsException e) {
                 LOGGER.debug("Firestore index1 was already created");
             } catch (Exception e) {
                 LOGGER.error("Could not create Firestore index1, it will need to be created manually", e);
             }
+
             try {
                 firestoreAdminClient.createIndex(parent, Index.newBuilder()
                         .addFields(Index.IndexField.newBuilder().setFieldPath(Data.keyColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
-                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.typeColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
-                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.dateColumn).setOrder(Index.IndexField.Order.DESCENDING).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.zoneColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.lastUpdateDateColumn).setOrder(Index.IndexField.Order.DESCENDING).build())
                         .setQueryScope(Index.QueryScope.COLLECTION)
                         .build());
             } catch (AlreadyExistsException e) {
@@ -82,8 +82,38 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
             } catch (Exception e) {
                 LOGGER.error("Could not create Firestore index2, it will need to be created manually", e);
             }
+
+            try {
+                firestoreAdminClient.createIndex(parent, Index.newBuilder()
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.docEntitiesColumn).setArrayConfig(Index.IndexField.ArrayConfig.CONTAINS).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.organizationColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.zoneColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.lastUpdateDateColumn).setOrder(Index.IndexField.Order.DESCENDING).build())
+                        .setQueryScope(Index.QueryScope.COLLECTION)
+                        .build());
+            } catch (AlreadyExistsException e) {
+                LOGGER.debug("Firestore index3 was already created");
+            } catch (Exception e) {
+                LOGGER.error("Could not create Firestore index3, it will need to be created manually", e);
+            }
+
+            try {
+                firestoreAdminClient.createIndex(parent, Index.newBuilder()
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.docEntitiesColumn).setArrayConfig(Index.IndexField.ArrayConfig.CONTAINS).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.organizationColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.zoneColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.lastUpdateDateColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
+                        .setQueryScope(Index.QueryScope.COLLECTION)
+                        .build());
+            } catch (AlreadyExistsException e) {
+                LOGGER.debug("Firestore index4 was already created");
+            } catch (Exception e) {
+                LOGGER.error("Could not create Firestore index4, it will need to be created manually", e);
+            }
+
         } catch (IOException e) {
             LOGGER.error("Could not create Firestore indices", e);
+            throw new ArlasException("Could not connect to Firestore");
         }
     }
 
@@ -91,27 +121,38 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
         if (!d.exists()) {
             throw new NotFoundException("Doc not found with id: " + id);
         }
-
-        return new Data(d.getString(Data.typeColumn), d.getString(Data.keyColumn),
-                d.getString(Data.valueColumn), d.getId(), d.getDate(Data.dateColumn));
+        return new Data(d.getId(),
+                d.getString(Data.keyColumn),
+                d.getString(Data.zoneColumn),
+                d.getString(Data.valueColumn),
+                d.getString(Data.ownerColumn),
+                d.getString(Data.organizationColumn),
+                (List<String>) d.get(Data.writersColumn),
+                (List<String>) d.get(Data.readersColumn),
+                (List<String>) d.get(Data.docEntitiesColumn),
+                d.getDate(Data.lastUpdateDateColumn)
+        );
     }
 
-
     @Override
-    public Pair<Long, List<Data>> list(String type, String key, Integer size, Integer page, SortOrder order) throws ArlasException {
+    public Pair<Long, List<Data>> list(String zone, IdentityParam identityParam, Integer size, Integer page, SortOrder order) throws ArlasException {
+        List<String> entities =  new ArrayList<>(identityParam.groups);
+        entities.addAll(Stream.of(identityParam.userId).collect(Collectors.toList()));
         try {
             return Pair.of(
-                    new Long(db.collection(this.collection)
-                            .whereEqualTo(Data.typeColumn, type)
-                            .whereEqualTo(Data.keyColumn, key)
+                    (long) db.collection(this.collection)
+                            .whereEqualTo(Data.zoneColumn, zone)
+                            .whereEqualTo(Data.organizationColumn, identityParam.organization)
+                            .whereArrayContainsAny(Data.docEntitiesColumn, entities)
                             .get()
                             .get()
-                            .size()),
+                            .size(),
 
                     db.collection(this.collection)
-                            .whereEqualTo(Data.typeColumn, type)
-                            .whereEqualTo(Data.keyColumn, key)
-                            .orderBy(Data.dateColumn, order == SortOrder.ASC ? Query.Direction.ASCENDING : Query.Direction.DESCENDING)
+                            .whereEqualTo(Data.zoneColumn, zone)
+                            .whereEqualTo(Data.organizationColumn, identityParam.organization)
+                            .whereArrayContainsAny(Data.docEntitiesColumn, entities)
+                            .orderBy(Data.lastUpdateDateColumn, order == SortOrder.ASC ? Query.Direction.ASCENDING : Query.Direction.DESCENDING)
                             .limit(size)
                             .offset((page - 1) * size)
                             .get()
@@ -125,7 +166,7 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
                                     return null;
                                 }
                             })
-                            .filter(d -> d != null)
+                            .filter(Objects::nonNull)
                             .collect(Collectors.toList()));
         } catch (FailedPreconditionException e) {
             LOGGER.error(e.getMessage()); // happens when index is missing
@@ -136,7 +177,129 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
     }
 
     @Override
-    public Data getById(String id) throws ArlasException {
+    public Data get(String zone, String key, IdentityParam identityParam) throws ArlasException {
+        Optional<Data> data = getByZoneKeyOrga(zone, key, identityParam.organization);
+        if (data.isPresent()) {
+            if (PersistenceService.isReaderOnData(identityParam, data.get()) ||
+                    PersistenceService.isWriterOnData(identityParam, data.get())) {
+                return data
+                        .orElseThrow(() -> new NotFoundException("Data with zone " + zone + " and key " + key + " not found."));
+            } else {
+                throw new ForbidenException("You are not authorized to get this resource");
+            }
+        } else {
+            throw new NotFoundException("Data with zone " + zone + " and key " +key +" not found.");
+        }
+    }
+
+    @Override
+    public Data getById(String id, IdentityParam identityParam) throws ArlasException {
+        Data data = getById(id);
+        if (PersistenceService.isReaderOnData(identityParam, data) ||
+                PersistenceService.isWriterOnData(identityParam, data)) {
+            return data;
+        } else {
+            throw new ForbidenException("You are not authorized to delete this resource");
+        }
+    }
+
+    @Override
+    public Data create(String zone, String key, IdentityParam identityParam, Set<String> readers, Set<String> writers, String value) throws ArlasException {
+        try {
+            Optional<Data> data = getByZoneKeyOrga(zone, key, identityParam.organization);
+            if (data.isPresent()) {
+                throw new ArlasException("A resource with zone " + zone + " and key " + key + " already exists.");
+            } else {
+                DocumentReference docRef = db.collection(collection).document();
+                Set<String> entities = new HashSet<>();
+                entities.addAll(writers);
+                entities.addAll(readers);
+                entities.addAll(Stream.of(identityParam.userId).collect(Collectors.toSet()));
+                Data newData = new Data(docRef.getId(), key, zone, value, identityParam.userId, identityParam.organization, new ArrayList<>(writers), new ArrayList<>(readers), new ArrayList<>(entities), new Date());
+                Timestamp result = docRef.create(newData).get().getUpdateTime();
+                LOGGER.debug("Created doc " + docRef.getId() + " at " + result);
+                return newData;
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new ArlasException("Error creating document", e);
+        }
+    }
+
+    @Override
+    public Data update(String id, String key, IdentityParam identityParam, Set<String> readers, Set<String> writers, String value, Date lastUpdate) throws ArlasException {
+        try {
+            Data data = getById(id);
+            if (PersistenceService.isWriterOnData(identityParam, data)) {
+                DocumentReference docRef = db.collection(collection).document(id);
+                Data newData = toData(id, docRef.get().get());
+                newData.setDocKey(Optional.ofNullable(key).orElse(data.getDocKey()));
+                Set<String> readersToUpdate = Optional.ofNullable(readers).orElse(new HashSet<>(data.getDocReaders()));
+                Set<String> writersToUpdate = Optional.ofNullable(writers).orElse(new HashSet<>(data.getDocWriters()));
+                newData.setDocReaders(new ArrayList<>(readersToUpdate));
+                newData.setDocWriters(new ArrayList<>(writersToUpdate));
+                Set<String> entities = new HashSet<>();
+                entities.addAll(readersToUpdate);
+                entities.addAll(writersToUpdate);
+                entities.addAll(Stream.of(identityParam.userId).collect(Collectors.toSet()));
+                newData.setDocEntities(new ArrayList<>(entities));
+                if (data.getLastUpdateDate().equals(lastUpdate)) {
+                    newData.setDocValue(value, true);
+                    Timestamp result = docRef.set(newData).get().getUpdateTime();
+                    LOGGER.debug("Updated doc " + id + " at " + result);
+                    return newData;
+                } else {
+                    throw new ConflictException("The data can not be update due to conflicts.");
+                }
+            } else {
+                throw new ForbidenException("You are not authorized to update this resource");
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new ArlasException("Error updating document", e);
+        }
+    }
+
+    @Override
+    public Data deleteById(String id, IdentityParam identityParam) throws ArlasException {
+        Data data = getById(id);
+        return deleteData(data, identityParam);
+    }
+
+    @Override
+    public Data delete(String zone, String key, IdentityParam identityParam) throws ArlasException {
+        Optional<Data> data = getByZoneKeyOrga(zone, key, identityParam.organization);
+        if (data.isPresent()) {
+            return deleteData(data.get(), identityParam);
+        } else {
+            throw new NotFoundException("Data with zone " + zone + " and key " + key + " not found.");
+        }
+    }
+
+    private Optional<Data> getByZoneKeyOrga(String zone, String key, String organization) throws ArlasException {
+
+        try {
+            return db.collection(this.collection)
+                    .whereEqualTo(Data.zoneColumn, zone)
+                    .whereEqualTo(Data.keyColumn, key)
+                    .whereEqualTo(Data.organizationColumn, organization)
+                    .limit(1)
+                    .get().get()
+                    .getDocuments()
+                    .stream()
+                    .map(d -> {
+                        try {
+                            return toData(d.getId(), d);
+                        } catch (NotFoundException e) { //can't happen in this case
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .findFirst();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new ArlasException("Error listing document: " + e.getMessage());
+        }
+    }
+
+    private Data getById(String id) throws ArlasException {
         try {
             return toData(id, db.collection(collection).document(id).get().get());
         } catch (InterruptedException | ExecutionException e) {
@@ -144,43 +307,19 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
         }
     }
 
-    @Override
-    public Data create(String type, String key, String value) throws ArlasException {
-        try {
-            DocumentReference docRef = db.collection(collection).document();
-            Data data = new Data(type, key, value, docRef.getId());
-            Timestamp result = docRef.create(data).get().getUpdateTime();
-            LOGGER.debug("Created doc " + docRef.getId() + " at " + result);
-            return data;
-        } catch (InterruptedException | ExecutionException e) {
-            throw new ArlasException("Error creating document", e);
-        }
-    }
-
-    @Override
-    public Data update(String id, String value) throws ArlasException {
-        try {
-            DocumentReference docRef = db.collection(collection).document(id);
-            Data data = toData(id, docRef.get().get());
-            data.setDocValue(value);
-            Timestamp result = docRef.set(data).get().getUpdateTime();
-            LOGGER.debug("Updated doc " + id + " at " + result);
-            return data;
-        } catch (InterruptedException | ExecutionException e) {
-            throw new ArlasException("Error updating document", e);
-        }
-    }
-
-    @Override
-    public Data delete(String id) throws ArlasException {
-        try {
-            DocumentReference docRef = db.collection(collection).document(id);
-            Data data = toData(id, docRef.get().get());
-            Timestamp result = docRef.delete().get().getUpdateTime();
-            LOGGER.debug("Delete doc " + id + " at " + result);
-            return data;
-        } catch (InterruptedException | ExecutionException e) {
-            throw new ArlasException("Error updating document", e);
+    private Data deleteData(Data data, IdentityParam identityParam) throws ArlasException {
+        if (PersistenceService.isWriterOnData(identityParam, data)) {
+            try {
+                DocumentReference docRef = db.collection(collection).document(data.getId());
+                Data newData = toData(data.getId(), docRef.get().get());
+                Timestamp result = docRef.delete().get().getUpdateTime();
+                LOGGER.debug("Delete doc " + data.getId() + " at " + result);
+                return newData;
+            } catch (InterruptedException | ExecutionException | NotFoundException e) {
+                throw new ArlasException("Error updating document", e);
+            }
+        } else {
+            throw new ForbidenException("You are not authorized to delete this resource");
         }
     }
 }

@@ -16,20 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.arlas.persistence.server.app;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+package io.arlas.persistence.server.exceptions;
 
+import io.arlas.server.exceptions.ArlasException;
 
-public class ArlasCorsConfiguration {
-    @JsonProperty("allowed_origins")
-    public String allowedOrigins;
-    @JsonProperty("allowed_headers")
-    public String allowedHeaders;
-    @JsonProperty("allowed_methods")
-    public String allowedMethods;
-    @JsonProperty("allowed_credentials")
-    public boolean allowedCredentials;
-    @JsonProperty("exposed_headers")
-    public String exposedHeaders;
+import javax.ws.rs.core.Response;
+
+public class ConflictException extends ArlasException {
+    public ConflictException() {
+        super();
+        status = Response.Status.CONFLICT;
+    }
+
+    public ConflictException(String message) {
+        super(message);
+        status = Response.Status.CONFLICT;
+    }
+
+    public ConflictException(String message, Throwable cause) {
+        super(message, cause);
+        status = Response.Status.CONFLICT;
+    }
+
 }

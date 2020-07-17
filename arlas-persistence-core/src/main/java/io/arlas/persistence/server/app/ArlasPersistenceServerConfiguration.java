@@ -30,6 +30,8 @@ import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ArlasPersistenceServerConfiguration extends Configuration {
     @Valid
@@ -53,8 +55,8 @@ public class ArlasPersistenceServerConfiguration extends Configuration {
     public ArlasAuthConfiguration arlasAuthConfiguration;
 
     @NotNull
-    @JsonProperty("key_header")
-    public String keyHeader;
+    @JsonProperty("arlas_organization_header")
+    public String organizationHeader;
 
     @JsonProperty("persistence_engine")
     public String engine;
@@ -62,19 +64,28 @@ public class ArlasPersistenceServerConfiguration extends Configuration {
     @JsonProperty("firestore_collection")
     public String firestoreCollection;
 
+    @JsonProperty("local_folder")
+    public String localFolder;
+
+    @JsonProperty("anonymous_value")
+    public String anonymousValue;
+
     public void check() throws ArlasConfigurationException {
         if (arlasAuthConfiguration == null) {
             arlasAuthConfiguration = new ArlasAuthConfiguration();
             arlasAuthConfiguration.enabled = false;
         }
         if (arlasCorsConfiguration.allowedHeaders == null) {
-            throw new ArlasConfigurationException("Arlas Alllowed Headers Configuration configuration missing in config file.");
+            throw new ArlasConfigurationException("Arlas Allowed Headers Configuration configuration missing in config file.");
         } else {
-            boolean keyHeaderIsAllowed = Arrays.stream(arlasCorsConfiguration.allowedHeaders.split(","))
-                    .map(String::trim)
-                    .anyMatch(header-> header.equals(keyHeader));
-            if (!keyHeaderIsAllowed) {
-                throw new ArlasConfigurationException("Key header is not in Arlas Alllowed Headers.");
+            List<String> allowedHeaders = Arrays.stream(arlasCorsConfiguration.allowedHeaders.split(","))
+                    .map(String::trim).collect(Collectors.toList());
+
+            boolean allHeaderIsAllowed =
+                    allowedHeaders.contains(arlasAuthConfiguration.headerUser) && allowedHeaders.contains(arlasAuthConfiguration.headerGroup) &&
+                            allowedHeaders.contains(organizationHeader);
+            if (!allHeaderIsAllowed) {
+                throw new ArlasConfigurationException("User header or Groups header or Organization Header is missing from Arlas Allowed Headers.");
             }
         }
         if ("firestore".equals(engine)) {

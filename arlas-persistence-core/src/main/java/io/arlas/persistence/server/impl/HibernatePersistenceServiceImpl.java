@@ -20,7 +20,10 @@
 package io.arlas.persistence.server.impl;
 
 import io.arlas.persistence.server.core.PersistenceService;
+import io.arlas.persistence.server.exceptions.ConflictException;
+import io.arlas.persistence.server.exceptions.ForbidenException;
 import io.arlas.persistence.server.model.Data;
+import io.arlas.persistence.server.model.IdentityParam;
 import io.arlas.persistence.server.utils.SortOrder;
 import io.arlas.persistence.server.utils.UUIDHelper;
 import io.arlas.server.exceptions.ArlasException;
@@ -29,64 +32,160 @@ import io.dropwizard.hibernate.AbstractDAO;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Optional;
-
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implements PersistenceService {
-    protected static Logger LOGGER = LoggerFactory.getLogger(HibernatePersistenceServiceImpl.class);
 
     public HibernatePersistenceServiceImpl(SessionFactory factory) {
         super(factory);
     }
 
     @Override
-    public Pair<Long, List<Data>> list(String type, String key, Integer size, Integer page, SortOrder order) throws ArlasException {
+    public Pair<Long, List<Data>> list(String zone, IdentityParam identityParam, Integer size, Integer page, SortOrder order) {
 
-        Long totalCount = currentSession().createQuery("SELECT count(ud) FROM Data ud"
-                + "    where ud." + Data.keyColumn + "=:key"
-                + "      and ud." + Data.typeColumn + "=:type", Long.class)
-                .setParameter("type", type)
-                .setParameter("key", key)
+        Long totalCount = currentSession().createQuery("SELECT count(ud) FROM Data ud  "
+                        + "    where ud." + Data.zoneColumn + "=:zone"
+                        + "    and ud." + Data.organizationColumn + "=:organization"
+                        + "    and " +
+                        "( " +
+                        "ud." + Data.ownerColumn + "=:userId "
+                        + "or " + getGroupsRequest(identityParam.groups) + ")"
+                , Long.class)
+                .setParameter("zone", zone)
+                .setParameter("organization", identityParam.organization)
+                .setParameter("userId", identityParam.userId)
                 .uniqueResult();
 
-        Query query = currentSession().createQuery("from Data ud"
-                + "    where ud." + Data.keyColumn + "=:key"
-                + "      and ud." + Data.typeColumn + "=:type"
-                + " order by ud." + Data.dateColumn + " " + order.toString())
-                .setParameter("type", type)
-                .setParameter("key", key)
+        Query query = currentSession().createQuery(" from Data ud "
+                + "    where ud." + Data.zoneColumn + "=:zone"
+                + "    and ud." + Data.organizationColumn + "=:organization"
+                + "    and " +
+                "( " +
+                "ud." + Data.ownerColumn + "=:userId " +
+                "or" + getGroupsRequest(identityParam.groups) + ")" +
+                " order by ud." + Data.lastUpdateDateColumn + " " + order.toString(), Data.class)
+                .setParameter("zone", zone)
+                .setParameter("organization", identityParam.organization)
+                .setParameter("userId", identityParam.userId)
                 .setMaxResults(size)
                 .setFirstResult((page - 1) * size);
-
         return Pair.of(totalCount, list(query));
     }
 
     @Override
-    public Data getById(String id) throws ArlasException {
+    public Data get(String zone, String key, IdentityParam identityParam) throws ArlasException {
+        Optional<Data> data = getByZoneKeyOrga(zone, key, identityParam.organization);
+        if (data.isPresent()) {
+            if (PersistenceService.isReaderOnData(identityParam, data.get()) ||
+                    PersistenceService.isWriterOnData(identityParam, data.get())) {
+                return data
+                        .orElseThrow(() -> new NotFoundException("Data with zone " + zone + " and key " + key + " not found."));
+            } else {
+                throw new ForbidenException("You are not authorized to get this resource.");
+            }
+        } else {
+            throw new NotFoundException("Data with zone " + zone + " and key " +key +" not found.");
+        }
+    }
+
+    @Override
+    public Data getById(String id, IdentityParam identityParam) throws ArlasException {
+        Data data = getById(id);
+        if (PersistenceService.isReaderOnData(identityParam, data) ||
+                PersistenceService.isWriterOnData(identityParam, data)) {
+            return data;
+        } else {
+            throw new ForbidenException("You are not authorized to get this resource.");
+        }
+    }
+
+    @Override
+    public Data create(String zone, String key, IdentityParam identityParam, Set<String> readers, Set<String> writers, String value) throws ArlasException {
+        Optional<Data> data = getByZoneKeyOrga(zone, key, identityParam.organization);
+        if (data.isPresent()) {
+            throw new ArlasException("A resource with zone " + zone + " and key " + key + " already exists.");
+        } else {
+            Data newData = new Data(UUIDHelper.generateUUID().toString(),
+                    key,
+                    zone,
+                    value,
+                    identityParam.userId,
+                    identityParam.organization,
+                    new ArrayList<>(writers),
+                    new ArrayList<>(readers),
+                    new Date());
+            return persist(newData);
+        }
+    }
+
+    @Override
+    public Data update(String id, String key, IdentityParam identityParam, Set<String> readers, Set<String> writers, String value, Date lastUpdate) throws ArlasException {
+        Data data = getById(id);
+        if (PersistenceService.isWriterOnData(identityParam, data)) {
+            data.setDocKey(Optional.ofNullable(key).orElse(data.getDocKey()));
+            Set<String> readersToUpdate = Optional.ofNullable(readers).orElse(new HashSet<>(data.getDocReaders()));
+            Set<String> writersToUpdate = Optional.ofNullable(writers).orElse(new HashSet<>(data.getDocWriters()));
+            data.setDocReaders(new ArrayList<>(readersToUpdate));
+            data.setDocWriters(new ArrayList<>(writersToUpdate));
+            if (data.getLastUpdateDate().getTime() == lastUpdate.getTime()) {
+                data.setDocValue(value,true);
+                return persist(data);
+            } else {
+                throw new ConflictException("The data can not be updated due to conflicts.");
+            }
+        } else {
+            throw new ForbidenException("You are not authorized to update this resource");
+        }
+    }
+
+    @Override
+    public Data deleteById(String id, IdentityParam identityParam) throws ArlasException {
+        Data data = getById(id);
+        return deleteData(data, identityParam);
+    }
+
+    @Override
+    public Data delete(String zone, String key, IdentityParam identityParam) throws ArlasException {
+        Optional<Data> data = getByZoneKeyOrga(zone, key, identityParam.organization);
+        if (data.isPresent()) {
+            return deleteData(data.get(), identityParam);
+        } else {
+            throw new NotFoundException("Data with zone " + zone + " and key " +key +" not found.");
+        }
+    }
+
+    private Data getById(String id) throws ArlasException {
         return Optional.ofNullable(get(id))
                 .orElseThrow(() -> new NotFoundException("Data with id " + id + " not found."));
     }
 
-    @Override
-    public Data create(String type, String key, String value) throws ArlasException {
-        return persist(new Data(type, key, value, UUIDHelper.generateUUID().toString()));
+    private Optional<Data> getByZoneKeyOrga(String zone, String key, String organization) {
+        Data data = currentSession().createQuery("from Data ud"
+                + "    where ud." + Data.zoneColumn + "=:zone"
+                + "    and ud." + Data.keyColumn + "=:key"
+                + "    and ud." + Data.organizationColumn + "=:organization", Data.class)
+                .setParameter("zone", zone)
+                .setParameter("key", key)
+                .setParameter("organization", organization)
+                .uniqueResult();
+        return Optional.ofNullable(data);
     }
 
-    @Override
-    public Data update(String id, String value) throws ArlasException {
-        Data data = getById(id);
-        data.setDocValue(value, true);
-        return persist(data);
+    private Data deleteData(Data data, IdentityParam identityParam) throws ForbidenException {
+        if (PersistenceService.isWriterOnData(identityParam, data)) {
+            currentSession().delete(data);
+            return data;
+        } else {
+            throw new ForbidenException("You are not authorized to delete this resource.");
+        }
     }
 
-    @Override
-    public Data delete(String id) throws ArlasException {
-        Data data = getById(id);
-        currentSession().delete(data);
-        return data;
+    private String getGroupsRequest(List<String> groups) {
+        return groups.stream()
+                .map(group -> "'" + group.trim() + "' member of ud." + Data.readersColumn + " or " +
+                        "'" + group.trim() + "' member of ud." + Data.writersColumn)
+                .collect(Collectors.joining(" or "));
     }
 }

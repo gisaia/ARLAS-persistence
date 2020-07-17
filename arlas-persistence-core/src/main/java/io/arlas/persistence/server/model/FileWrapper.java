@@ -16,20 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.arlas.persistence.server.app;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+package io.arlas.persistence.server.model;
 
+import java.io.File;
 
-public class ArlasCorsConfiguration {
-    @JsonProperty("allowed_origins")
-    public String allowedOrigins;
-    @JsonProperty("allowed_headers")
-    public String allowedHeaders;
-    @JsonProperty("allowed_methods")
-    public String allowedMethods;
-    @JsonProperty("allowed_credentials")
-    public boolean allowedCredentials;
-    @JsonProperty("exposed_headers")
-    public String exposedHeaders;
+public class FileWrapper {
+    public File file;
+    public Data data;
+
+    public FileWrapper(File f, Data d) {
+        file = f;
+        data = d;
+    }
 }
