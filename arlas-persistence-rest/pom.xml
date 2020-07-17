@@ -6,21 +6,21 @@
 
     <groupId>io.arlas</groupId>
     <artifactId>arlas-persistence-rest</artifactId>
-    <version>12.0.3-SNAPSHOT</version>
+    <version>13.0.0-beta.0</version>
     <packaging>jar</packaging>
     <name>ARLAS persistence server rest</name>
 
     <parent>
         <groupId>io.arlas</groupId>
         <artifactId>arlas-persistence-parent</artifactId>
-        <version>12.0.3-SNAPSHOT</version>
+        <version>13.0.0-beta.0</version>
     </parent>
 
     <dependencies>
         <dependency>
             <groupId>io.arlas</groupId>
             <artifactId>arlas-persistence-core</artifactId>
-            <version>12.0.3-SNAPSHOT</version>
+            <version>13.0.0-beta.0</version>
         </dependency>
     </dependencies>
 

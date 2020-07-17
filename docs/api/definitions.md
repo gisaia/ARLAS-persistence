@@ -2,18 +2,6 @@
 <a name="definitions"></a>
 ## Definitions
 
-<a name="data"></a>
-### Data
-
-|Name|Schema|
-|---|---|
-|**creation_date**  <br>*optional*|string (date-time)|
-|**doc_key**  <br>*required*|string|
-|**doc_type**  <br>*required*|string|
-|**doc_value**  <br>*optional*|string|
-|**id**  <br>*optional*|string|
-
-
 <a name="dataresource"></a>
 ### DataResource
 
@@ -31,11 +19,17 @@
 |Name|Schema|
 |---|---|
 |**_links**  <br>*optional*|< string, [Link](#link) > map|
-|**creation_date**  <br>*optional*|string (date-time)|
+|**doc_entities**  <br>*optional*|< string > array|
 |**doc_key**  <br>*required*|string|
-|**doc_type**  <br>*required*|string|
-|**doc_value**  <br>*optional*|string|
+|**doc_organization**  <br>*required*|string|
+|**doc_owner**  <br>*required*|string|
+|**doc_readers**  <br>*optional*|< string > array|
+|**doc_value**  <br>*required*|string|
+|**doc_writers**  <br>*optional*|< string > array|
+|**doc_zone**  <br>*required*|string|
 |**id**  <br>*optional*|string|
+|**last_update_date**  <br>*required*|string (date-time)|
+|**updatable**  <br>*optional*|boolean|
 
 
 <a name="error"></a>

@@ -1,11 +1,16 @@
 # Change Log
 
+## [v13.0.0-beta.0](https://github.com/gisaia/arlas-persistence/tree/v13.0.0-beta.0) (2020-07-17)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v12.0.2...v13.0.0-beta.0)
+
 ## [v12.0.2](https://github.com/gisaia/arlas-persistence/tree/v12.0.2) (2020-05-14)
 
 [Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v12.0.0...v12.0.2)
 
 **Miscellaneous:**
 
+- \[Firestore\] Make the collection name configurable [\#13](https://github.com/gisaia/ARLAS-persistence/issues/13)
 - Property `Creation Date` always return current date instead of the stored one [\#11](https://github.com/gisaia/ARLAS-persistence/issues/11)
 
 ## [v12.0.0](https://github.com/gisaia/arlas-persistence/tree/v12.0.0) (2020-03-26)

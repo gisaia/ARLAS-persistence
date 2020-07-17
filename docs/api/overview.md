@@ -7,7 +7,7 @@ persistence REST services
 
 
 ### Version information
-*Version* : 12.0.1
+*Version* : 13.0.0-beta.0
 
 
 ### Contact information
@@ -28,7 +28,7 @@ persistence REST services
 
 ### Tags
 
-* persistence
+* persist
 
 
 
