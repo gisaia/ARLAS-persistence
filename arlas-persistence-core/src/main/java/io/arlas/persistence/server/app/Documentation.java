@@ -27,6 +27,7 @@ public class Documentation {
     public static final String ZONE = "Zone of the document.";
     public static final String LIST_OPERATION = "Fetch a list of data related to a zone.";
     public static final String GET_GROUPS_OPERATION = "Returns the users' groups allowed to interact with the given zone.";
+    public static final String GET_FROM_ID_OPERATION = "Fetch an entry given its id.";
     public static final String GET_FROM_KEY_ZONE_OPERATION = "Fetch an entry given its zone and key.";
     public static final String DELETE_OPERATION = "Delete an entry given its key and id.";
     public static final String CREATE_OPERATION = "Store a new piece of data for the provided zone and key (auto generate id).";
