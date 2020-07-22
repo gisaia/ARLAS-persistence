@@ -1,5 +1,13 @@
 # Change Log
 
+## [v13.0.0-beta.1](https://github.com/gisaia/arlas-persistence/tree/v13.0.0-beta.1) (2020-07-22)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v13.0.0-beta.0...v13.0.0-beta.1)
+
+**Miscellaneous:**
+
+- REST API Get by Id [\#18](https://github.com/gisaia/ARLAS-persistence/issues/18)
+
 ## [v13.0.0-beta.0](https://github.com/gisaia/arlas-persistence/tree/v13.0.0-beta.0) (2020-07-17)
 
 [Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v12.0.2...v13.0.0-beta.0)

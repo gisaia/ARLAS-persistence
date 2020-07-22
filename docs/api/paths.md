@@ -43,10 +43,48 @@ Returns the users' groups allowed to interact with the given zone.
 * `application/json;charset=utf-8`
 
 
+<a name="get"></a>
+#### Fetch an entry given its id.
+```
+GET /persist/resource/{id}
+```
+
+
+##### Description
+Fetch an entry given its id.
+
+
+##### Parameters
+
+|Type|Name|Description|Schema|Default|
+|---|---|---|---|---|
+|**Path**|**id**  <br>*required*|The id of the data.|string||
+|**Query**|**pretty**  <br>*optional*|Pretty print|boolean|`"false"`|
+
+
+##### Responses
+
+|HTTP Code|Description|Schema|
+|---|---|---|
+|**200**|Successful operation|[DataWithLinks](#datawithlinks)|
+|**404**|Id not found.|[Error](#error)|
+|**500**|Arlas Persistence Error.|[Error](#error)|
+
+
+##### Consumes
+
+* `application/json;charset=utf-8`
+
+
+##### Produces
+
+* `application/json;charset=utf-8`
+
+
 <a name="update"></a>
 #### Update an existing value.
 ```
-PUT /persist/resources/{id}
+PUT /persist/resource/{id}
 ```
 
 
@@ -89,7 +127,7 @@ Update an existing value.
 <a name="deletebyid"></a>
 #### Delete an entry given its key and id.
 ```
-DELETE /persist/resources/{id}
+DELETE /persist/resource/{id}
 ```
 
 
@@ -111,6 +149,125 @@ Delete an entry given its key and id.
 |---|---|---|
 |**202**|Successful operation|[DataWithLinks](#datawithlinks)|
 |**404**|Key or id not found.|[Error](#error)|
+|**500**|Arlas Server Error.|[Error](#error)|
+
+
+##### Consumes
+
+* `application/json;charset=utf-8`
+
+
+##### Produces
+
+* `application/json;charset=utf-8`
+
+
+<a name="create"></a>
+#### Store a new piece of data for the provided zone and key (auto generate id).
+```
+POST /persist/resource/{zone}/{key}
+```
+
+
+##### Description
+Store a new piece of data for the provided zone and key (auto generate id).
+
+
+##### Parameters
+
+|Type|Name|Description|Schema|Default|
+|---|---|---|---|---|
+|**Path**|**key**  <br>*required*|The key of the data.|string||
+|**Path**|**zone**  <br>*required*|Zone of the document.|string|`"pref"`|
+|**Query**|**pretty**  <br>*optional*|Pretty print|boolean|`"false"`|
+|**Query**|**readers**  <br>*optional*|Comma separated values of groups authorized to read the data.|< string > array(multi)||
+|**Query**|**writers**  <br>*optional*|Comma separated values of groups authorized to modify the data.|< string > array(multi)||
+|**Body**|**value**  <br>*required*|Value to be persisted.|string||
+
+
+##### Responses
+
+|HTTP Code|Description|Schema|
+|---|---|---|
+|**201**|Successful operation|[DataWithLinks](#datawithlinks)|
+|**500**|Arlas Server Error.|[Error](#error)|
+
+
+##### Consumes
+
+* `application/json;charset=utf-8`
+
+
+##### Produces
+
+* `application/json;charset=utf-8`
+
+
+<a name="get_1"></a>
+#### Fetch an entry given its zone and key.
+```
+GET /persist/resource/{zone}/{key}
+```
+
+
+##### Description
+Fetch an entry given its zone and key.
+
+
+##### Parameters
+
+|Type|Name|Description|Schema|Default|
+|---|---|---|---|---|
+|**Path**|**key**  <br>*required*|The key of the data.|string||
+|**Path**|**zone**  <br>*required*|Zone of the document.|string|`"pref"`|
+|**Query**|**pretty**  <br>*optional*|Pretty print|boolean|`"false"`|
+
+
+##### Responses
+
+|HTTP Code|Description|Schema|
+|---|---|---|
+|**200**|Successful operation|[DataWithLinks](#datawithlinks)|
+|**404**|Key or zone not found.|[Error](#error)|
+|**500**|Arlas Persistence Error.|[Error](#error)|
+
+
+##### Consumes
+
+* `application/json;charset=utf-8`
+
+
+##### Produces
+
+* `application/json;charset=utf-8`
+
+
+<a name="delete"></a>
+#### Delete an entry given its key and id.
+```
+DELETE /persist/resource/{zone}/{key}
+```
+
+
+##### Description
+Delete an entry given its key and id.
+
+
+##### Parameters
+
+|Type|Name|Description|Schema|Default|
+|---|---|---|---|---|
+|**Path**|**key**  <br>*required*|The key of the data.|string||
+|**Path**|**zone**  <br>*required*|Zone of the document.|string|`"pref"`|
+|**Query**|**pretty**  <br>*optional*|Pretty print|boolean|`"false"`|
+
+
+##### Responses
+
+|HTTP Code|Description|Schema|
+|---|---|---|
+|**202**|Successful operation|[DataWithLinks](#datawithlinks)|
+|**404**|Zone or key not found.|[Error](#error)|
 |**500**|Arlas Server Error.|[Error](#error)|
 
 
@@ -153,125 +310,6 @@ Fetch a list of data related to a zone.
 |**200**|Successful operation|[DataResource](#dataresource)|
 |**404**|Zone not found.|[Error](#error)|
 |**500**|Arlas Persistence Error.|[Error](#error)|
-
-
-##### Consumes
-
-* `application/json;charset=utf-8`
-
-
-##### Produces
-
-* `application/json;charset=utf-8`
-
-
-<a name="create"></a>
-#### Store a new piece of data for the provided zone and key (auto generate id).
-```
-POST /persist/resources/{zone}/{key}
-```
-
-
-##### Description
-Store a new piece of data for the provided zone and key (auto generate id).
-
-
-##### Parameters
-
-|Type|Name|Description|Schema|Default|
-|---|---|---|---|---|
-|**Path**|**key**  <br>*required*|The key of the data.|string||
-|**Path**|**zone**  <br>*required*|Zone of the document.|string|`"pref"`|
-|**Query**|**pretty**  <br>*optional*|Pretty print|boolean|`"false"`|
-|**Query**|**readers**  <br>*optional*|Comma separated values of groups authorized to read the data.|< string > array(multi)||
-|**Query**|**writers**  <br>*optional*|Comma separated values of groups authorized to modify the data.|< string > array(multi)||
-|**Body**|**value**  <br>*required*|Value to be persisted.|string||
-
-
-##### Responses
-
-|HTTP Code|Description|Schema|
-|---|---|---|
-|**201**|Successful operation|[DataWithLinks](#datawithlinks)|
-|**500**|Arlas Server Error.|[Error](#error)|
-
-
-##### Consumes
-
-* `application/json;charset=utf-8`
-
-
-##### Produces
-
-* `application/json;charset=utf-8`
-
-
-<a name="get"></a>
-#### Fetch an entry given its zone and key.
-```
-GET /persist/resources/{zone}/{key}
-```
-
-
-##### Description
-Fetch an entry given its zone and key.
-
-
-##### Parameters
-
-|Type|Name|Description|Schema|Default|
-|---|---|---|---|---|
-|**Path**|**key**  <br>*required*|The key of the data.|string||
-|**Path**|**zone**  <br>*required*|Zone of the document.|string|`"pref"`|
-|**Query**|**pretty**  <br>*optional*|Pretty print|boolean|`"false"`|
-
-
-##### Responses
-
-|HTTP Code|Description|Schema|
-|---|---|---|
-|**200**|Successful operation|[DataWithLinks](#datawithlinks)|
-|**404**|Key or zone not found.|[Error](#error)|
-|**500**|Arlas Persistence Error.|[Error](#error)|
-
-
-##### Consumes
-
-* `application/json;charset=utf-8`
-
-
-##### Produces
-
-* `application/json;charset=utf-8`
-
-
-<a name="delete"></a>
-#### Delete an entry given its key and id.
-```
-DELETE /persist/resources/{zone}/{key}
-```
-
-
-##### Description
-Delete an entry given its key and id.
-
-
-##### Parameters
-
-|Type|Name|Description|Schema|Default|
-|---|---|---|---|---|
-|**Path**|**key**  <br>*required*|The key of the data.|string||
-|**Path**|**zone**  <br>*required*|Zone of the document.|string|`"pref"`|
-|**Query**|**pretty**  <br>*optional*|Pretty print|boolean|`"false"`|
-
-
-##### Responses
-
-|HTTP Code|Description|Schema|
-|---|---|---|
-|**202**|Successful operation|[DataWithLinks](#datawithlinks)|
-|**404**|Zone or key not found.|[Error](#error)|
-|**500**|Arlas Server Error.|[Error](#error)|
 
 
 ##### Consumes
