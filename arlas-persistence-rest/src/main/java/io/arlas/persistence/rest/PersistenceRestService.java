@@ -133,7 +133,7 @@ public class PersistenceRestService {
     }
 
     @Timed
-    @Path("resources/{zone}/{key}")
+    @Path("resource/{zone}/{key}")
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
@@ -174,7 +174,7 @@ public class PersistenceRestService {
     }
 
     @Timed
-    @Path("resources/{id}")
+    @Path("resource/{id}")
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
@@ -249,7 +249,7 @@ public class PersistenceRestService {
 
 
     @Timed
-    @Path("resources/{zone}/{key}")
+    @Path("resource/{zone}/{key}")
     @POST
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
@@ -306,7 +306,7 @@ public class PersistenceRestService {
     }
 
     @Timed
-    @Path("resources/{id}")
+    @Path("resource/{id}")
     @PUT
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
@@ -370,7 +370,7 @@ public class PersistenceRestService {
     }
 
     @Timed
-    @Path("resources/{id}")
+    @Path("resource/{id}")
     @DELETE
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
@@ -408,7 +408,7 @@ public class PersistenceRestService {
     }
 
     @Timed
-    @Path("resources/{zone}/{key}")
+    @Path("resource/{zone}/{key}")
     @DELETE
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
