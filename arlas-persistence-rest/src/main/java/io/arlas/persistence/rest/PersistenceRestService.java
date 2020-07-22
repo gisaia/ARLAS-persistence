@@ -174,6 +174,44 @@ public class PersistenceRestService {
     }
 
     @Timed
+    @Path("resources/{id}")
+    @GET
+    @Produces(UTF8JSON)
+    @Consumes(UTF8JSON)
+    @ApiOperation(
+            value = Documentation.GET_FROM_ID_OPERATION,
+            produces = UTF8JSON,
+            notes = Documentation.GET_FROM_ID_OPERATION,
+            consumes = UTF8JSON
+    )
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = DataWithLinks.class),
+            @ApiResponse(code = 404, message = "Id not found.", response = Error.class),
+            @ApiResponse(code = 500, message = "Arlas Persistence Error.", response = Error.class)})
+
+    @UnitOfWork
+    public Response get(
+            @Context UriInfo uriInfo,
+            @Context HttpHeaders headers,
+
+            @ApiParam(name = "id",
+                    value = Documentation.ID,
+                    required = true)
+            @PathParam(value = "id") String id,
+
+
+            // --------------------------------------------------------
+            // ----------------------- FORM -----------------------
+            // --------------------------------------------------------
+            @ApiParam(name = "pretty", value = io.arlas.server.app.Documentation.FORM_PRETTY,
+                    defaultValue = "false")
+            @QueryParam(value = "pretty") Boolean pretty
+    ) throws ArlasException {
+        IdentityParam identityparam = getIdentityParam(headers);
+        DataWithLinks dataWithLinks = new DataWithLinks(persistenceService.getById(id, identityparam), identityparam);
+        return ResponseFormatter.getResultResponse(halService.dataWithLinks(dataWithLinks, uriInfo, identityparam));
+    }
+
+    @Timed
     @Path("groups/{zone}")
     @GET
     @Produces(UTF8JSON)

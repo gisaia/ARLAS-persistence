@@ -199,7 +199,7 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
                 PersistenceService.isWriterOnData(identityParam, data)) {
             return data;
         } else {
-            throw new ForbidenException("You are not authorized to delete this resource");
+            throw new ForbidenException("You are not authorized to get this resource");
         }
     }
 
