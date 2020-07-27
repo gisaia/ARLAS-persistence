@@ -148,7 +148,7 @@ public class PersistenceRestService {
             @ApiResponse(code = 500, message = "Arlas Persistence Error.", response = Error.class)})
 
     @UnitOfWork
-    public Response get(
+    public Response getByKey(
             @Context UriInfo uriInfo,
             @Context HttpHeaders headers,
 
@@ -174,7 +174,7 @@ public class PersistenceRestService {
     }
 
     @Timed
-    @Path("resource/{id}")
+    @Path("resource/id/{id}")
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
@@ -189,7 +189,7 @@ public class PersistenceRestService {
             @ApiResponse(code = 500, message = "Arlas Persistence Error.", response = Error.class)})
 
     @UnitOfWork
-    public Response get(
+    public Response getById(
             @Context UriInfo uriInfo,
             @Context HttpHeaders headers,
 
@@ -306,7 +306,7 @@ public class PersistenceRestService {
     }
 
     @Timed
-    @Path("resource/{id}")
+    @Path("resource/id/{id}")
     @PUT
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
@@ -331,7 +331,7 @@ public class PersistenceRestService {
             @PathParam(value = "id") String id,
 
             @ApiParam(name = "key", value = Documentation.KEY)
-            @QueryParam(value = "zone") String key,
+            @QueryParam(value = "key") String key,
 
             @ApiParam(name = "readers", value = Documentation.READERS)
             @QueryParam(value = "readers") List<String> readers,
@@ -370,7 +370,7 @@ public class PersistenceRestService {
     }
 
     @Timed
-    @Path("resource/{id}")
+    @Path("resource/id/{id}")
     @DELETE
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)

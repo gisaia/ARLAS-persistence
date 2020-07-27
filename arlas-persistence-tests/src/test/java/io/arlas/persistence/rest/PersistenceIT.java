@@ -116,7 +116,7 @@ public class PersistenceIT {
                 .contentType("application/json")
                 .body(generateData(2))
                 .param("last_update", currentDate)
-                .put(arlasAppPath.concat("resources/") + id)
+                .put(arlasAppPath.concat("resource/") + id)
                 .then().statusCode(201)
                 .body("doc_value", equalTo("{\"age\":2}"));
 
@@ -132,7 +132,7 @@ public class PersistenceIT {
     public void test05DeleteData() {
         givenForUser(technical)
                 .contentType("application/json")
-                .delete(arlasAppPath.concat("resources/") + id)
+                .delete(arlasAppPath.concat("resource/") + id)
                 .then().statusCode(202)
                 .body("id", equalTo(id));
 
@@ -148,7 +148,7 @@ public class PersistenceIT {
                     .pathParam("key", "document".concat(String.valueOf(i)))
                     .contentType("application/json")
                     .body(generateData(i))
-                    .post(arlasAppPath.concat("resources/{zone}/{key}"))
+                    .post(arlasAppPath.concat("resource/{zone}/{key}"))
                     .then().statusCode(201)
                     .body("doc_value", equalTo("{\"age\":" + i + "}"));
         }
@@ -175,7 +175,7 @@ public class PersistenceIT {
                     .pathParam("zone", dataZone)
                     .pathParam("key", "document".concat(String.valueOf(i)))
                     .contentType("application/json")
-                    .delete(arlasAppPath.concat("resources/{zone}/{key}"))
+                    .delete(arlasAppPath.concat("resource/{zone}/{key}"))
                     .then().statusCode(202);
 
             getData(technical, "document".concat(String.valueOf(i)))
@@ -266,7 +266,7 @@ public class PersistenceIT {
                 .contentType("application/json")
                 .body(generateData(2))
                 .param("last_update", currentDate)
-                .put(arlasAppPath.concat("resources/") + id)
+                .put(arlasAppPath.concat("resource/") + id)
                 .then().statusCode(403);
 
     }
@@ -285,7 +285,7 @@ public class PersistenceIT {
                 .param("last_update", currentDate)
                 .queryParam("readers", Collections.singletonList(TECHNICAL))
                 .queryParam("writers", Collections.singletonList(SALES))
-                .put(arlasAppPath.concat("resources/") + id)
+                .put(arlasAppPath.concat("resource/") + id)
                 .then().statusCode(201)
                 .body("doc_value", equalTo("{\"age\":3}"));
 
@@ -310,7 +310,7 @@ public class PersistenceIT {
                 .param("last_update", currentDateCommercial)
                 .queryParam("readers", Collections.singletonList(TECHNICAL))
                 .queryParam("writers", Collections.singletonList(SALES))
-                .put(arlasAppPath.concat("resources/") + id)
+                .put(arlasAppPath.concat("resource/") + id)
                 .then().statusCode(201)
                 .body("doc_value", equalTo("{\"age\":4}"));
 
@@ -320,7 +320,7 @@ public class PersistenceIT {
                 .param("last_update", currentDateAdmin)
                 .queryParam("readers", Collections.singletonList(TECHNICAL))
                 .queryParam("writers", Collections.singletonList(SALES))
-                .put(arlasAppPath.concat("resources/") + id)
+                .put(arlasAppPath.concat("resource/") + id)
                 .then().statusCode(409);
     }
 
@@ -329,7 +329,7 @@ public class PersistenceIT {
     public void test13DeleteWithJustReadAccess() {
         givenForUser(technical)
                 .contentType("application/json")
-                .delete(arlasAppPath.concat("resources/") + id)
+                .delete(arlasAppPath.concat("resource/") + id)
                 .then().statusCode(403);
     }
 
@@ -338,7 +338,7 @@ public class PersistenceIT {
 
         givenForUser(commercial)
                 .contentType("application/json")
-                .delete(arlasAppPath.concat("resources/") + id)
+                .delete(arlasAppPath.concat("resource/") + id)
                 .then().statusCode(202)
                 .body("id", equalTo(id));
 
@@ -365,7 +365,7 @@ public class PersistenceIT {
                 .pathParam("zone", "zone")
                 .contentType("application/json")
                 .body(generateData(1))
-                .post(arlasAppPath.concat("resources/{zone}/{key}"))
+                .post(arlasAppPath.concat("resource/{zone}/{key}"))
                 .then().statusCode(201)
                 .body("doc_value", equalTo("{\"age\":1}"));
 
@@ -374,7 +374,7 @@ public class PersistenceIT {
                 .pathParam("zone", "zone")
                 .pathParam("key", "key")
                 .when()
-                .get(arlasAppPath.concat("resources/{zone}/{key}")).then()
+                .get(arlasAppPath.concat("resource/{zone}/{key}")).then()
                 .statusCode(200)
                 .body("doc_value", equalTo("{\"age\":1}"));
     }
@@ -415,7 +415,7 @@ public class PersistenceIT {
                 .queryParam("writers", writers)
                 .contentType("application/json")
                 .body(generateData(1))
-                .post(arlasAppPath.concat("resources/{zone}/{key}"));
+                .post(arlasAppPath.concat("resource/{zone}/{key}"));
     }
 
     protected Response getData(UserIdentity userIdentity, String key) {
@@ -423,7 +423,7 @@ public class PersistenceIT {
                 .pathParam("zone", dataZone)
                 .pathParam("key", key)
                 .when()
-                .get(arlasAppPath.concat("resources/{zone}/{key}"));
+                .get(arlasAppPath.concat("resource/{zone}/{key}"));
     }
 
 
