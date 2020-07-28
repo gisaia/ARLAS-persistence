@@ -43,10 +43,10 @@ Returns the users' groups allowed to interact with the given zone.
 * `application/json;charset=utf-8`
 
 
-<a name="get"></a>
+<a name="getbyid"></a>
 #### Fetch an entry given its id.
 ```
-GET /persist/resource/{id}
+GET /persist/resource/id/{id}
 ```
 
 
@@ -84,7 +84,7 @@ Fetch an entry given its id.
 <a name="update"></a>
 #### Update an existing value.
 ```
-PUT /persist/resource/{id}
+PUT /persist/resource/id/{id}
 ```
 
 
@@ -127,7 +127,7 @@ Update an existing value.
 <a name="deletebyid"></a>
 #### Delete an entry given its key and id.
 ```
-DELETE /persist/resource/{id}
+DELETE /persist/resource/id/{id}
 ```
 
 
@@ -203,7 +203,7 @@ Store a new piece of data for the provided zone and key (auto generate id).
 * `application/json;charset=utf-8`
 
 
-<a name="get_1"></a>
+<a name="getbykey"></a>
 #### Fetch an entry given its zone and key.
 ```
 GET /persist/resource/{zone}/{key}
