@@ -27,6 +27,7 @@ services:
       - ARLAS_PERSISTENCE_PREFIX="${ARLAS_PERSISTENCE_PREFIX:-/arlas_persistence_server}"
       - ARLAS_PERSISTENCE_APP_PATH="${ARLAS_PERSISTENCE_APP_PATH:-/}"
       - ARLAS_AUTH_ENABLED="${ARLAS_AUTH_ENABLED:-false}"
+      - ARLAS_AUTH_CERT_URL="${ARLAS_AUTH_CERT_URL}"
       - ARLAS_PERSISTENCE_ENGINE="${ARLAS_PERSISTENCE_ENGINE:-file}"
       - ARLAS_PERSISTENCE_LOCAL_FOLDER="${ARLAS_PERSISTENCE_LOCAL_FOLDER:-/tmp/persist/}"
 #      - ARLAS_PERSISTENCE_ENGINE="${ARLAS_PERSISTENCE_ENGINE:-firestore}"
@@ -42,6 +43,5 @@ services:
       - 19997:9997
     volumes:
       - ${GOOGLE_APPLICATION_CREDENTIALS:-/tmp}:/opt/app/google-registry.json:ro
-      - ${ARLAS_AUTH_LOCAL_CERT_FILE:-/tmp}:${ARLAS_AUTH_LOCAL_CERT_FILE:-/opt/app/arlas.pem}:ro
       - ${ARLAS_PERSISTENCE_LOCAL_FOLDER_HOST:-/tmp/persist/}:${ARLAS_PERSISTENCE_LOCAL_FOLDER:-/tmp/persist/}:rw
     command: ["/opt/app/start.sh"]
