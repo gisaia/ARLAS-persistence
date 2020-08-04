@@ -32,7 +32,6 @@ import io.arlas.server.model.response.Error;
 import io.arlas.server.utils.ResponseFormatter;
 import io.dropwizard.hibernate.UnitOfWork;
 import io.swagger.annotations.*;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +40,7 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Path("/persist")
@@ -450,20 +450,19 @@ public class PersistenceRestService {
                 .build();
     }
 
-    private String getKey(HttpHeaders headers, String keyHeader) {
-        String key = headers.getHeaderString(keyHeader);
-        if (StringUtils.isBlank(key)) {
-            key = this.anonymousValue;
-        }
-
-        return key;
-    }
-
     private IdentityParam getIdentityParam(HttpHeaders headers) {
-        String userId = getKey(headers, this.userHeader);
-        String organization = getKey(headers, this.organizationHeader);
-        List<String> groups = Arrays.asList(getKey(headers, this.groupsHeader).trim().split("\\s*,+\\s*,*\\s*"));
-        LOGGER.info("User: " + userId + "/ Org: " + organization + "/ Groups: " + groups.toString());
+        String userId = Optional.ofNullable(headers.getHeaderString(this.userHeader))
+                .orElse(this.anonymousValue);
+
+        String organization = Optional.ofNullable(headers.getHeaderString(this.organizationHeader))
+                .orElse(""); // in a context where resources are publicly available, no organisation is defined
+
+        List<String> groups = Arrays.stream(
+                Optional.ofNullable(headers.getHeaderString(this.groupsHeader)).orElse("group/public").split(","))
+                .map(g -> g.trim())
+                .collect(Collectors.toList());
+
+        LOGGER.info("User='" + userId + "' / Org='" + organization + "' / Groups='" + groups.toString() + "'");
         return new IdentityParam(userId, organization, groups);
     }
 }
