@@ -4,7 +4,7 @@
 
     <groupId>io.arlas</groupId>
     <artifactId>arlas-persistence-parent</artifactId>
-    <version>13.0.0-SNAPSHOT</version>
+    <version>13.0.0-beta.3</version>
     <packaging>pom</packaging>
     <name>ARLAS persistence parent</name>
 

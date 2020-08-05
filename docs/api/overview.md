@@ -7,7 +7,7 @@ persistence REST services
 
 
 ### Version information
-*Version* : 13.0.0-beta.2
+*Version* : 13.0.0-beta.3
 
 
 ### Contact information

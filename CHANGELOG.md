@@ -1,5 +1,9 @@
 # Change Log
 
+## [v13.0.0-beta.3](https://github.com/gisaia/arlas-persistence/tree/v13.0.0-beta.3) (2020-08-05)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v13.0.0-beta.2...v13.0.0-beta.3)
+
 ## [v13.0.0-beta.2](https://github.com/gisaia/arlas-persistence/tree/v13.0.0-beta.2) (2020-07-28)
 
 [Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v13.0.0-beta.1...v13.0.0-beta.2)
