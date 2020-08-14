@@ -100,7 +100,6 @@ public class ArlasPersistenceServer extends Application<ArlasPersistenceServerCo
     @Override
     public void run(ArlasPersistenceServerConfiguration configuration, Environment environment) throws Exception {
 
-        LOGGER.info("Raw configuration: " + (new ObjectMapper()).writer().writeValueAsString(configuration));
         configuration.check();
         LOGGER.info("Checked configuration: " + (new ObjectMapper()).writer().writeValueAsString(configuration));
 
