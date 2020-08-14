@@ -53,11 +53,18 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
 
     @Override
     public Pair<Long, List<Data>> list(String zone, IdentityParam identityParam, Integer size, Integer page, SortOrder order) throws ArlasException {
-        List<Data> list = getByFilenameFilter(
+        Stream<Data> rawlist = getByFilenameFilter(
                 prefixFilter(zone, identityParam.organization),
                 identityParam, true).stream()
-                .map(fw -> fw.data)
-                .collect(Collectors.toList());
+                .map(fw -> fw.data);
+        List<Data> list;
+        if(order.equals(SortOrder.DESC)){
+            list = rawlist.sorted(Comparator.comparing(Data::getLastUpdateDate).reversed())
+                    .collect(Collectors.toList());
+        }else{
+            list = rawlist.sorted(Comparator.comparing(Data::getLastUpdateDate))
+                    .collect(Collectors.toList());
+        }
         return Pair.of(Long.valueOf(list.size()),
                 (page - 1) * size > list.size() ? Collections.emptyList() : list.subList((page - 1) * size, Math.min(list.size(), page * size)));
     }
