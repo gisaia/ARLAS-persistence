@@ -74,6 +74,9 @@ public class ArlasPersistenceServerConfiguration extends Configuration {
         if (arlasAuthConfiguration == null) {
             arlasAuthConfiguration = new ArlasAuthConfiguration();
             arlasAuthConfiguration.enabled = false;
+        }else{
+            arlasAuthConfiguration.check();
+
         }
         if (arlasCorsConfiguration.allowedHeaders == null) {
             throw new ArlasConfigurationException("Arlas Allowed Headers Configuration configuration missing in config file.");

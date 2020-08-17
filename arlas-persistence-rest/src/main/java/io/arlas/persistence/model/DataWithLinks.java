@@ -48,7 +48,9 @@ public class DataWithLinks extends Data {
         this.setDocValue(data.getDocValue());
         this.setId(data.getId());
         this.setUpdatable(this.isUpdatable(data,identityParam));
-
+        this.setDocOwner(data.getDocOwner());
+        this.setDocReaders(data.getDocReaders());
+        this.setDocWriters(data.getDocWriters());
     }
 
     public void setUpdatable(boolean updatable) {

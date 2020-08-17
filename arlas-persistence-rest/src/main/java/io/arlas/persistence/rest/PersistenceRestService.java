@@ -222,7 +222,7 @@ public class PersistenceRestService {
             notes = Documentation.GET_GROUPS_OPERATION,
             consumes = UTF8JSON
     )
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = DataWithLinks.class),
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = String[].class),
             @ApiResponse(code = 404, message = "Zone not found.", response = Error.class),
             @ApiResponse(code = 500, message = "Arlas Persistence Error.", response = Error.class)})
 
