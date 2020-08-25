@@ -60,16 +60,18 @@ zipkin: # The ZIPIN configuration, not active by default
 swagger: # Configuration of SWAGGER for generating documentation and APIs
   resourcePackage: io.arlas.persistence.rest # The java package to process for extracting the APIs
 
+
 arlas_cors:
-  allowed_origins: ${ARLAS_PERSISTENCE_CORS_ALLOWED_ORIGINS:-"*"}
-  allowed_headers: ${ARLAS_PERSISTENCE_CORS_ALLOWED_HEADERS:-"arlas-user,arlas-groups,arlas-organization,X-Requested-With,Content-Type,Accept,Origin,Authorization,X-Forwarded-User"}
-  allowed_methods: ${ARLAS_PERSISTENCE_CORS_ALLOWED_METHODS:-"OPTIONS,GET,PUT,POST,DELETE,HEAD"}
-  allowed_credentials: ${ARLAS_PERSISTENCE_CORS_ALLOWED_CREDENTIALS:-true}
-  exposed_headers: ${ARLAS_PERSISTENCE_CORS_EXPOSED_HEADERS:-"Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,Location"}
+  enabled: ${ARLAS_CORS_ENABLED:-true}
+  allowed_origins: ${ARLAS_CORS_ALLOWED_ORIGINS:-"*"}
+  allowed_headers: ${ARLAS_CORS_ALLOWED_HEADERS:-"arlas-user,arlas-groups,arlas-organization,X-Requested-With,Content-Type,Accept,Origin,Authorization,WWW-Authenticate"}
+  allowed_methods: ${ARLAS_CORS_ALLOWED_METHODS:-"OPTIONS,GET,PUT,POST,DELETE,HEAD"}
+  allowed_credentials: ${ARLAS_CORS_ALLOWED_CREDENTIALS:-true}
+  exposed_headers: ${ARLAS_CORS_EXPOSED_HEADERS:-"Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,Location,WWW-Authenticate"}
 
 arlas_auth:
   enabled: ${ARLAS_AUTH_ENABLED:-false}
-  public_uris: [${ARLAS_AUTH_PUBLIC_URIS:-swagger.*:*,persist.*:*}]
+  public_uris: [${ARLAS_AUTH_PUBLIC_URIS:-swagger.*:*,persist.*:GET}]
   # deprecated
   certificate_file: ${ARLAS_AUTH_CERT_FILE:-/opt/app/arlas.pem}
   certificate_url: ${ARLAS_AUTH_CERT_URL:-}
