@@ -21,6 +21,7 @@ package io.arlas.persistence.server.app;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 import io.arlas.server.app.ArlasAuthConfiguration;
+import io.arlas.server.app.ArlasCorsConfiguration;
 import io.arlas.server.exceptions.ArlasConfigurationException;
 import io.arlas.server.utils.StringUtil;
 import io.dropwizard.Configuration;

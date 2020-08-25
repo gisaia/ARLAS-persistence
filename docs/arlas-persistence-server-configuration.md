@@ -106,13 +106,14 @@ docker run -ti -d \
 
 ### CORS, HEADERS for API response
 
-| Environment variable | ARLAS Server configuration variable | Default |
+| Environment variable | ARLAS Server configuration variable | Default | Description |
 | --- | --- | --- |
-| ARLAS_PERSISTENCE_CORS_ALLOWED_ORIGINS | arlas_cors.allowed_origins | "*" |
-| ARLAS_PERSISTENCE_CORS_ALLOWED_HEADERS | arlas_cors.allowed_headers | "arlas-user,arlas-groups,arlas-organization,X-Requested-With,Content-Type,Accept,Origin,Authorization,X-Forwarded-User" |
-| ARLAS_PERSISTENCE_CORS_ALLOWED_METHODS | arlas_cors.allowed_methods | "OPTIONS,GET,PUT,POST,DELETE,HEAD" |
-| ARLAS_PERSISTENCE_CORS_ALLOWED_CREDENTIALS | arlas_cors.allowed_credentials | true |
-| ARLAS_PERSISTENCE_CORS_EXPOSED_HEADERS | arlas_cors.exposed_headers | "Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,Location" |
+| ARLAS_CORS_ENABLED | arlas_cors.enabled | false | Whether to configure cors or not |
+| ARLAS_CORS_ALLOWED_ORIGINS | arlas_cors.allowed_origins | "*" | Comma-separated list of allowed origins |
+| ARLAS_CORS_ALLOWED_HEADERS | arlas_cors.allowed_headers | "arlas-user,arlas-groups,arlas-organization,X-Requested-With,Content-Type,Accept,Origin,Authorization,X-Forwarded-User" | Comma-separated list of allowed headers |
+| ARLAS_CORS_ALLOWED_METHODS | arlas_cors.allowed_methods | "OPTIONS,GET,PUT,POST,DELETE,HEAD" | Comma-separated list of allowed methods |
+| ARLAS_CORS_ALLOWED_CREDENTIALS | arlas_cors.allowed_credentials | true | Whether to allow credentials or not |
+| ARLAS_CORS_EXPOSED_HEADERS | arlas_cors.exposed_headers | "Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,Location" | Comma-separated list of exposed headers, readable on client side |
 
 ### AUTH
 

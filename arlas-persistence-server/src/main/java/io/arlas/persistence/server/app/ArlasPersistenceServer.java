@@ -31,6 +31,7 @@ import io.arlas.persistence.server.impl.FileSystemPersistenceServiceImpl;
 import io.arlas.persistence.server.impl.GoogleFirestorePersistenceServiceImpl;
 import io.arlas.persistence.server.impl.HibernatePersistenceServiceImpl;
 import io.arlas.persistence.server.model.Data;
+import io.arlas.server.app.ArlasCorsConfiguration;
 import io.arlas.server.auth.AuthenticationFilter;
 import io.arlas.server.auth.AuthorizationFilter;
 import io.arlas.server.exceptions.ArlasExceptionMapper;
@@ -56,6 +57,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
+import javax.ws.rs.core.HttpHeaders;
 import java.util.EnumSet;
 import java.util.Optional;
 
@@ -141,7 +143,14 @@ public class ArlasPersistenceServer extends Application<ArlasPersistenceServerCo
         }
 
         //cors
-        configureCors(environment,configuration.arlasCorsConfiguration);
+        if (configuration.arlasCorsConfiguration.enabled) {
+            configureCors(environment,configuration.arlasCorsConfiguration);
+        }else{
+            CrossOriginFilter filter = new CrossOriginFilter();
+            final FilterRegistration.Dynamic cors = environment.servlets().addFilter("CrossOriginFilter", filter);
+            // Expose always HttpHeaders.WWW_AUTHENTICATE to authentify on client side a non public uri call
+            cors.setInitParameter(CrossOriginFilter.EXPOSED_HEADERS_PARAM, HttpHeaders.WWW_AUTHENTICATE);
+        }
 
         //filters
         environment.jersey().register(PrettyPrintFilter.class);
@@ -151,13 +160,17 @@ public class ArlasPersistenceServer extends Application<ArlasPersistenceServerCo
     private void configureCors(Environment environment, ArlasCorsConfiguration configuration) {
         CrossOriginFilter filter = new CrossOriginFilter();
         final FilterRegistration.Dynamic cors = environment.servlets().addFilter("CrossOriginFilter", filter);
-
         // Configure CORS parameters
         cors.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, configuration.allowedOrigins);
         cors.setInitParameter(CrossOriginFilter.ALLOWED_HEADERS_PARAM, configuration.allowedHeaders);
         cors.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, configuration.allowedMethods);
         cors.setInitParameter(CrossOriginFilter.ALLOW_CREDENTIALS_PARAM, String.valueOf(configuration.allowedCredentials));
-        cors.setInitParameter(CrossOriginFilter.EXPOSED_HEADERS_PARAM, configuration.exposedHeaders);
+        String exposedHeader = configuration.exposedHeaders;
+        // Expose always HttpHeaders.WWW_AUTHENTICATE to authentify on client side a non public uri call
+        if(configuration.exposedHeaders.indexOf(HttpHeaders.WWW_AUTHENTICATE)<0){
+            exposedHeader = configuration.exposedHeaders.concat(",").concat(HttpHeaders.WWW_AUTHENTICATE);
+        }
+        cors.setInitParameter(CrossOriginFilter.EXPOSED_HEADERS_PARAM, exposedHeader);
 
         // Add URL mapping
         cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
