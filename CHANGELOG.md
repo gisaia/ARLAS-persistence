@@ -1,5 +1,15 @@
 # Change Log
 
+## [v13.0.0-beta.4](https://github.com/gisaia/arlas-persistence/tree/v13.0.0-beta.4) (2020-08-25)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v13.0.0-beta.3...v13.0.0-beta.4)
+
+**Miscellaneous:**
+
+- Endpoint getGroupsByZone return DataWithLinks [\#25](https://github.com/gisaia/ARLAS-persistence/issues/25)
+- Order by date is not implemented for file system implementation [\#24](https://github.com/gisaia/ARLAS-persistence/issues/24)
+- Return readers and writers list in Data response [\#23](https://github.com/gisaia/ARLAS-persistence/issues/23)
+
 ## [v13.0.0-beta.3](https://github.com/gisaia/arlas-persistence/tree/v13.0.0-beta.3) (2020-08-05)
 
 [Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v13.0.0-beta.2...v13.0.0-beta.3)

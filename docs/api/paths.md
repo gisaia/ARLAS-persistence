@@ -28,7 +28,7 @@ Returns the users' groups allowed to interact with the given zone.
 
 |HTTP Code|Description|Schema|
 |---|---|---|
-|**200**|Successful operation|[DataWithLinks](#datawithlinks)|
+|**200**|Successful operation|< string > array|
 |**404**|Zone not found.|[Error](#error)|
 |**500**|Arlas Persistence Error.|[Error](#error)|
 
