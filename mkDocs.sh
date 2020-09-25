@@ -116,7 +116,7 @@ docker run --rm \
     -v $PWD:/opt/maven \
 	-v $HOME/.m2:/root/.m2 \
 	busybox \
-        sh -c 'cp /opt/maven/CHANGELOG.md /opt/maven/target/generated-docs/CHANGELOG.md'
+        sh -c 'cp /opt/maven/CHANGELOG.md /opt/maven/target/generated-docs/CHANGELOG_ARLAS-persistence.md'
 
 echo "=> Check generated documentation"
 if [[ ! -f ${BASEDIR}/target/generated-docs/typescript-doc/classes/_api_.writeapi.md ]] ; then
