@@ -21,6 +21,8 @@ package io.arlas.persistence.server.model;
 
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import io.dropwizard.jackson.JsonSnakeCase;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
@@ -80,12 +82,14 @@ public class Data {
     @Transient
     private List<String> docEntities = new ArrayList<>();
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SUBSELECT)
     @CollectionTable(name = "user_data_writers", joinColumns = @JoinColumn(name = "data_id"))
     @Column(name = "writer")
     private List<String>  docWriters = new ArrayList<>();
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SUBSELECT)
     @CollectionTable(name = "user_data_readers", joinColumns = @JoinColumn(name = "data_id"))
     @Column(name = "reader")
     private List<String> docReaders = new ArrayList<>();
