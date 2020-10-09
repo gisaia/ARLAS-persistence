@@ -1,5 +1,21 @@
 # Change Log
 
+## [v14.0.0-rc.2](https://github.com/gisaia/arlas-persistence/tree/v14.0.0-rc.2) (2020-10-09)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v14.0.0-rc.1...v14.0.0-rc.2)
+
+## [v14.0.0-rc.1](https://github.com/gisaia/arlas-persistence/tree/v14.0.0-rc.1) (2020-10-06)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v14.0.0-test-doc...v14.0.0-rc.1)
+
+**Miscellaneous:**
+
+- Delete endpoint cause Mapper Exception when connected to postgres db [\#32](https://github.com/gisaia/ARLAS-persistence/issues/32)
+
+## [v14.0.0-test-doc](https://github.com/gisaia/arlas-persistence/tree/v14.0.0-test-doc) (2020-09-11)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v13.0.0-beta.4...v14.0.0-test-doc)
+
 ## [v13.0.0-beta.4](https://github.com/gisaia/arlas-persistence/tree/v13.0.0-beta.4) (2020-08-25)
 
 [Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v13.0.0-beta.3...v13.0.0-beta.4)
