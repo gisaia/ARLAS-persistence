@@ -116,7 +116,7 @@ public class PersistenceIT {
                 .contentType("application/json")
                 .body(generateData(2))
                 .param("last_update", currentDate)
-                .put(arlasAppPath.concat("resource/") + id)
+                .put(arlasAppPath.concat("resource/id/") + id)
                 .then().statusCode(201)
                 .body("doc_value", equalTo("{\"age\":2}"));
 
@@ -132,7 +132,7 @@ public class PersistenceIT {
     public void test05DeleteData() {
         givenForUser(technical)
                 .contentType("application/json")
-                .delete(arlasAppPath.concat("resource/") + id)
+                .delete(arlasAppPath.concat("resource/id/") + id)
                 .then().statusCode(202)
                 .body("id", equalTo(id));
 
@@ -266,7 +266,7 @@ public class PersistenceIT {
                 .contentType("application/json")
                 .body(generateData(2))
                 .param("last_update", currentDate)
-                .put(arlasAppPath.concat("resource/") + id)
+                .put(arlasAppPath.concat("resource/id/") + id)
                 .then().statusCode(403);
 
     }
@@ -285,7 +285,7 @@ public class PersistenceIT {
                 .param("last_update", currentDate)
                 .queryParam("readers", Collections.singletonList(TECHNICAL))
                 .queryParam("writers", Collections.singletonList(SALES))
-                .put(arlasAppPath.concat("resource/") + id)
+                .put(arlasAppPath.concat("resource/id/") + id)
                 .then().statusCode(201)
                 .body("doc_value", equalTo("{\"age\":3}"));
 
@@ -310,7 +310,7 @@ public class PersistenceIT {
                 .param("last_update", currentDateCommercial)
                 .queryParam("readers", Collections.singletonList(TECHNICAL))
                 .queryParam("writers", Collections.singletonList(SALES))
-                .put(arlasAppPath.concat("resource/") + id)
+                .put(arlasAppPath.concat("resource/id/") + id)
                 .then().statusCode(201)
                 .body("doc_value", equalTo("{\"age\":4}"));
 
@@ -320,7 +320,7 @@ public class PersistenceIT {
                 .param("last_update", currentDateAdmin)
                 .queryParam("readers", Collections.singletonList(TECHNICAL))
                 .queryParam("writers", Collections.singletonList(SALES))
-                .put(arlasAppPath.concat("resource/") + id)
+                .put(arlasAppPath.concat("resource/id/") + id)
                 .then().statusCode(409);
     }
 
@@ -329,7 +329,7 @@ public class PersistenceIT {
     public void test13DeleteWithJustReadAccess() {
         givenForUser(technical)
                 .contentType("application/json")
-                .delete(arlasAppPath.concat("resource/") + id)
+                .delete(arlasAppPath.concat("resource/id/") + id)
                 .then().statusCode(403);
     }
 
@@ -338,7 +338,7 @@ public class PersistenceIT {
 
         givenForUser(commercial)
                 .contentType("application/json")
-                .delete(arlasAppPath.concat("resource/") + id)
+                .delete(arlasAppPath.concat("resource/id/") + id)
                 .then().statusCode(202)
                 .body("id", equalTo(id));
 
