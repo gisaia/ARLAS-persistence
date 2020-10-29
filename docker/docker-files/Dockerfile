@@ -17,7 +17,7 @@ RUN mvn install \
 ###################
 # PACKAGING STAGE #
 ###################
-FROM openjdk:8
+FROM gisaia/arlas-openjdk:8
 WORKDIR /opt/app
 
 # install script dependencies

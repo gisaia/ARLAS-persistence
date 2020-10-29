@@ -6,7 +6,8 @@ services:
   - docker
 
 env:
-  - STAGE=REST DOCKER_COMPOSE_VERSION=1.17.1
+  - STAGE=REST_FILE DOCKER_COMPOSE_VERSION=1.17.1
+  - STAGE=REST_HIBERNATE DOCKER_COMPOSE_VERSION=1.17.1
 
 before_install:
   - sudo apt-get update
