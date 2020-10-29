@@ -45,4 +45,4 @@ echo "===> start arlas-persistence-server stack"
 docker-compose -f ${DOCKER_COMPOSE} --project-name arlas_persist up -d ${BUILD_OPTS}
 
 echo "===> wait for arlas-persistence-server up and running"
-docker run --net arlas_persist_default --rm busybox sh -c 'i=1; until nc -w 2 arlas-persistence-server 9997; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done'
+docker run --net arlaspersist_default --rm busybox sh -c 'i=1; until nc -w 2 arlas-persistence-server 9997; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done'
