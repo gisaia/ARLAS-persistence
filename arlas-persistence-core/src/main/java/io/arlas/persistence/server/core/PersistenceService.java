@@ -18,12 +18,14 @@
  */
 package io.arlas.persistence.server.core;
 
+import io.arlas.persistence.server.exceptions.ForbidenException;
 import io.arlas.persistence.server.model.Data;
 import io.arlas.persistence.server.model.IdentityParam;
 import io.arlas.persistence.server.utils.SortOrder;
 import io.arlas.server.exceptions.ArlasException;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -78,6 +80,27 @@ public interface PersistenceService {
                 .filter(b::contains)
                 .count() > 0;
     }
+
+    static boolean isShareableGroup(List<String> group,  String zone, IdentityParam identityParam ) throws ForbidenException {
+        List<String> groupForZone = getGroupsForZone(zone, identityParam);
+        List<String> authorizeGroup=group.stream().filter(g->groupForZone.contains(g)).collect(Collectors.toList());
+        List<String> unAuthorizeGroup=group.stream().filter(g->!groupForZone.contains(g)).collect(Collectors.toList());
+        if((!authorizeGroup.isEmpty() && unAuthorizeGroup.isEmpty()) || group.isEmpty()){
+            return true;
+        }else{
+            throw new ForbidenException("You are not authorized to give rights to this group : " + group );
+        }
+    }
+
+    static void checkReadersWritersGroups(String zone, IdentityParam identityParam, Set<String> readers, Set<String> writers) throws ForbidenException{
+
+        List<String> writersList = new ArrayList<>(writers);
+        List<String> readersList = new ArrayList<>(readers);
+        isShareableGroup(writersList,zone,identityParam);
+        isShareableGroup(readersList,zone,identityParam);
+    }
+
+
 
     static boolean isReaderOnData(IdentityParam idp, Data data) {
         return data.getDocOrganization().equals(idp.organization) &&

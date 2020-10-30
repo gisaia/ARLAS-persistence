@@ -107,6 +107,7 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
         if (data.isPresent()) {
             throw new ArlasException("A resource with zone " + zone + " and key " + key + " already exists.");
         } else {
+            PersistenceService.checkReadersWritersGroups(zone, identityParam, readers,writers);
             Data newData = new Data(UUIDHelper.generateUUID().toString(),
                     key,
                     zone,
@@ -124,6 +125,8 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
     public Data update(String id, String key, IdentityParam identityParam, Set<String> readers, Set<String> writers, String value, Date lastUpdate) throws ArlasException {
         Data data = getById(id);
         if (PersistenceService.isWriterOnData(identityParam, data)) {
+            String zone = data.getDocZone();
+            PersistenceService.checkReadersWritersGroups(zone, identityParam, readers,writers);
             data.setDocKey(Optional.ofNullable(key).orElse(data.getDocKey()));
             Set<String> readersToUpdate = Optional.ofNullable(readers).orElse(new HashSet<>(data.getDocReaders()));
             Set<String> writersToUpdate = Optional.ofNullable(writers).orElse(new HashSet<>(data.getDocWriters()));

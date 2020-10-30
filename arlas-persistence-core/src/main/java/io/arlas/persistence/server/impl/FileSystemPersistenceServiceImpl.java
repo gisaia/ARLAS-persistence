@@ -105,6 +105,7 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
         if (data.isPresent()) {
             throw new ArlasException("A resource with zone " + zone + " and key " + key + " already exists.");
         } else {
+            PersistenceService.checkReadersWritersGroups(zone, identityParam, readers,writers);
             Data newData = new Data(UUIDHelper.generateUUID().toString(),
                     key,
                     zone,
@@ -128,7 +129,9 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
         List<FileWrapper> list = getByFilenameFilter(suffixFilter(id), identityParam, false);
         if (list.size() == 1) {
             Data data = list.get(0).data;
+            String zone = data.getDocZone();
             if (PersistenceService.isWriterOnData(identityParam, data)) {
+                PersistenceService.checkReadersWritersGroups(zone, identityParam, readers,writers);
                 data.setDocKey(Optional.ofNullable(key).orElse(data.getDocKey()));
                 Set<String> readersToUpdate = Optional.ofNullable(readers).orElse(new HashSet<>(data.getDocReaders()));
                 Set<String> writersToUpdate = Optional.ofNullable(writers).orElse(new HashSet<>(data.getDocWriters()));

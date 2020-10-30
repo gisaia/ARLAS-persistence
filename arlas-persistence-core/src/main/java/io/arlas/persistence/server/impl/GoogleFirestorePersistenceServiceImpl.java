@@ -210,6 +210,7 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
             if (data.isPresent()) {
                 throw new ArlasException("A resource with zone " + zone + " and key " + key + " already exists.");
             } else {
+                PersistenceService.checkReadersWritersGroups(zone, identityParam, readers,writers);
                 DocumentReference docRef = db.collection(collection).document();
                 Set<String> entities = new HashSet<>();
                 entities.addAll(writers);
@@ -230,6 +231,8 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
         try {
             Data data = getById(id);
             if (PersistenceService.isWriterOnData(identityParam, data)) {
+                String zone = data.getDocZone();
+                PersistenceService.checkReadersWritersGroups(zone, identityParam, readers,writers);
                 DocumentReference docRef = db.collection(collection).document(id);
                 Data newData = toData(id, docRef.get().get());
                 newData.setDocKey(Optional.ofNullable(key).orElse(data.getDocKey()));
