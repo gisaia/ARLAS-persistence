@@ -44,22 +44,26 @@ public class PersistenceIT {
     private static final UserIdentity technical;
     private static final UserIdentity commercial;
     private static final UserIdentity otherCompany;
+    private static final UserIdentity publicProfile;
 
     private static final String ALL = "group/user_pref/arlas_company1/all";
     private static final String TECHNICAL = "group/user_pref/arlas_company1/technical";
     private static final String SALES = "group/user_pref/arlas_company1/sales";
-    private static final String ADMIN = "group/config/arlas_company1/admin";
+    private static final String ADMIN = "group/user_pref/arlas_company1/admin";
     private static final String ALL2 = "group/user_pref/arlas_company2/all";
     private static final String SALES2 = "group/user_pref/arlas_company2/sales";
+    private static final String PUBLIC = "group/public";
 
     private static final String dataZone;
     private static String id;
 
     static {
-        admin = new UserIdentity("admin", String.join(",", ALL, TECHNICAL, SALES, ADMIN), "company1");
-        technical = new UserIdentity("technical", String.join(",",ALL, TECHNICAL), "company1");
-        commercial = new UserIdentity("commercial", String.join(",",ALL, SALES), "company1");
-        otherCompany = new UserIdentity("other", String.join(",",ALL2, SALES2), "company2");
+        admin = new UserIdentity("admin", String.join(",", ALL, TECHNICAL, SALES, ADMIN, PUBLIC), "company1");
+        technical = new UserIdentity("technical", String.join(",",ALL, TECHNICAL, PUBLIC), "company1");
+        commercial = new UserIdentity("commercial", String.join(",",ALL, SALES, PUBLIC), "company1");
+        otherCompany = new UserIdentity("other", String.join(",",ALL2, SALES2, PUBLIC), "company2");
+
+        publicProfile = new UserIdentity("public", String.join(",", PUBLIC), "company1");
 
         userHeader = Optional.ofNullable(System.getenv("ARLAS_USER_HEADER")).orElse("arlas-user");
         organizationHeader = Optional.ofNullable(System.getenv("ARLAS_ORGANIZATION_HEADER")).orElse("arlas-organization");
@@ -89,7 +93,7 @@ public class PersistenceIT {
 
     @Test
     public void test02PostData() {
-        id = createData(technical, "myFirstDocument", new ArrayList<>(), new ArrayList<>())
+        id = createData(technical, "myFirstDocument", Collections.EMPTY_LIST, Collections.EMPTY_LIST)
                 .then().statusCode(201)
                 .body("doc_value", equalTo("{\"age\":1}"))
                 .extract().jsonPath().get("id");
@@ -186,7 +190,7 @@ public class PersistenceIT {
 
     @Test
     public void test08PostWithWriteAccess() {
-        id = createData(admin, "myFirstRestrictedDocument", new ArrayList<>(), Collections.singletonList(SALES))
+        id = createData(admin, "myFirstRestrictedDocument", Collections.EMPTY_LIST, Collections.singletonList(SALES))
                 .then().statusCode(201)
                 .body("doc_value", equalTo("{\"age\":1}"))
                 .extract().jsonPath().get("id");
@@ -283,7 +287,7 @@ public class PersistenceIT {
                 .contentType("application/json")
                 .body(generateData(3))
                 .param("last_update", currentDate)
-                .queryParam("readers", Collections.singletonList(TECHNICAL))
+                .queryParam("readers", Collections.singletonList(PUBLIC))
                 .queryParam("writers", Collections.singletonList(SALES))
                 .put(arlasAppPath.concat("resource/id/") + id)
                 .then().statusCode(201)
@@ -308,7 +312,7 @@ public class PersistenceIT {
                 .contentType("application/json")
                 .body(generateData(4))
                 .param("last_update", currentDateCommercial)
-                .queryParam("readers", Collections.singletonList(TECHNICAL))
+                .queryParam("readers", Collections.singletonList(PUBLIC))
                 .queryParam("writers", Collections.singletonList(SALES))
                 .put(arlasAppPath.concat("resource/id/") + id)
                 .then().statusCode(201)
@@ -318,8 +322,8 @@ public class PersistenceIT {
                 .contentType("application/json")
                 .body(generateData(5))
                 .param("last_update", currentDateAdmin)
-                .queryParam("readers", Collections.singletonList(TECHNICAL))
-                .queryParam("writers", Collections.singletonList(SALES))
+                .queryParam("readers", Collections.singletonList(PUBLIC))
+                .queryParam("writers", Collections.singletonList(ADMIN))
                 .put(arlasAppPath.concat("resource/id/") + id)
                 .then().statusCode(409);
     }
@@ -327,7 +331,7 @@ public class PersistenceIT {
 
     @Test
     public void test13DeleteWithJustReadAccess() {
-        givenForUser(technical)
+        givenForUser(publicProfile)
                 .contentType("application/json")
                 .delete(arlasAppPath.concat("resource/id/") + id)
                 .then().statusCode(403);
@@ -348,7 +352,7 @@ public class PersistenceIT {
 
     @Test
     public void test15CreateOtherOrganisation() {
-        id = createData(otherCompany, "mySecondRestrictedDocument", Collections.singletonList(TECHNICAL), Collections.singletonList(SALES))
+        id = createData(otherCompany, "mySecondRestrictedDocument", Collections.singletonList(PUBLIC), Collections.singletonList(PUBLIC))
                 .then().statusCode(201)
                 .body("doc_value", equalTo("{\"age\":1}"))
                 .extract().jsonPath().get("id");
@@ -388,10 +392,23 @@ public class PersistenceIT {
                 .contentType("application/json")
                 .get(arlasAppPath.concat("groups/{zone}"))
                 .then().statusCode(200).extract().jsonPath().get();
+
         Assert.assertArrayEquals(groups.toArray(),
                 Arrays.stream(admin.groups.split(","))
-                        .filter(g -> !g.equals(ADMIN))
                         .toArray());
+    }
+
+    @Test
+    public void test18PostData() {
+        createData(technical, "myNewDocument", Collections.EMPTY_LIST,  Collections.singletonList("group/private"))
+                .then().statusCode(403);
+        createData(technical, "myNewDocument2", Collections.EMPTY_LIST,  Arrays.asList("group/private",TECHNICAL))
+                .then().statusCode(403);
+    }
+    @Test
+    public void test19PostData() {
+        createData(technical, "myNewDocument", Collections.singletonList("group/private"),Collections.EMPTY_LIST)
+                .then().statusCode(403);
     }
 
     protected RequestSpecification givenForUser(UserIdentity userIdentity) {
@@ -407,12 +424,16 @@ public class PersistenceIT {
     }
 
     protected Response createData(UserIdentity userIdentity, String key, List<String> readers, List<String> writers) {
-
-        return givenForUser(userIdentity)
+        RequestSpecification request = givenForUser(userIdentity)
                 .pathParam("zone", dataZone)
-                .pathParam("key", key)
-                .queryParam("readers", readers)
-                .queryParam("writers", writers)
+                .pathParam("key", key);
+
+        if(!readers.isEmpty())
+            request=request.queryParam("readers", readers);
+        if(!writers.isEmpty())
+            request=request.queryParam("writers", writers);
+        return
+                request
                 .contentType("application/json")
                 .body(generateData(1))
                 .post(arlasAppPath.concat("resource/{zone}/{key}"));
