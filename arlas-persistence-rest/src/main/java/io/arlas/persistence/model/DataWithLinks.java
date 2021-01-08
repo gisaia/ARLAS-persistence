@@ -23,12 +23,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.arlas.persistence.server.model.Data;
 import io.arlas.persistence.server.model.IdentityParam;
 import io.dropwizard.jackson.JsonSnakeCase;
-import org.hibernate.annotations.Type;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.validation.constraints.NotNull;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static io.arlas.persistence.server.core.PersistenceService.intersect;
 

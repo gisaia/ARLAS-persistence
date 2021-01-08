@@ -19,4 +19,4 @@ cd ${SCRIPT_PATH}/..
 
 # TESTS SUITE
 ./scripts/tests-integration-stage.sh --stage="REST_FILE"
-./scripts/tests-integration-stage.sh --stage="REST_HIBERNATE""
+./scripts/tests-integration-stage.sh --stage="REST_HIBERNATE"
