@@ -29,6 +29,8 @@ public class Documentation {
     public static final String GET_GROUPS_OPERATION = "Returns the users' groups allowed to interact with the given zone.";
     public static final String GET_FROM_ID_OPERATION = "Fetch an entry given its id.";
     public static final String GET_FROM_KEY_ZONE_OPERATION = "Fetch an entry given its zone and key.";
+    public static final String EXISTS_FROM_ID_OPERATION = "Check the existence of an entry given its id.";
+    public static final String EXISTS_FROM_KEY_ZONE_OPERATION = "Check the existence of an entry given its zone and key.";
     public static final String DELETE_OPERATION = "Delete an entry given its key and id.";
     public static final String CREATE_OPERATION = "Store a new piece of data for the provided zone and key (auto generate id).";
     public static final String UPDATE_OPERATION = "Update an existing value.";

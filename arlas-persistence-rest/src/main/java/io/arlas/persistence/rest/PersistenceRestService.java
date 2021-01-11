@@ -22,12 +22,14 @@ package io.arlas.persistence.rest;
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.persistence.model.DataResource;
 import io.arlas.persistence.model.DataWithLinks;
+import io.arlas.persistence.model.Exists;
 import io.arlas.persistence.server.app.ArlasPersistenceServerConfiguration;
 import io.arlas.persistence.server.app.Documentation;
 import io.arlas.persistence.server.core.PersistenceService;
 import io.arlas.persistence.server.model.IdentityParam;
 import io.arlas.persistence.server.utils.SortOrder;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.NotFoundException;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.utils.ResponseFormatter;
 import io.dropwizard.hibernate.UnitOfWork;
@@ -174,6 +176,50 @@ public class PersistenceRestService {
     }
 
     @Timed
+    @Path("resource/exists/{zone}/{key}")
+    @GET
+    @Produces(UTF8JSON)
+    @Consumes(UTF8JSON)
+    @ApiOperation(
+            value = Documentation.EXISTS_FROM_KEY_ZONE_OPERATION,
+            produces = UTF8JSON,
+            notes = Documentation.EXISTS_FROM_KEY_ZONE_OPERATION,
+            consumes = UTF8JSON
+    )
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = Exists.class),
+            @ApiResponse(code = 500, message = "Arlas Persistence Error.", response = Error.class)})
+
+    @UnitOfWork
+    public Response existsByKey(
+            @Context UriInfo uriInfo,
+            @Context HttpHeaders headers,
+
+            @ApiParam(name = "zone", value = Documentation.ZONE,
+                    defaultValue = "pref",
+                    required = true)
+            @PathParam(value = "zone") String zone,
+
+            @ApiParam(name = "key", value = Documentation.KEY,
+                    required = true)
+            @PathParam(value = "key") String key,
+
+            // --------------------------------------------------------
+            // ----------------------- FORM -----------------------
+            // --------------------------------------------------------
+            @ApiParam(name = "pretty", value = io.arlas.server.app.Documentation.FORM_PRETTY,
+                    defaultValue = "false")
+            @QueryParam(value = "pretty") Boolean pretty
+    ) throws ArlasException {
+        IdentityParam identityparam = getIdentityParam(headers);
+        try {
+            persistenceService.get(zone, key, identityparam);
+            return Response.ok(new Exists(true)).build();
+        } catch (NotFoundException e) {
+            return Response.ok(new Exists(false)).build();
+        }
+    }
+
+    @Timed
     @Path("resource/id/{id}")
     @GET
     @Produces(UTF8JSON)
@@ -209,6 +255,47 @@ public class PersistenceRestService {
         IdentityParam identityparam = getIdentityParam(headers);
         DataWithLinks dataWithLinks = new DataWithLinks(persistenceService.getById(id, identityparam), identityparam);
         return ResponseFormatter.getResultResponse(halService.dataWithLinks(dataWithLinks, uriInfo, identityparam));
+    }
+
+    @Timed
+    @Path("resource/exists/id/{id}")
+    @GET
+    @Produces(UTF8JSON)
+    @Consumes(UTF8JSON)
+    @ApiOperation(
+            value = Documentation.EXISTS_FROM_ID_OPERATION,
+            produces = UTF8JSON,
+            notes = Documentation.EXISTS_FROM_ID_OPERATION,
+            consumes = UTF8JSON
+    )
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = Exists.class),
+            @ApiResponse(code = 500, message = "Arlas Persistence Error.", response = Error.class)})
+
+    @UnitOfWork
+    public Response existsById(
+            @Context UriInfo uriInfo,
+            @Context HttpHeaders headers,
+
+            @ApiParam(name = "id",
+                    value = Documentation.ID,
+                    required = true)
+            @PathParam(value = "id") String id,
+
+
+            // --------------------------------------------------------
+            // ----------------------- FORM -----------------------
+            // --------------------------------------------------------
+            @ApiParam(name = "pretty", value = io.arlas.server.app.Documentation.FORM_PRETTY,
+                    defaultValue = "false")
+            @QueryParam(value = "pretty") Boolean pretty
+    ) throws ArlasException {
+        IdentityParam identityparam = getIdentityParam(headers);
+        try {
+            persistenceService.getById(id, identityparam);
+            return Response.ok(new Exists(true)).build();
+        } catch (NotFoundException e) {
+            return Response.ok(new Exists(false)).build();
+        }
     }
 
     @Timed

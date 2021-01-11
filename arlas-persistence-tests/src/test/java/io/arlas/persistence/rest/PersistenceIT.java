@@ -410,6 +410,35 @@ public class PersistenceIT {
         createData(technical, "myNewDocument", Collections.singletonList("group/private"),Collections.EMPTY_LIST)
                 .then().statusCode(403);
     }
+    @Test
+    public void test20ExistsNot() {
+        givenForUser(technical)
+                .pathParam("zone", dataZone)
+                .pathParam("key", "foo")
+                .when()
+                .get(arlasAppPath.concat("resource/exists/{zone}/{key}"))
+                .then().statusCode(200)
+                .contentType(ContentType.JSON)
+                .body("exists", equalTo(false));
+    }
+
+    @Test
+    public void test21ExistsById() {
+        id = createData(technical, "foo", Collections.EMPTY_LIST, Collections.EMPTY_LIST)
+                .then().statusCode(201)
+                .body("doc_value", equalTo("{\"age\":1}"))
+                .extract().jsonPath().get("id");
+
+        givenForUser(technical)
+                .pathParam("zone", dataZone)
+                .pathParam("key", "foo")
+                .when()
+                .get(arlasAppPath.concat("resource/exists/{zone}/{key}"))
+                .then().statusCode(200)
+                .contentType(ContentType.JSON)
+                .body("exists", equalTo(true));
+    }
+
 
     protected RequestSpecification givenForUser(UserIdentity userIdentity) {
         return given().header(userHeader, userIdentity.userId)
