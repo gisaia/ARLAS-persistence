@@ -423,11 +423,10 @@ public class PersistenceIT {
     }
 
     @Test
-    public void test21ExistsById() {
-        id = createData(technical, "foo", Collections.EMPTY_LIST, Collections.EMPTY_LIST)
+    public void test21ExistsByKey() {
+        createData(technical, "foo", Collections.EMPTY_LIST, Collections.EMPTY_LIST)
                 .then().statusCode(201)
-                .body("doc_value", equalTo("{\"age\":1}"))
-                .extract().jsonPath().get("id");
+                .body("doc_value", equalTo("{\"age\":1}"));
 
         givenForUser(technical)
                 .pathParam("zone", dataZone)
