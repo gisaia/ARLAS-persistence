@@ -42,6 +42,14 @@
 |**status**  <br>*optional*|integer (int32)|
 
 
+<a name="exists"></a>
+### Exists
+
+|Name|Schema|
+|---|---|
+|**exists**  <br>*optional*|boolean|
+
+
 <a name="link"></a>
 ### Link
 

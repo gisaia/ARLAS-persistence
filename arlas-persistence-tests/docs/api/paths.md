@@ -43,6 +43,81 @@ Returns the users' groups allowed to interact with the given zone.
 * `application/json;charset=utf-8`
 
 
+<a name="existsbyid"></a>
+#### Check the existence of an entry given its id.
+```
+GET /persist/resource/exists/id/{id}
+```
+
+
+##### Description
+Check the existence of an entry given its id.
+
+
+##### Parameters
+
+|Type|Name|Description|Schema|Default|
+|---|---|---|---|---|
+|**Path**|**id**  <br>*required*|The id of the data.|string||
+|**Query**|**pretty**  <br>*optional*|Pretty print|boolean|`"false"`|
+
+
+##### Responses
+
+|HTTP Code|Description|Schema|
+|---|---|---|
+|**200**|Successful operation|[Exists](#exists)|
+|**500**|Arlas Persistence Error.|[Error](#error)|
+
+
+##### Consumes
+
+* `application/json;charset=utf-8`
+
+
+##### Produces
+
+* `application/json;charset=utf-8`
+
+
+<a name="existsbykey"></a>
+#### Check the existence of an entry given its zone and key.
+```
+GET /persist/resource/exists/{zone}/{key}
+```
+
+
+##### Description
+Check the existence of an entry given its zone and key.
+
+
+##### Parameters
+
+|Type|Name|Description|Schema|Default|
+|---|---|---|---|---|
+|**Path**|**key**  <br>*required*|The key of the data.|string||
+|**Path**|**zone**  <br>*required*|Zone of the document.|string|`"pref"`|
+|**Query**|**pretty**  <br>*optional*|Pretty print|boolean|`"false"`|
+
+
+##### Responses
+
+|HTTP Code|Description|Schema|
+|---|---|---|
+|**200**|Successful operation|[Exists](#exists)|
+|**500**|Arlas Persistence Error.|[Error](#error)|
+
+
+##### Consumes
+
+* `application/json;charset=utf-8`
+
+
+##### Produces
+
+* `application/json;charset=utf-8`
+
+
 <a name="getbyid"></a>
 #### Fetch an entry given its id.
 ```
