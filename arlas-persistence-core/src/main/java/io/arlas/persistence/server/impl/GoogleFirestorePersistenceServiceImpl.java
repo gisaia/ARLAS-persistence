@@ -233,6 +233,13 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
             if (PersistenceService.isWriterOnData(identityParam, data)) {
                 String zone = data.getDocZone();
                 PersistenceService.checkReadersWritersGroups(zone, identityParam, readers,writers);
+                // If the key is updated, we need to check if a triplet Zone/Key/orga already exist with this new key
+                if(Optional.ofNullable(key).isPresent() && !Optional.ofNullable(key).equals(data.getDocKey())){
+                    Optional<Data> alreadyExisting = getByZoneKeyOrga(zone, key, data.getDocOrganization());
+                    if (alreadyExisting.isPresent()) {
+                        throw new ArlasException("A resource with zone " + zone + " and key " + key + " already exists.");
+                    }
+                }
                 DocumentReference docRef = db.collection(collection).document(id);
                 Data newData = toData(id, docRef.get().get());
                 newData.setDocKey(Optional.ofNullable(key).orElse(data.getDocKey()));

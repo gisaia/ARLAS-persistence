@@ -56,6 +56,7 @@ public class PersistenceIT {
 
     private static final String dataZone;
     private static String id;
+    private static String idBis;
 
     static {
         admin = new UserIdentity("admin", String.join(",", ALL, TECHNICAL, SALES, ADMIN, PUBLIC), "company1");
@@ -97,6 +98,27 @@ public class PersistenceIT {
                 .then().statusCode(201)
                 .body("doc_value", equalTo("{\"age\":1}"))
                 .extract().jsonPath().get("id");
+        idBis = createData(technical, "myFirstDocumentBis", Collections.EMPTY_LIST, Collections.EMPTY_LIST)
+                .then().statusCode(201)
+                .body("doc_value", equalTo("{\"age\":1}"))
+                .extract().jsonPath().get("id");
+    }
+
+    @Test
+    public void test02PostPutDataKeyAlreadyExist() {
+         createData(technical, "myFirstDocument", Collections.EMPTY_LIST, Collections.EMPTY_LIST)
+                .then().statusCode(500);
+        Long currentDate = getData(technical, "myFirstDocument")
+                .then().statusCode(200)
+                .contentType(ContentType.JSON)
+                .extract().jsonPath().get("last_update_date");
+         updateData(technical,"myFirstDocumentBis",id,currentDate,Collections.EMPTY_LIST, Collections.EMPTY_LIST)
+                .then().statusCode(500);
+        givenForUser(technical)
+                .contentType("application/json")
+                .delete(arlasAppPath.concat("resource/id/") + idBis)
+                .then().statusCode(202)
+                .body("id", equalTo(idBis));
     }
 
     @Test
@@ -465,6 +487,23 @@ public class PersistenceIT {
                 .contentType("application/json")
                 .body(generateData(1))
                 .post(arlasAppPath.concat("resource/{zone}/{key}"));
+    }
+
+    protected Response updateData(UserIdentity userIdentity, String key ,String id, Long currentDate, List<String> readers, List<String> writers) {
+        RequestSpecification request = givenForUser(userIdentity)
+                .pathParam("id", id);
+
+        if(!readers.isEmpty())
+            request=request.queryParam("readers", readers);
+        if(!writers.isEmpty())
+            request=request.queryParam("writers", writers);
+        request=request.queryParam("key", key);
+        return
+                request
+                        .contentType("application/json")
+                        .body(generateData(2))
+                        .param("last_update", currentDate)
+                        .put(arlasAppPath.concat("resource/id/{id}"));
     }
 
     protected Response getData(UserIdentity userIdentity, String key) {
