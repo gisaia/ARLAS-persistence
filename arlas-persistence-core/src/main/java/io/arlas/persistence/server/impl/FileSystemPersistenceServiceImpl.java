@@ -132,6 +132,13 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
             String zone = data.getDocZone();
             if (PersistenceService.isWriterOnData(identityParam, data)) {
                 PersistenceService.checkReadersWritersGroups(zone, identityParam, readers,writers);
+                // If the key is updated, we need to check if a triplet Zone/Key/orga already exist with this new key
+                if(Optional.ofNullable(key).isPresent() && !Optional.ofNullable(key).equals(data.getDocKey())){
+                    Optional<FileWrapper> alreadyExisting = getByZoneKeyOrga(zone, key, identityParam);
+                    if (alreadyExisting.isPresent()) {
+                        throw new ArlasException("A resource with zone " + zone + " and key " + key + " already exists.");
+                    }
+                }
                 data.setDocKey(Optional.ofNullable(key).orElse(data.getDocKey()));
                 Set<String> readersToUpdate = Optional.ofNullable(readers).orElse(new HashSet<>(data.getDocReaders()));
                 Set<String> writersToUpdate = Optional.ofNullable(writers).orElse(new HashSet<>(data.getDocWriters()));
