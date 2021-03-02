@@ -32,6 +32,7 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.NotFoundException;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -115,7 +116,7 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
                     new ArrayList<>(writers),
                     new ArrayList<>(readers),
                     new Date());
-            try (FileOutputStream fos = new FileOutputStream(storageFolder.concat(getFileName(newData, identityParam)))) {
+            try (FileOutputStream fos = new FileOutputStream(storageFolder.concat(getFileName(newData)))) {
                 objectMapper.writeValue(fos, newData);
                 return newData;
             } catch (IOException e) {
@@ -133,7 +134,7 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
             if (PersistenceService.isWriterOnData(identityParam, data)) {
                 PersistenceService.checkReadersWritersGroups(zone, identityParam, readers,writers);
                 // If the key is updated, we need to check if a triplet Zone/Key/orga already exist with this new key
-                if(Optional.ofNullable(key).isPresent() && !Optional.ofNullable(key).equals(data.getDocKey())){
+                if(Optional.ofNullable(key).isPresent() && !Optional.ofNullable(key).get().equals(data.getDocKey())){
                     Optional<FileWrapper> alreadyExisting = getByZoneKeyOrga(zone, key, identityParam);
                     if (alreadyExisting.isPresent()) {
                         throw new ArlasException("A resource with zone " + zone + " and key " + key + " already exists.");
@@ -148,6 +149,7 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
                     data.setDocValue(value,true);
                     try (FileOutputStream fos = new FileOutputStream(list.get(0).file.getAbsolutePath())) {
                         objectMapper.writeValue(fos, data);
+                        list.get(0).file.renameTo(new File(storageFolder.concat(getFileName(data))));
                         return data;
                     } catch (IOException e) {
                         throw new ArlasException("An error occur in writing file: " + e.getMessage());
@@ -201,13 +203,13 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
         }
     }
 
-    private String getFileName(Data data, IdentityParam identityParam){
+    private String getFileName(Data data){
         // zone_org_userid_key_id
         return String.join("_",
                 data.getDocZone(),
                 data.getDocOrganization(),
                 data.getDocKey(),
-                identityParam.userId,
+                data.getDocOwner(),
                 data.getId());
     }
 

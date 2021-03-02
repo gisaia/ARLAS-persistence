@@ -106,14 +106,20 @@ public class PersistenceIT {
 
     @Test
     public void test02PostPutDataKeyAlreadyExist() {
-         createData(technical, "myFirstDocument", Collections.EMPTY_LIST, Collections.EMPTY_LIST)
+        createData(technical, "myFirstDocument", Collections.EMPTY_LIST, Collections.EMPTY_LIST)
                 .then().statusCode(500);
         Long currentDate = getData(technical, "myFirstDocument")
                 .then().statusCode(200)
                 .contentType(ContentType.JSON)
                 .extract().jsonPath().get("last_update_date");
-         updateData(technical,"myFirstDocumentBis",id,currentDate,Collections.EMPTY_LIST, Collections.EMPTY_LIST)
+        updateData(technical,"myFirstDocumentBis",id,currentDate,Collections.EMPTY_LIST, Collections.EMPTY_LIST)
                 .then().statusCode(500);
+        Long currentDateBis = getData(technical, "myFirstDocumentBis")
+                .then().statusCode(200)
+                .contentType(ContentType.JSON)
+                .extract().jsonPath().get("last_update_date");
+        updateData(technical,"myFirstDocumentBis",idBis,currentDateBis,Collections.EMPTY_LIST, Collections.EMPTY_LIST)
+                .then().statusCode(201);
         givenForUser(technical)
                 .contentType("application/json")
                 .delete(arlasAppPath.concat("resource/id/") + idBis)
