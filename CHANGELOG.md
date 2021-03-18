@@ -1,5 +1,14 @@
 # Change Log
 
+## [v16.0.0](https://github.com/gisaia/arlas-persistence/tree/v16.0.0) (2021-03-18)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v15.0.0...v16.0.0)
+
+**Miscellaneous:**
+
+- In file system impl, update doc key in body valu don't update the key in the filename [\#46](https://github.com/gisaia/ARLAS-persistence/issues/46)
+- The implementation of update methods don't check the unicity of key/zone/orga [\#44](https://github.com/gisaia/ARLAS-persistence/issues/44)
+
 ## [v15.0.0](https://github.com/gisaia/arlas-persistence/tree/v15.0.0) (2021-02-18)
 
 [Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v14.0.1...v15.0.0)
