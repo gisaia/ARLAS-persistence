@@ -77,7 +77,7 @@ docker run --rm \
 BASEDIR=$PWD
 
 cd ${BASEDIR}/target/tmp/typescript-fetch/
-docker run -a STDERR --rm  -i -v `pwd`:/docs gisaia/typedocgen:0.0.4 generatedoc api.ts
+docker run -a STDERR --rm  -i -v `pwd`:/docs gisaia/typedocgen:0.0.5 generatedoc api.ts
 cd ${BASEDIR}
 
 docker run --rm \
@@ -106,10 +106,10 @@ docker run --rm \
     -v $PWD:/opt/maven \
 	-v $HOME/.m2:/root/.m2 \
 	busybox \
-        sh -c 'cat /opt/maven/target/generated-docs/overview.md > /opt/maven/target/generated-docs/server_reference.md \
-        && cat /opt/maven/target/generated-docs/paths.md >> /opt/maven/target/generated-docs/server_reference.md \
-        && cat /opt/maven/target/generated-docs/definitions.md >> /opt/maven/target/generated-docs/server_reference.md \
-        && cat /opt/maven/target/generated-docs/security.md >> /opt/maven/target/generated-docs/server_reference.md'
+        sh -c 'cat /opt/maven/target/generated-docs/overview.md > /opt/maven/target/generated-docs/persistence_reference.md \
+        && cat /opt/maven/target/generated-docs/paths.md >> /opt/maven/target/generated-docs/persistence_reference.md \
+        && cat /opt/maven/target/generated-docs/definitions.md >> /opt/maven/target/generated-docs/persistence_reference.md \
+        && cat /opt/maven/target/generated-docs/security.md >> /opt/maven/target/generated-docs/persistence_reference.md'
 
 echo "=> Copy CHANGELOG.md"
 docker run --rm \
@@ -119,11 +119,11 @@ docker run --rm \
         sh -c 'cp /opt/maven/CHANGELOG.md /opt/maven/target/generated-docs/CHANGELOG_ARLAS-persistence.md'
 
 echo "=> Check generated documentation"
-if [[ ! -f ${BASEDIR}/target/generated-docs/typescript-doc/classes/_api_.writeapi.md ]] ; then
-    echo 'File "_api_.writeapi.md" was not generated, aborting.'
+if [[ ! -f ${BASEDIR}/target/generated-docs/typescript-doc/classes/_api_.persistapi.md ]] ; then
+    echo 'File "_api_.persistapi.md" was not generated, aborting.'
     exit -1
 fi
-if [[ ! -f ${BASEDIR}/target/generated-docs/server_reference.md ]] ; then
-    echo 'File "server_reference.md" was not generated, aborting.'
+if [[ ! -f ${BASEDIR}/target/generated-docs/persistence_reference.md ]] ; then
+    echo 'File "persistence_reference.md" was not generated, aborting.'
     exit -1
 fi
