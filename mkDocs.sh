@@ -38,14 +38,14 @@ docker run --rm \
   -v $PWD:/opt/maven \
 	-v $HOME/.m2:/root/.m2 \
 	--entrypoint sh \
-	--network arlas_persist_default \
+	--network arlaspersist_default \
 	byrnedo/alpine-curl \
 	-c 'i=1; until curl -XGET http://arlas-persistence-server:9997/arlas_persistence_server/swagger.json -o /opt/maven/target/tmp/swagger.json; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done'
 docker run --rm \
     -v $PWD:/opt/maven \
 	-v $HOME/.m2:/root/.m2 \
 	--entrypoint sh \
-	--network arlas_persist_default \
+	--network arlaspersist_default \
 	byrnedo/alpine-curl \
     -c 'i=1; until curl -XGET http://arlas_persistence_server:9997/arlas_persistence_server/swagger.yaml -o /opt/maven/target/tmp/swagger.yaml; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done'
 

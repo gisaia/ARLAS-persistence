@@ -70,7 +70,7 @@ function test_rest_server() {
         -e ARLAS_PERSISTENCE_PREFIX="arlas_persistence_server" \
         -e ARLAS_PERSISTENCE_APP_PATH=${ARLAS_PERSISTENCE_APP_PATH} \
         -e ARLAS_PERSISTENCE_ENGINE=${ARLAS_PERSISTENCE_ENGINE} \
-        --network arlas_persist_default \
+        --network arlaspersist_default \
         maven:3.5.0-jdk-8 \
         mvn -Dit.test=PersistenceIT verify -DskipTests=false -DfailIfNoTests=false
 }
