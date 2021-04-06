@@ -18,7 +18,7 @@ DOCKER_COMPOSE="${PROJECT_ROOT_DIRECTORY}/docker/docker-files/docker-compose.yml
 #########################################
 function clean_docker {
     echo "===> Stop arlas-persistence-server stack"
-    docker-compose -f ${DOCKER_COMPOSE} --project-name arlas_persist down -v
+    docker-compose -f ${DOCKER_COMPOSE} --project-name arlaspersist down -v
 }
 
 function clean_exit {
@@ -175,7 +175,7 @@ fi
 #########################################
 
 echo "=> Start arlas-persistence-server stack"
-docker-compose -f ${DOCKER_COMPOSE} --project-name arlas_persist up -d --build
+docker-compose -f ${DOCKER_COMPOSE} --project-name arlaspersist up -d --build
 DOCKER_IP=$(docker-machine ip || echo "localhost")
 
 echo "=> Wait for arlas-persistence-server up and running"
@@ -187,7 +187,7 @@ i=1; until curl -XGET http://${DOCKER_IP}:19997/arlas_persistence_server/swagger
 i=1; until curl -XGET http://${DOCKER_IP}:19997/arlas_persistence_server/swagger.yaml -o target/tmp/swagger.yaml; do if [ $i -lt 60 ]; then sleep 1; else break; fi; i=$(($i + 1)); done
 
 echo "=> Stop arlas-persistence-server stack"
-docker-compose -f ${DOCKER_COMPOSE} --project-name arlas_persist down -v
+docker-compose -f ${DOCKER_COMPOSE} --project-name arlaspersist down -v
 
 echo "=> Generate API documentation"
 mvn "-Dswagger.output=docs/api" swagger2markup:convertSwagger2markup

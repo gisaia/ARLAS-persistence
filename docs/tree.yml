@@ -1,4 +1,4 @@
 - ARLAS Persistence Server:
-  - Configuration: 'arlas-persistence-server-configuration.md'
-  - Overview: 'arlas-persistence-server-overview.md'
+  - Configuration: 'arlas-persistence-configuration.md'
+  - Overview: 'arlas-persistence-overview.md'
   - API Persistence: 'arlas-api-persistence.md'
