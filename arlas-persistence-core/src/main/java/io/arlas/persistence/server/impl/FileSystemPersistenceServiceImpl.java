@@ -28,8 +28,8 @@ import io.arlas.persistence.server.model.FileWrapper;
 import io.arlas.persistence.server.model.IdentityParam;
 import io.arlas.persistence.server.utils.SortOrder;
 import io.arlas.persistence.server.utils.UUIDHelper;
-import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.exceptions.NotFoundException;
+import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.server.core.exceptions.NotFoundException;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.File;
