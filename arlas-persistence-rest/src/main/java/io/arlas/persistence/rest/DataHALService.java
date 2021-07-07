@@ -25,7 +25,7 @@ import io.arlas.persistence.model.Link;
 import io.arlas.persistence.server.model.Data;
 import io.arlas.persistence.server.model.IdentityParam;
 import io.arlas.persistence.server.utils.SortOrder;
-import io.arlas.server.utils.StringUtil;
+import io.arlas.server.core.utils.StringUtil;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.ws.rs.core.UriInfo;

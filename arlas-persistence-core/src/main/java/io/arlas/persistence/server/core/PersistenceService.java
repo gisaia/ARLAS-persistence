@@ -22,7 +22,7 @@ import io.arlas.persistence.server.exceptions.ForbidenException;
 import io.arlas.persistence.server.model.Data;
 import io.arlas.persistence.server.model.IdentityParam;
 import io.arlas.persistence.server.utils.SortOrder;
-import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.core.exceptions.ArlasException;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
