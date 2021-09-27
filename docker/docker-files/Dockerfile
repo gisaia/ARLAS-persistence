@@ -17,7 +17,7 @@ RUN mvn install \
 ###################
 # PACKAGING STAGE #
 ###################
-FROM gisaia/arlas-openjdk:8
+FROM gisaia/arlas-openjdk:8-bullseye
 WORKDIR /opt/app
 
 # install script dependencies
