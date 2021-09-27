@@ -28,6 +28,7 @@ WORKDIR /opt/app
 COPY --from=build /opt/build/arlas-persistence-server.jar /opt/app/
 COPY --from=build /opt/build/conf/configuration.yaml /opt/app/
 COPY --from=build /opt/build/docker/docker-resources/start.sh /opt/app/
+COPY --from=build /opt/build/docker/docker-files/pgCreateTable.sql /opt/app/
 EXPOSE 9997
 
 HEALTHCHECK --interval=5m --timeout=3s \
