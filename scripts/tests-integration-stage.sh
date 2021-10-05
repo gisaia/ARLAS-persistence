@@ -39,7 +39,7 @@ case $i in
 esac
 done
 
-mkdir /tmp/persist/
+mkdir -p /tmp/persist/
 # GO TO PROJECT PATH
 SCRIPT_PATH=`cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd`
 cd ${SCRIPT_PATH}/..
@@ -79,6 +79,11 @@ function test_rest_server() {
 function test_doc() {
     ./mkDocs.sh
 }
+
+if [ ! -z ${DOCKER_USERNAME+x} ] && [ ! -z ${DOCKER_PASSWORD+x} ]
+then
+  echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+fi
 
 if [ "$STAGE" == "REST_FILE" ]; then export ARLAS_PERSISTENCE_ENGINE="file"; test_rest_server; fi
 if [ "$STAGE" == "REST_HIBERNATE" ]; then export ARLAS_PERSISTENCE_ENGINE="hibernate"; test_rest_server; fi
