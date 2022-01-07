@@ -1,6 +1,14 @@
 # Change Log
 
-## [v19.0.2](https://github.com/gisaia/arlas-persistence/tree/v19.0.2) (2021-10-06)
+## [v20.0.0](https://github.com/gisaia/arlas-persistence/tree/v20.0.0) (2022-01-07)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v19.0.2...v20.0.0)
+
+**Miscellaneous:**
+
+- Upgrade to java 17 + dependencies update [\#59](https://github.com/gisaia/ARLAS-persistence/issues/59)
+
+## [v19.0.2](https://github.com/gisaia/arlas-persistence/tree/v19.0.2) (2021-10-11)
 
 [Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v19.0.1...v19.0.2)
 
