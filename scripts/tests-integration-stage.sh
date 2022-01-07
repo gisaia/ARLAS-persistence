@@ -2,13 +2,13 @@
 set -e
 
 function clean_docker {
-    ./scripts/docker-clean.sh
-    echo "===> clean maven repository"
+  ./scripts/docker-clean.sh
+  echo "===> clean maven repository"
 	docker run --rm \
 		-w /opt/maven \
 		-v $PWD:/opt/maven \
 		-v $HOME/.m2:/root/.m2 \
-		maven:3.5.0-jdk-8 \
+		maven:3.8.2-openjdk-17 \
 		mvn clean
 }
 
@@ -46,7 +46,7 @@ cd ${SCRIPT_PATH}/..
 
 # CHECK ALV2 DISCLAIMER
 if [ $(find ./*/src -name "*.java" -exec grep -L Licensed {} \; | wc -l) -gt 0 ]; then
-    echo "ALv2 disclaimer is missing in the following files :"
+    echo "[ERROR] ALv2 disclaimer is missing in the following files :"
     find ./*/src -name "*.java" -exec grep -L Licensed {} \;
     exit -1
 fi
@@ -71,7 +71,7 @@ function test_rest_server() {
         -e ARLAS_PERSISTENCE_APP_PATH=${ARLAS_PERSISTENCE_APP_PATH} \
         -e ARLAS_PERSISTENCE_ENGINE=${ARLAS_PERSISTENCE_ENGINE} \
         --network arlaspersist_default \
-        maven:3.5.0-jdk-8 \
+        maven:3.8.2-openjdk-17 \
         mvn -Dit.test=PersistenceIT verify -DskipTests=false -DfailIfNoTests=false
 }
 

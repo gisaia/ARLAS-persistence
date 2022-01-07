@@ -1,7 +1,7 @@
 #####################
 # COMPILATION STAGE #
 #####################
-FROM maven:3.5-jdk-8 as build
+FROM maven:3.8.2-openjdk-17 as build
 WORKDIR /opt/build
 
 # selectively add the POM file
@@ -17,7 +17,7 @@ RUN mvn install \
 ###################
 # PACKAGING STAGE #
 ###################
-FROM gisaia/arlas-openjdk:8-bullseye
+FROM gisaia/arlas-openjdk:17
 WORKDIR /opt/app
 
 # install script dependencies

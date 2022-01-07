@@ -1,7 +1,7 @@
 ###################
 # PACKAGING STAGE #
 ###################
-FROM gisaia/arlas-openjdk:8-bullseye
+FROM gisaia/arlas-openjdk:17
 
 # install script dependencies
 RUN apt-get update && apt-get install -y bash netcat-openbsd curl

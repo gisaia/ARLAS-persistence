@@ -59,7 +59,9 @@ zipkin: # The ZIPIN configuration, not active by default
 ########################################################
 swagger: # Configuration of SWAGGER for generating documentation and APIs
   resourcePackage: io.arlas.persistence.rest # The java package to process for extracting the APIs
-
+  # temporary patch for bug https://github.com/smoketurner/dropwizard-swagger/issues/206
+  # to be removed when version of dropwizard.swagger.version is upgraded
+  customJavascript: "/arlas_persistence_server/swagger-static/custom-request-interceptor.js"
 
 arlas_cors:
   enabled: ${ARLAS_CORS_ENABLED:-true}

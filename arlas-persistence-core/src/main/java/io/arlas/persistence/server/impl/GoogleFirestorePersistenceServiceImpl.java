@@ -24,8 +24,8 @@ import com.google.api.gax.rpc.FailedPreconditionException;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
 import com.google.cloud.firestore.v1.FirestoreAdminClient;
+import com.google.firestore.admin.v1.CollectionGroupName;
 import com.google.firestore.admin.v1.Index;
-import com.google.firestore.admin.v1.ParentName;
 import io.arlas.persistence.server.core.PersistenceService;
 import io.arlas.persistence.server.exceptions.ConflictException;
 import io.arlas.persistence.server.exceptions.ForbidenException;
@@ -56,14 +56,14 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
 
         LOGGER.info("Creating indices for collection " + collection);
         try (FirestoreAdminClient firestoreAdminClient = FirestoreAdminClient.create()) {
-            ParentName parent = ParentName.of(db.getOptions().getProjectId(), db.getOptions().getDatabaseId(), collection);
+            String parent = CollectionGroupName.of(db.getOptions().getProjectId(), db.getOptions().getDatabaseId(), collection).toString();
             try {
-                firestoreAdminClient.createIndex(parent, Index.newBuilder()
+                firestoreAdminClient.createIndexAsync(parent, Index.newBuilder()
                         .addFields(Index.IndexField.newBuilder().setFieldPath(Data.keyColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
                         .addFields(Index.IndexField.newBuilder().setFieldPath(Data.zoneColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
                         .addFields(Index.IndexField.newBuilder().setFieldPath(Data.lastUpdateDateColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
                         .setQueryScope(Index.QueryScope.COLLECTION)
-                        .build());
+                        .build()).get();
             } catch (AlreadyExistsException e) {
                 LOGGER.debug("Firestore index1 was already created");
             } catch (Exception e) {
@@ -71,12 +71,12 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
             }
 
             try {
-                firestoreAdminClient.createIndex(parent, Index.newBuilder()
+                firestoreAdminClient.createIndexAsync(parent, Index.newBuilder()
                         .addFields(Index.IndexField.newBuilder().setFieldPath(Data.keyColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
                         .addFields(Index.IndexField.newBuilder().setFieldPath(Data.zoneColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
                         .addFields(Index.IndexField.newBuilder().setFieldPath(Data.lastUpdateDateColumn).setOrder(Index.IndexField.Order.DESCENDING).build())
                         .setQueryScope(Index.QueryScope.COLLECTION)
-                        .build());
+                        .build()).get();
             } catch (AlreadyExistsException e) {
                 LOGGER.debug("Firestore index2 was already created");
             } catch (Exception e) {
@@ -84,13 +84,13 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
             }
 
             try {
-                firestoreAdminClient.createIndex(parent, Index.newBuilder()
+                firestoreAdminClient.createIndexAsync(parent, Index.newBuilder()
                         .addFields(Index.IndexField.newBuilder().setFieldPath(Data.docEntitiesColumn).setArrayConfig(Index.IndexField.ArrayConfig.CONTAINS).build())
                         .addFields(Index.IndexField.newBuilder().setFieldPath(Data.organizationColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
                         .addFields(Index.IndexField.newBuilder().setFieldPath(Data.zoneColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
                         .addFields(Index.IndexField.newBuilder().setFieldPath(Data.lastUpdateDateColumn).setOrder(Index.IndexField.Order.DESCENDING).build())
                         .setQueryScope(Index.QueryScope.COLLECTION)
-                        .build());
+                        .build()).get();
             } catch (AlreadyExistsException e) {
                 LOGGER.debug("Firestore index3 was already created");
             } catch (Exception e) {
@@ -98,13 +98,13 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
             }
 
             try {
-                firestoreAdminClient.createIndex(parent, Index.newBuilder()
+                firestoreAdminClient.createIndexAsync(parent, Index.newBuilder()
                         .addFields(Index.IndexField.newBuilder().setFieldPath(Data.docEntitiesColumn).setArrayConfig(Index.IndexField.ArrayConfig.CONTAINS).build())
                         .addFields(Index.IndexField.newBuilder().setFieldPath(Data.organizationColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
                         .addFields(Index.IndexField.newBuilder().setFieldPath(Data.zoneColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
                         .addFields(Index.IndexField.newBuilder().setFieldPath(Data.lastUpdateDateColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
                         .setQueryScope(Index.QueryScope.COLLECTION)
-                        .build());
+                        .build()).get();
             } catch (AlreadyExistsException e) {
                 LOGGER.debug("Firestore index4 was already created");
             } catch (Exception e) {
