@@ -37,7 +37,7 @@ docker run --rm \
     -w /opt/maven \
 	-v $PWD:/opt/maven \
 	-v $HOME/.m2:/root/.m2 \
-	maven:3.5.0-jdk-8 \
+	maven:3.8.2-openjdk-17 \
 	mvn clean install
 echo "arlas-persistence-server:${ARLAS_PERSISTENCE_SERVER_VERSION}"
 

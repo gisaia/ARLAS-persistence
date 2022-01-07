@@ -21,6 +21,7 @@ package io.arlas.persistence.server.app;
 
 import brave.http.HttpTracing;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.smoketurner.dropwizard.zipkin.ZipkinBundle;
@@ -78,6 +79,7 @@ public class ArlasPersistenceServer extends Application<ArlasPersistenceServerCo
     @Override
     public void initialize(Bootstrap<ArlasPersistenceServerConfiguration> bootstrap) {
         bootstrap.registerMetrics();
+        bootstrap.getObjectMapper().enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         bootstrap.setConfigurationSourceProvider(new SubstitutingSourceProvider(
                 bootstrap.getConfigurationSourceProvider(), new EnvironmentVariableSubstitutor(false)));
         bootstrap.addBundle(new SwaggerBundle<ArlasPersistenceServerConfiguration>() {
