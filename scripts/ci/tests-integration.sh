@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -o errexit -o pipefail
 
 function clean_exit {
   ARG=$?
@@ -15,7 +15,7 @@ usage(){
 
 # GO TO PROJECT PATH
 SCRIPT_PATH=`cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd`
-cd ${SCRIPT_PATH}/..
+cd ${SCRIPT_PATH}/../..
 
 # TESTS SUITE
 ./scripts/tests-integration-stage.sh --stage="REST_FILE"
