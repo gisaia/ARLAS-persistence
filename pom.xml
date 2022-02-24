@@ -24,9 +24,9 @@
         <surefire.version>2.22.2</surefire.version>
         <jug.version>4.0.1</jug.version>
         <dropwizard.version>2.0.28</dropwizard.version>
-        <postgresql.version>42.3.1</postgresql.version>
+        <postgresql.version>42.3.3</postgresql.version>
         <hibernate.types.version>2.14.0</hibernate.types.version>
-        <google.cloud.bom.version>24.1.2</google.cloud.bom.version>
+        <google.cloud.bom.version>24.3.0</google.cloud.bom.version>
         <jackson.databind.version>2.13.1</jackson.databind.version>
 
         <!-- TESTS -->

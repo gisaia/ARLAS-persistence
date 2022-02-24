@@ -13,7 +13,7 @@ services:
     ports:
       - 5432:5432
     volumes:
-    - ${ARLAS_PERSISTENCE_CREATESQL_FILE:-/opt/app/pgCreateTable.sql}:/docker-entrypoint-initdb.d/createTable.sql:ro
+      - ${ARLAS_PERSISTENCE_CREATESQL_FILE:-/opt/app/pgCreateTable.sql}:/docker-entrypoint-initdb.d/createTable.sql:ro
 
   arlas-persistence-server:
     build:
