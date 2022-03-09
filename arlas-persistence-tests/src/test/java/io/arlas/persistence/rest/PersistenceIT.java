@@ -431,7 +431,7 @@ public class PersistenceIT {
         createData(technical, "myNewDocument", Collections.EMPTY_LIST,  Collections.singletonList("group/private"))
                 .then().statusCode(403);
         createData(technical, "myNewDocument2", Collections.EMPTY_LIST,  Arrays.asList("group/private",TECHNICAL))
-                .then().statusCode(403);
+                .then().statusCode(201);
     }
     @Test
     public void test19PostData() {

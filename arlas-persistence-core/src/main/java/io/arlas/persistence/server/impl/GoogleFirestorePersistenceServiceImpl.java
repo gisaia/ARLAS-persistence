@@ -28,7 +28,7 @@ import com.google.firestore.admin.v1.CollectionGroupName;
 import com.google.firestore.admin.v1.Index;
 import io.arlas.persistence.server.core.PersistenceService;
 import io.arlas.persistence.server.exceptions.ConflictException;
-import io.arlas.persistence.server.exceptions.ForbidenException;
+import io.arlas.persistence.server.exceptions.ForbiddenException;
 import io.arlas.persistence.server.model.Data;
 import io.arlas.persistence.server.model.IdentityParam;
 import io.arlas.persistence.server.utils.SortOrder;
@@ -185,7 +185,7 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
                 return data
                         .orElseThrow(() -> new NotFoundException("Data with zone " + zone + " and key " + key + " not found."));
             } else {
-                throw new ForbidenException("You are not authorized to get this resource");
+                throw new ForbiddenException("You are not authorized to get this resource");
             }
         } else {
             throw new NotFoundException("Data with zone " + zone + " and key " +key +" not found.");
@@ -199,7 +199,7 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
                 PersistenceService.isWriterOnData(identityParam, data)) {
             return data;
         } else {
-            throw new ForbidenException("You are not authorized to get this resource");
+            throw new ForbiddenException("You are not authorized to get this resource");
         }
     }
 
@@ -261,7 +261,7 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
                     throw new ConflictException("The data can not be update due to conflicts.");
                 }
             } else {
-                throw new ForbidenException("You are not authorized to update this resource");
+                throw new ForbiddenException("You are not authorized to update this resource");
             }
         } catch (InterruptedException | ExecutionException e) {
             throw new ArlasException("Error updating document", e);
@@ -329,7 +329,7 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
                 throw new ArlasException("Error updating document", e);
             }
         } else {
-            throw new ForbidenException("You are not authorized to delete this resource");
+            throw new ForbiddenException("You are not authorized to delete this resource");
         }
     }
 }

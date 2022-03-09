@@ -23,18 +23,18 @@ import io.arlas.server.core.exceptions.ArlasException;
 
 import javax.ws.rs.core.Response;
 
-public class ForbidenException extends ArlasException {
-    public ForbidenException() {
+public class ForbiddenException extends ArlasException {
+    public ForbiddenException() {
         super();
         status = Response.Status.FORBIDDEN;
     }
 
-    public ForbidenException(String message) {
+    public ForbiddenException(String message) {
         super(message);
         status = Response.Status.FORBIDDEN;
     }
 
-    public ForbidenException(String message, Throwable cause) {
+    public ForbiddenException(String message, Throwable cause) {
         super(message, cause);
         status = Response.Status.FORBIDDEN;
     }
