@@ -5,21 +5,21 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.arlas</groupId>
     <artifactId>arlas-persistence-server</artifactId>
-    <version>20.0.1</version>
+    <version>20.0.2-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>ARLAS persistence server</name>
 
     <parent>
         <groupId>io.arlas</groupId>
         <artifactId>arlas-persistence-parent</artifactId>
-        <version>20.0.1</version>
+        <version>20.0.2-SNAPSHOT</version>
     </parent>
 
     <dependencies>
         <dependency>
             <groupId>io.arlas</groupId>
             <artifactId>arlas-persistence-rest</artifactId>
-            <version>20.0.1</version>
+            <version>20.0.2-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
