@@ -22,7 +22,7 @@ package io.arlas.persistence.server.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.persistence.server.core.PersistenceService;
 import io.arlas.persistence.server.exceptions.ConflictException;
-import io.arlas.persistence.server.exceptions.ForbidenException;
+import io.arlas.persistence.server.exceptions.ForbiddenException;
 import io.arlas.persistence.server.model.Data;
 import io.arlas.persistence.server.model.FileWrapper;
 import io.arlas.persistence.server.model.IdentityParam;
@@ -78,7 +78,7 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
                     PersistenceService.isWriterOnData(identityParam, fw.get().data)) {
                 return fw.get().data;
             } else {
-                throw new ForbidenException("You are not authorized to view this resource");
+                throw new ForbiddenException("You are not authorized to view this resource");
             }
         } else {
             throw new NotFoundException("Data with zone " + zone + " and key " + key + " not found.");
@@ -93,7 +93,7 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
                     PersistenceService.isWriterOnData(identityParam, list.get(0).data)) {
                 return list.get(0).data;
             } else {
-                throw new ForbidenException("You are not authorized to view this resource");
+                throw new ForbiddenException("You are not authorized to view this resource");
             }
         } else {
             throw new NotFoundException("Data with id " + id + " not found.");
@@ -158,7 +158,7 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
                     throw new ConflictException("The data can not be updated due to conflicts.");
                 }
             } else {
-                throw new ForbidenException("You are not authorized to update this resource");
+                throw new ForbiddenException("You are not authorized to update this resource");
             }
         } else {
             throw new NotFoundException("Data with id " + id + " not found.");
@@ -177,7 +177,7 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
                 }
                 return list.get(0).data;
             } else {
-                throw new ForbidenException("You are not authorized to delete this resource");
+                throw new ForbiddenException("You are not authorized to delete this resource");
             }
         } else {
             throw new NotFoundException("Data with id " + id + " not found.");
@@ -196,7 +196,7 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
                 }
                 return fw.get().data;
             } else {
-                throw new ForbidenException("You are not authorized to delete this resource");
+                throw new ForbiddenException("You are not authorized to delete this resource");
             }
         } else {
             throw new NotFoundException("Data with zone " + zone + " and key " + key + " not found.");

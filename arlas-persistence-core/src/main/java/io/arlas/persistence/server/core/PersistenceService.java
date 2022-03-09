@@ -18,7 +18,7 @@
  */
 package io.arlas.persistence.server.core;
 
-import io.arlas.persistence.server.exceptions.ForbidenException;
+import io.arlas.persistence.server.exceptions.ForbiddenException;
 import io.arlas.persistence.server.model.Data;
 import io.arlas.persistence.server.model.IdentityParam;
 import io.arlas.persistence.server.utils.SortOrder;
@@ -81,23 +81,22 @@ public interface PersistenceService {
                 .count() > 0;
     }
 
-    static boolean isShareableGroup(List<String> group,  String zone, IdentityParam identityParam ) throws ForbidenException {
-        List<String> groupForZone = getGroupsForZone(zone, identityParam);
-        List<String> authorizeGroup=group.stream().filter(g->groupForZone.contains(g)).collect(Collectors.toList());
-        List<String> unAuthorizeGroup=group.stream().filter(g->!groupForZone.contains(g)).collect(Collectors.toList());
-        if((!authorizeGroup.isEmpty() && unAuthorizeGroup.isEmpty()) || group.isEmpty()){
+    static boolean isShareableGroup(List<String> group, String zone, IdentityParam identityParam) throws ForbiddenException {
+        List<String> userGroupsForZone = getGroupsForZone(zone, identityParam);
+        List<String> authorizeGroup = group.stream().filter(g -> userGroupsForZone.contains(g)).collect(Collectors.toList());
+        if (!authorizeGroup.isEmpty() || group.isEmpty()){
             return true;
-        }else{
-            throw new ForbidenException("You are not authorized to give rights to this group : " + group );
+        } else {
+            throw new ForbiddenException("You are not authorized to give rights to this group: " + group);
         }
     }
 
-    static void checkReadersWritersGroups(String zone, IdentityParam identityParam, Set<String> readers, Set<String> writers) throws ForbidenException{
+    static void checkReadersWritersGroups(String zone, IdentityParam identityParam, Set<String> readers, Set<String> writers) throws ForbiddenException {
 
         List<String> writersList = new ArrayList<>(writers);
         List<String> readersList = new ArrayList<>(readers);
-        isShareableGroup(writersList,zone,identityParam);
-        isShareableGroup(readersList,zone,identityParam);
+        isShareableGroup(writersList, zone, identityParam);
+        isShareableGroup(readersList, zone, identityParam);
     }
 
 

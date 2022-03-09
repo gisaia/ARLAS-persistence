@@ -21,7 +21,7 @@ package io.arlas.persistence.server.impl;
 
 import io.arlas.persistence.server.core.PersistenceService;
 import io.arlas.persistence.server.exceptions.ConflictException;
-import io.arlas.persistence.server.exceptions.ForbidenException;
+import io.arlas.persistence.server.exceptions.ForbiddenException;
 import io.arlas.persistence.server.model.Data;
 import io.arlas.persistence.server.model.IdentityParam;
 import io.arlas.persistence.server.utils.SortOrder;
@@ -83,7 +83,7 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
                 return data
                         .orElseThrow(() -> new NotFoundException("Data with zone " + zone + " and key " + key + " not found."));
             } else {
-                throw new ForbidenException("You are not authorized to get this resource.");
+                throw new ForbiddenException("You are not authorized to get this resource.");
             }
         } else {
             throw new NotFoundException("Data with zone " + zone + " and key " +key +" not found.");
@@ -97,7 +97,7 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
                 PersistenceService.isWriterOnData(identityParam, data)) {
             return data;
         } else {
-            throw new ForbidenException("You are not authorized to get this resource.");
+            throw new ForbiddenException("You are not authorized to get this resource.");
         }
     }
 
@@ -146,7 +146,7 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
                 throw new ConflictException("The data can not be updated due to conflicts.");
             }
         } else {
-            throw new ForbidenException("You are not authorized to update this resource");
+            throw new ForbiddenException("You are not authorized to update this resource");
         }
     }
 
@@ -183,12 +183,12 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
         return Optional.ofNullable(data);
     }
 
-    private Data deleteData(Data data, IdentityParam identityParam) throws ForbidenException {
+    private Data deleteData(Data data, IdentityParam identityParam) throws ForbiddenException {
         if (PersistenceService.isWriterOnData(identityParam, data)) {
             currentSession().delete(data);
             return data;
         } else {
-            throw new ForbidenException("You are not authorized to delete this resource.");
+            throw new ForbiddenException("You are not authorized to delete this resource.");
         }
     }
 
