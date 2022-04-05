@@ -1,8 +1,16 @@
 # Change Log
 
+## [v21.0.0](https://github.com/gisaia/arlas-persistence/tree/v21.0.0) (2022-04-05)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v20.0.1...v21.0.0)
+
 ## [v20.0.1](https://github.com/gisaia/arlas-persistence/tree/v20.0.1) (2022-03-09)
 
 [Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v20.0.0...v20.0.1)
+
+**Miscellaneous:**
+
+- Can't update a dashboard if not in all authorized writers groups [\#65](https://github.com/gisaia/ARLAS-persistence/issues/65)
 
 ## [v20.0.0](https://github.com/gisaia/arlas-persistence/tree/v20.0.0) (2022-01-07)
 
