@@ -32,16 +32,6 @@
 |**updatable**  <br>*optional*|boolean|
 
 
-<a name="error"></a>
-### Error
-
-|Name|Schema|
-|---|---|
-|**error**  <br>*optional*|string|
-|**message**  <br>*optional*|string|
-|**status**  <br>*optional*|integer (int32)|
-
-
 <a name="exists"></a>
 ### Exists
 
