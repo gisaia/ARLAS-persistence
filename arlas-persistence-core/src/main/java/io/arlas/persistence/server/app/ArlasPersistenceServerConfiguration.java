@@ -19,41 +19,18 @@
 package io.arlas.persistence.server.app;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
-import io.arlas.server.core.app.ArlasAuthConfiguration;
-import io.arlas.server.core.app.ArlasCorsConfiguration;
-import io.arlas.server.core.exceptions.ArlasConfigurationException;
-import io.arlas.server.core.utils.StringUtil;
-import io.dropwizard.Configuration;
-import io.dropwizard.db.DataSourceFactory;
-import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
+import io.arlas.commons.config.ArlasConfiguration;
+import io.arlas.commons.exceptions.ArlasConfigurationException;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ArlasPersistenceServerConfiguration extends Configuration {
-    @Valid
-    @JsonProperty("database")
-    public DataSourceFactory database = new DataSourceFactory();
-
-    @JsonProperty("zipkin")
-    public ZipkinFactory zipkinConfiguration;
-
-    @JsonProperty("swagger")
-    public SwaggerBundleConfiguration swaggerBundleConfiguration;
+public class ArlasPersistenceServerConfiguration extends ArlasConfiguration {
 
     @JsonProperty("arlas-base-uri")
     public String arlasBaseUri;
-
-    @NotNull
-    @JsonProperty("arlas_cors")
-    public ArlasCorsConfiguration arlasCorsConfiguration;
-
-    @JsonProperty("arlas_auth")
-    public ArlasAuthConfiguration arlasAuthConfiguration;
 
     @NotNull
     @JsonProperty("arlas_organization_header")
@@ -72,28 +49,23 @@ public class ArlasPersistenceServerConfiguration extends Configuration {
     public String anonymousValue;
 
     public void check() throws ArlasConfigurationException {
-        if (arlasAuthConfiguration == null) {
-            arlasAuthConfiguration = new ArlasAuthConfiguration();
-            arlasAuthConfiguration.enabled = false;
-        }else{
-            arlasAuthConfiguration.check();
+        super.check();
 
-        }
         if (arlasCorsConfiguration.allowedHeaders == null) {
             throw new ArlasConfigurationException("Arlas Allowed Headers Configuration configuration missing in config file.");
         } else {
             List<String> allowedHeaders = Arrays.stream(arlasCorsConfiguration.allowedHeaders.split(","))
-                    .map(String::trim).collect(Collectors.toList());
+                    .map(String::trim).toList();
 
             boolean allHeaderIsAllowed =
-                    allowedHeaders.contains(arlasAuthConfiguration.headerUser) && allowedHeaders.contains(arlasAuthConfiguration.headerGroup) &&
+                    allowedHeaders.contains(arlasAuthConfiguration.getHeaderUser()) && allowedHeaders.contains(arlasAuthConfiguration.getHeaderGroup()) &&
                             allowedHeaders.contains(organizationHeader);
             if (!allHeaderIsAllowed) {
                 throw new ArlasConfigurationException("User header or Groups header or Organization Header is missing from Arlas Allowed Headers.");
             }
         }
         if ("firestore".equals(engine)) {
-            if (StringUtil.isNullOrEmpty(firestoreCollection)) {
+            if (firestoreCollection == null || firestoreCollection.isEmpty()) {
                 throw new ArlasConfigurationException("Configuration 'firestore_collection' is required when using engine 'firestore'");
             }
         }

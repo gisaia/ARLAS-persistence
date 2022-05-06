@@ -19,6 +19,8 @@
 
 package io.arlas.persistence.server.impl;
 
+import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.exceptions.NotFoundException;
 import io.arlas.persistence.server.core.PersistenceService;
 import io.arlas.persistence.server.exceptions.ConflictException;
 import io.arlas.persistence.server.exceptions.ForbiddenException;
@@ -26,8 +28,6 @@ import io.arlas.persistence.server.model.Data;
 import io.arlas.persistence.server.model.IdentityParam;
 import io.arlas.persistence.server.utils.SortOrder;
 import io.arlas.persistence.server.utils.UUIDHelper;
-import io.arlas.server.core.exceptions.ArlasException;
-import io.arlas.server.core.exceptions.NotFoundException;
 import io.dropwizard.hibernate.AbstractDAO;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.SessionFactory;

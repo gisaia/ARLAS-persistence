@@ -20,6 +20,9 @@
 package io.arlas.persistence.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.exceptions.NotFoundException;
+import io.arlas.commons.rest.utils.ResponseFormatter;
 import io.arlas.persistence.model.DataResource;
 import io.arlas.persistence.model.DataWithLinks;
 import io.arlas.persistence.model.Exists;
@@ -28,10 +31,6 @@ import io.arlas.persistence.server.app.Documentation;
 import io.arlas.persistence.server.core.PersistenceService;
 import io.arlas.persistence.server.model.IdentityParam;
 import io.arlas.persistence.server.utils.SortOrder;
-import io.arlas.server.core.exceptions.ArlasException;
-import io.arlas.server.core.exceptions.NotFoundException;
-import io.arlas.server.core.model.response.Error;
-import io.arlas.server.core.utils.ResponseFormatter;
 import io.dropwizard.hibernate.UnitOfWork;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
@@ -70,9 +69,9 @@ public class PersistenceRestService {
     public PersistenceRestService(PersistenceService persistenceService, ArlasPersistenceServerConfiguration configuration) {
         this.persistenceService = persistenceService;
         this.halService = new DataHALService(configuration.arlasBaseUri);
-        this.userHeader = configuration.arlasAuthConfiguration.headerUser;
+        this.userHeader = configuration.arlasAuthConfiguration.getHeaderUser();
         this.organizationHeader = configuration.organizationHeader;
-        this.groupsHeader = configuration.arlasAuthConfiguration.headerGroup;
+        this.groupsHeader = configuration.arlasAuthConfiguration.getHeaderGroup();
         this.anonymousValue = configuration.anonymousValue;
     }
 
@@ -124,7 +123,7 @@ public class PersistenceRestService {
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = io.arlas.server.core.app.Documentation.FORM_PRETTY,
+            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
                     defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
@@ -166,7 +165,7 @@ public class PersistenceRestService {
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = io.arlas.server.core.app.Documentation.FORM_PRETTY,
+            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
                     defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
@@ -206,7 +205,7 @@ public class PersistenceRestService {
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = io.arlas.server.core.app.Documentation.FORM_PRETTY,
+            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
                     defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
@@ -248,7 +247,7 @@ public class PersistenceRestService {
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = io.arlas.server.core.app.Documentation.FORM_PRETTY,
+            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
                     defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
@@ -285,7 +284,7 @@ public class PersistenceRestService {
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = io.arlas.server.core.app.Documentation.FORM_PRETTY,
+            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
                     defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
@@ -326,7 +325,7 @@ public class PersistenceRestService {
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = io.arlas.server.core.app.Documentation.FORM_PRETTY,
+            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
                     defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty
     ) {
@@ -377,7 +376,7 @@ public class PersistenceRestService {
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = io.arlas.server.core.app.Documentation.FORM_PRETTY,
+            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
                     defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
@@ -440,7 +439,7 @@ public class PersistenceRestService {
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = io.arlas.server.core.app.Documentation.FORM_PRETTY,
+            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
                     defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
@@ -483,7 +482,7 @@ public class PersistenceRestService {
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = io.arlas.server.core.app.Documentation.FORM_PRETTY,
+            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
                     defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
@@ -526,7 +525,7 @@ public class PersistenceRestService {
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = io.arlas.server.core.app.Documentation.FORM_PRETTY,
+            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
                     defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
@@ -546,10 +545,10 @@ public class PersistenceRestService {
 
         List<String> groups = Arrays.stream(
                 Optional.ofNullable(headers.getHeaderString(this.groupsHeader)).orElse("group/public").split(","))
-                .map(g -> g.trim())
+                .map(String::trim)
                 .collect(Collectors.toList());
 
-        LOGGER.info("User='" + userId + "' / Org='" + organization + "' / Groups='" + groups.toString() + "'");
+        LOGGER.info("User='" + userId + "' / Org='" + organization + "' / Groups='" + groups + "'");
         return new IdentityParam(userId, organization, groups);
     }
 }
