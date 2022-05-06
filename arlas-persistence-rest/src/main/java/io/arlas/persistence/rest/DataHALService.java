@@ -25,7 +25,6 @@ import io.arlas.persistence.model.Link;
 import io.arlas.persistence.server.model.Data;
 import io.arlas.persistence.server.model.IdentityParam;
 import io.arlas.persistence.server.utils.SortOrder;
-import io.arlas.server.core.utils.StringUtil;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.ws.rs.core.UriInfo;
@@ -36,7 +35,7 @@ import java.util.stream.Collectors;
 
 public class DataHALService {
 
-    private String baseUri;
+    private final String baseUri;
 
     public DataHALService(String baseUri){
         this.baseUri = baseUri;
@@ -79,7 +78,7 @@ public class DataHALService {
         if ((page-1)*size + count < total)
             links.put("next", new Link("next", getUri(uriInfo, size, page+1), "GET"));
         if ((page-1)*size + count != total)
-            links.put("last", new Link("last", getUri(uriInfo, size, new Double(Math.ceil((double)total/(double)size)).intValue()), "GET"));
+            links.put("last", new Link("last", getUri(uriInfo, size, Double.valueOf(Math.ceil((double)total/(double)size)).intValue()), "GET"));
         return links;
     }
 
@@ -93,7 +92,7 @@ public class DataHALService {
 
     private String getBaseUri(UriInfo uriInfo) {
         String baseUri = this.baseUri;
-        if (StringUtil.isNullOrEmpty(baseUri)) {
+        if (baseUri != null && !baseUri.isEmpty()) {
             baseUri = uriInfo.getBaseUri().toString();
         }
         return baseUri;

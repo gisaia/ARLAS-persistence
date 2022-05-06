@@ -19,7 +19,7 @@ services:
     build:
       context: ../..
       dockerfile: ${DOCKERFILE:-docker/docker-files/Dockerfile-package-only}
-    image: gisaia/arlas-persistence-server:${ARLAS_VERSION:-latest}
+    image: gisaia/arlas-persistence-server:${ARLAS_PERSISTENCE_SERVER_VERSION:-latest}
     container_name: arlas-persistence-server
     environment:
       - ARLAS_PERSISTENCE_HOST="${ARLAS_PERSISTENCE_HOST:-localhost}"

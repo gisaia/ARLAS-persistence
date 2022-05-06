@@ -37,5 +37,6 @@ public class Documentation {
     public static final String READERS =  "Comma separated values of groups authorized to read the data.";
     public static final String WRITERS =  "Comma separated values of groups authorized to modify the data.";
     public static final String LAST_UPDATE = "Previous date value of last modification known by client.";
+    public static final String FORM_PRETTY = "Pretty print";
 
 }

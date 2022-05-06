@@ -26,20 +26,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.smoketurner.dropwizard.zipkin.ZipkinBundle;
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
+import io.arlas.commons.config.ArlasCorsConfiguration;
+import io.arlas.commons.exceptions.ArlasExceptionMapper;
+import io.arlas.commons.exceptions.ConstraintViolationExceptionMapper;
+import io.arlas.commons.exceptions.IllegalArgumentExceptionMapper;
+import io.arlas.commons.rest.auth.PolicyEnforcer;
+import io.arlas.commons.rest.utils.InsensitiveCaseFilter;
+import io.arlas.commons.rest.utils.PrettyPrintFilter;
 import io.arlas.persistence.rest.PersistenceRestService;
 import io.arlas.persistence.server.core.PersistenceService;
 import io.arlas.persistence.server.impl.FileSystemPersistenceServiceImpl;
 import io.arlas.persistence.server.impl.GoogleFirestorePersistenceServiceImpl;
 import io.arlas.persistence.server.impl.HibernatePersistenceServiceImpl;
 import io.arlas.persistence.server.model.Data;
-import io.arlas.server.core.app.ArlasCorsConfiguration;
-import io.arlas.server.admin.auth.AuthenticationFilter;
-import io.arlas.server.admin.auth.AuthorizationFilter;
-import io.arlas.server.core.exceptions.ArlasExceptionMapper;
-import io.arlas.server.core.exceptions.ConstraintViolationExceptionMapper;
-import io.arlas.server.core.exceptions.IllegalArgumentExceptionMapper;
-import io.arlas.server.core.utils.InsensitiveCaseFilter;
-import io.arlas.server.core.utils.PrettyPrintFilter;
+
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
@@ -65,7 +65,7 @@ import java.util.Optional;
 public class ArlasPersistenceServer extends Application<ArlasPersistenceServerConfiguration> {
     Logger LOGGER = LoggerFactory.getLogger(ArlasPersistenceServer.class);
 
-    private final HibernateBundle<ArlasPersistenceServerConfiguration> hibernate = new HibernateBundle<ArlasPersistenceServerConfiguration>(Data.class) {
+    private final HibernateBundle<ArlasPersistenceServerConfiguration> hibernate = new HibernateBundle<>(Data.class) {
         @Override
         public DataSourceFactory getDataSourceFactory(ArlasPersistenceServerConfiguration configuration) {
             return configuration.database;
@@ -82,13 +82,13 @@ public class ArlasPersistenceServer extends Application<ArlasPersistenceServerCo
         bootstrap.getObjectMapper().enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         bootstrap.setConfigurationSourceProvider(new SubstitutingSourceProvider(
                 bootstrap.getConfigurationSourceProvider(), new EnvironmentVariableSubstitutor(false)));
-        bootstrap.addBundle(new SwaggerBundle<ArlasPersistenceServerConfiguration>() {
+        bootstrap.addBundle(new SwaggerBundle<>() {
             @Override
             protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(ArlasPersistenceServerConfiguration configuration) {
                 return configuration.swaggerBundleConfiguration;
             }
         });
-        bootstrap.addBundle(new ZipkinBundle<ArlasPersistenceServerConfiguration>(getName()) {
+        bootstrap.addBundle(new ZipkinBundle<>(getName()) {
             @Override
             public ZipkinFactory getZipkinFactory(ArlasPersistenceServerConfiguration configuration) {
                 return configuration.zipkinConfiguration;
@@ -122,32 +122,26 @@ public class ArlasPersistenceServer extends Application<ArlasPersistenceServerCo
         PersistenceService persistenceService = null;
         LOGGER.info("Starting with " + configuration.engine + " persistence engine");
         switch (configuration.engine) {
-            case "hibernate":
-                persistenceService = new HibernatePersistenceServiceImpl(hibernate.getSessionFactory());
-                break;
-            case "firestore":
-                persistenceService = new GoogleFirestorePersistenceServiceImpl(configuration.firestoreCollection);
-                break;
-            case "file":
-                persistenceService = new FileSystemPersistenceServiceImpl(configuration.localFolder);
-                break;
-            default:
-                LOGGER.error("Engine not supported: " + configuration.engine +  " (valid values are: 'hibernate' or 'firestore' or 'file').");
+            case "hibernate" -> persistenceService = new HibernatePersistenceServiceImpl(hibernate.getSessionFactory());
+            case "firestore" -> persistenceService = new GoogleFirestorePersistenceServiceImpl(configuration.firestoreCollection);
+            case "file" -> persistenceService = new FileSystemPersistenceServiceImpl(configuration.localFolder);
+            default -> {
+                LOGGER.error("Engine not supported: " + configuration.engine + " (valid values are: 'hibernate' or 'firestore' or 'file').");
                 System.exit(1);
-                break;
+            }
         }
         environment.jersey().register(new PersistenceRestService(persistenceService, configuration));
 
         // Auth
-        if (configuration.arlasAuthConfiguration.enabled) {
-            environment.jersey().register(new AuthenticationFilter(configuration.arlasAuthConfiguration));
-            environment.jersey().register(new AuthorizationFilter(configuration.arlasAuthConfiguration));
-        }
+        PolicyEnforcer policyEnforcer = PolicyEnforcer.newInstance(configuration.arlasAuthPolicyClass)
+                .setAuthConf(configuration.arlasAuthConfiguration);
+        LOGGER.info("PolicyEnforcer: " + policyEnforcer.getClass().getCanonicalName());
+        environment.jersey().register(policyEnforcer);
 
         //cors
         if (configuration.arlasCorsConfiguration.enabled) {
-            configureCors(environment,configuration.arlasCorsConfiguration);
-        }else{
+            configureCors(environment, configuration.arlasCorsConfiguration);
+        } else {
             CrossOriginFilter filter = new CrossOriginFilter();
             final FilterRegistration.Dynamic cors = environment.servlets().addFilter("CrossOriginFilter", filter);
             // Expose always HttpHeaders.WWW_AUTHENTICATE to authentify on client side a non public uri call
@@ -169,7 +163,7 @@ public class ArlasPersistenceServer extends Application<ArlasPersistenceServerCo
         cors.setInitParameter(CrossOriginFilter.ALLOW_CREDENTIALS_PARAM, String.valueOf(configuration.allowedCredentials));
         String exposedHeader = configuration.exposedHeaders;
         // Expose always HttpHeaders.WWW_AUTHENTICATE to authentify on client side a non public uri call
-        if(configuration.exposedHeaders.indexOf(HttpHeaders.WWW_AUTHENTICATE)<0){
+        if (!configuration.exposedHeaders.contains(HttpHeaders.WWW_AUTHENTICATE)) {
             exposedHeader = configuration.exposedHeaders.concat(",").concat(HttpHeaders.WWW_AUTHENTICATE);
         }
         cors.setInitParameter(CrossOriginFilter.EXPOSED_HEADERS_PARAM, exposedHeader);

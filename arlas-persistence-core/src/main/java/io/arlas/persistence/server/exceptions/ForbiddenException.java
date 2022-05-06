@@ -19,7 +19,7 @@
 
 package io.arlas.persistence.server.exceptions;
 
-import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.commons.exceptions.ArlasException;
 
 import javax.ws.rs.core.Response;
 

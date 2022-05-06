@@ -29,7 +29,14 @@ arlas-base-uri: ${ARLAS_PERSISTENCE_BASE_URI:-}
 logging:
   level: ${ARLAS_PERSISTENCE_LOGGING_LEVEL:-INFO}
   loggers:
-    "javax.management.mbeanserver": ${ARLAS_PERSISTENCE_LOGGING_MBEAN_LEVEL:-INFO}
+    "javax.management.mbeanserver": ${ARLAS_LOGGING_MBEAN_LEVEL:-INFO}
+    "org.apache.http": ${ARLAS_LOGGING_APACHE_HTTP_LEVEL:-INFO}
+    "org.eclipse.jetty": ${ARLAS_LOGGING_JETTY_LEVEL:-INFO}
+    "org.reflections": ${ARLAS_LOGGING_REFLECTIONS_LEVEL:-INFO}
+    "org.glassfish": ${ARLAS_LOGGING_GLASSFISH_LEVEL:-INFO}
+    "io.dropwizard": ${ARLAS_LOGGING_DROPWIZARD_LEVEL:-INFO}
+    "io.swagger": ${ARLAS_LOGGING_SWAGGER_LEVEL:-INFO}
+    "com.hazelcast": ${ARLAS_LOGGING_HAZELCAST_LEVEL:-INFO}
   appenders:
     - type: console
       threshold:  ${ARLAS_PERSISTENCE_LOGGING_CONSOLE_LEVEL:-INFO}
@@ -61,7 +68,7 @@ swagger: # Configuration of SWAGGER for generating documentation and APIs
   resourcePackage: io.arlas.persistence.rest # The java package to process for extracting the APIs
   # temporary patch for bug https://github.com/smoketurner/dropwizard-swagger/issues/206
   # to be removed when version of dropwizard.swagger.version is upgraded
-  customJavascript: "/arlas_persistence_server/swagger-static/custom-request-interceptor.js"
+  customJavascript: ${ARLAS_PERSISTENCE_CUSTOM_JS:-/arlas_persistence_server/swagger-static/custom-request-interceptor.js}
 
 arlas_cors:
   enabled: ${ARLAS_CORS_ENABLED:-true}
@@ -71,23 +78,12 @@ arlas_cors:
   allowed_credentials: ${ARLAS_CORS_ALLOWED_CREDENTIALS:-true}
   exposed_headers: ${ARLAS_CORS_EXPOSED_HEADERS:-"Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,Location,WWW-Authenticate"}
 
-arlas_auth:
-  enabled: ${ARLAS_AUTH_ENABLED:-false}
-  public_uris: [${ARLAS_AUTH_PUBLIC_URIS:-swagger.*:*,persist.*:GET}]
-  # deprecated
-  certificate_file: ${ARLAS_AUTH_CERT_FILE:-/opt/app/arlas.pem}
-  certificate_url: ${ARLAS_AUTH_CERT_URL:-}
-  header_user: ${ARLAS_HEADER_USER:-arlas-user}
-  header_group: ${ARLAS_HEADER_GROUP:-arlas-groups}
-  claim_roles: ${ARLAS_CLAIM_ROLES:-http://arlas.io/roles}
-  claim_permissions: ${ARLAS_CLAIM_PERMISSIONS:-http://arlas.io/permissions}
-
 persistence_engine: ${ARLAS_PERSISTENCE_ENGINE:-file}
 firestore_collection: ${ARLAS_PERSISTENCE_FIRESTORE_COLLECTION:-user_pref}
 local_folder: ${ARLAS_PERSISTENCE_LOCAL_FOLDER:-/tmp/persist/}
+
 arlas_organization_header: ${ARLAS_ORGANIZATION_HEADER:-arlas-organization}
 anonymous_value: ${ARLAS_ANONYMOUS_VALUE:-anonymous}
-
 
 database:
   # the name of your JDBC driver
@@ -110,3 +106,13 @@ database:
   maxSize: 32
   # whether or not idle connections should be validated
   checkConnectionWhileIdle: false
+
+########################################################
+############ AUTHENTICATION              ###############
+########################################################
+arlas_auth_policy_class: ${ARLAS_AUTH_POLICY_CLASS:-io.arlas.commons.rest.auth.NoPolicyEnforcer}
+
+arlas_auth:
+  type: noAuth
+  header_user: ${ARLAS_HEADER_USER:-arlas-user}
+  header_group: ${ARLAS_HEADER_GROUP:-arlas-groups}
