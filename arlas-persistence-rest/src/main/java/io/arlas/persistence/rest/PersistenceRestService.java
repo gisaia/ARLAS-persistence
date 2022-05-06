@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
                 title = "ARLAS persistence API",
                 description = "persistence REST services",
                 license = @License(name = "Apache 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0.html"),
-                version = "22.0.0-beta.2"),
+                version = "API_VERSION"),
         schemes = { SwaggerDefinition.Scheme.HTTP, SwaggerDefinition.Scheme.HTTPS })
 
 public class PersistenceRestService {
