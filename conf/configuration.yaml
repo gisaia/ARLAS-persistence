@@ -111,8 +111,6 @@ database:
 ############ AUTHENTICATION              ###############
 ########################################################
 arlas_auth_policy_class: ${ARLAS_AUTH_POLICY_CLASS:-io.arlas.commons.rest.auth.NoPolicyEnforcer}
+arlas_cache_factory_class: ${ARLAS_PERSISTENCE_CACHE_FACTORY_CLASS:-io.arlas.commons.cache.NoCacheFactory}
+arlas-cache-timeout: ${ARLAS_CACHE_TIMEOUT:-60}
 
-arlas_auth:
-  type: noAuth
-  header_user: ${ARLAS_HEADER_USER:-arlas-user}
-  header_group: ${ARLAS_HEADER_GROUP:-arlas-groups}
