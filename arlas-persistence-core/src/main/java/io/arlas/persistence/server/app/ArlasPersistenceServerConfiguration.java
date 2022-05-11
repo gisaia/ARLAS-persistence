@@ -21,11 +21,12 @@ package io.arlas.persistence.server.app;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.arlas.commons.config.ArlasConfiguration;
 import io.arlas.commons.exceptions.ArlasConfigurationException;
+import io.dropwizard.db.DataSourceFactory;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ArlasPersistenceServerConfiguration extends ArlasConfiguration {
 
@@ -47,6 +48,10 @@ public class ArlasPersistenceServerConfiguration extends ArlasConfiguration {
 
     @JsonProperty("anonymous_value")
     public String anonymousValue;
+
+    @Valid
+    @JsonProperty("database")
+    public DataSourceFactory database = new DataSourceFactory();
 
     public void check() throws ArlasConfigurationException {
         super.check();
