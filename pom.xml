@@ -21,7 +21,7 @@
         <skipTests>true</skipTests>
         <surefire.version>2.22.2</surefire.version>
 
-        <arlas-commons.version>22.0.0-beta.4</arlas-commons.version>
+        <arlas-commons.version>22.0.0</arlas-commons.version>
         <log4j.version>2.17.2</log4j.version>
         <jug.version>4.0.1</jug.version>
         <dropwizard.version>2.1.0</dropwizard.version>
@@ -29,8 +29,8 @@
         <zipkin.dropwizard.version>2.0.16-1</zipkin.dropwizard.version>
         <postgresql.version>42.3.5</postgresql.version>
         <hibernate.types.version>2.16.2</hibernate.types.version>
-        <google.cloud.bom.version>25.2.0</google.cloud.bom.version>
-        <jackson.databind.version>2.13.2.2</jackson.databind.version>
+        <google.cloud.bom.version>25.3.0</google.cloud.bom.version>
+        <jackson.databind.version>2.13.3</jackson.databind.version>
 
         <!-- TESTS -->
         <junit.version>4.13.2</junit.version>
