@@ -26,7 +26,7 @@ services:
       - ARLAS_PERSISTENCE_PORT="${ARLAS_PERSISTENCE_PORT:-9997}"
       - ARLAS_PERSISTENCE_PREFIX="${ARLAS_PERSISTENCE_PREFIX:-/arlas_persistence_server}"
       - ARLAS_PERSISTENCE_APP_PATH="${ARLAS_PERSISTENCE_APP_PATH:-/}"
-      - ARLAS_AUTH_POLICY_CLASS="${ARLAS_AUTH_POLICY_CLASS:-io.arlas.commons.rest.auth.NoPolicyEnforcer}"
+      - ARLAS_AUTH_POLICY_CLASS="${ARLAS_AUTH_POLICY_CLASS:-io.arlas.filter.impl.NoPolicyEnforcer}"
       - ARLAS_AUTH_PERMISSION_URL="${ARLAS_AUTH_PERMISSION_URL:-http://arlas-iam-server:9990/arlas_iam_server/permissions}"
       - ARLAS_AUTH_CERT_URL="${ARLAS_AUTH_CERT_URL}"
       - ARLAS_PERSISTENCE_CACHE_FACTORY_CLASS="${ARLAS_PERSISTENCE_CACHE_FACTORY_CLASS:-io.arlas.commons.cache.BaseHazelcastCacheFactory}"
