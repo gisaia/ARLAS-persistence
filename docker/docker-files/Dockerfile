@@ -17,22 +17,17 @@ RUN mvn install \
 ###################
 # PACKAGING STAGE #
 ###################
-FROM gisaia/arlas-openjdk:17
-WORKDIR /opt/app
-
-# install script dependencies
-RUN apt-get update && apt-get install -y bash netcat-openbsd curl
+FROM gisaia/arlas-openjdk:17-distroless
 
 # application placed into /opt/app
 WORKDIR /opt/app
 COPY --from=build /opt/build/arlas-persistence-server.jar /opt/app/
 COPY --from=build /opt/build/conf/configuration.yaml /opt/app/
-COPY --from=build /opt/build/docker/docker-resources/start.sh /opt/app/
 COPY --from=build /opt/build/docker/docker-files/pgCreateTable.sql /opt/app/
 EXPOSE 9997
 
 HEALTHCHECK --interval=5m --timeout=3s \
   CMD curl http://localhost:9997/admin/healthcheck | grep -v "\"healthy\":false" || exit 1
 
-ENTRYPOINT ["bash", "-c"]
-CMD ["/opt/app/start.sh"]
+ENV JDK_JAVA_OPTIONS="-Xmx512m -XX:+ExitOnOutOfMemoryError"
+CMD ["arlas-persistence-server.jar", "server", "/opt/app/configuration.yaml"]

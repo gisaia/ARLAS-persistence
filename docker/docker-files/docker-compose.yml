@@ -47,4 +47,3 @@ services:
     volumes:
       - ${GOOGLE_APPLICATION_CREDENTIALS:-/tmp}:/opt/app/google-registry.json:ro
       - ${ARLAS_PERSISTENCE_LOCAL_FOLDER_HOST:-/tmp/persist/}:${ARLAS_PERSISTENCE_LOCAL_FOLDER:-/tmp/persist/}:rw
-    command: ["/opt/app/start.sh"]
