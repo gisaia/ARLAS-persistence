@@ -22,6 +22,7 @@ package io.arlas.persistence.rest;
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.NotFoundException;
+import io.arlas.commons.rest.response.Error;
 import io.arlas.commons.rest.utils.ResponseFormatter;
 import io.arlas.persistence.model.DataResource;
 import io.arlas.persistence.model.DataWithLinks;
