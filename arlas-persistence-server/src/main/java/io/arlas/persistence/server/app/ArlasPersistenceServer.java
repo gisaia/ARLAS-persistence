@@ -19,13 +19,10 @@
 
 package io.arlas.persistence.server.app;
 
-import brave.http.HttpTracing;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.smoketurner.dropwizard.zipkin.ZipkinBundle;
-import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 import io.arlas.commons.cache.CacheFactory;
 import io.arlas.commons.config.ArlasConfiguration;
 import io.arlas.commons.config.ArlasCorsConfiguration;
@@ -90,14 +87,9 @@ public class ArlasPersistenceServer extends Application<ArlasPersistenceServerCo
                 return configuration.swaggerBundleConfiguration;
             }
         });
-        bootstrap.addBundle(new ZipkinBundle<>(getName()) {
-            @Override
-            public ZipkinFactory getZipkinFactory(ArlasPersistenceServerConfiguration configuration) {
-                return configuration.zipkinConfiguration;
-            }
-        });
         String engine = System.getenv("ARLAS_PERSISTENCE_ENGINE");
-        if (engine != null && engine.equalsIgnoreCase("\"hibernate\"")) {
+        if (engine != null && engine.contains("hibernate")) {
+            LOGGER.info("Loading hibernate bundle.");
             bootstrap.addBundle(hibernate);
         }
         bootstrap.addBundle(new AssetsBundle("/assets/", "/", "index.html"));
@@ -108,10 +100,6 @@ public class ArlasPersistenceServer extends Application<ArlasPersistenceServerCo
 
         configuration.check();
         LOGGER.info("Checked configuration: " + (new ObjectMapper()).writer().writeValueAsString(configuration));
-
-        if (configuration.zipkinConfiguration != null) {
-            Optional<HttpTracing> tracing = configuration.zipkinConfiguration.build(environment);
-        }
 
         environment.getObjectMapper().setSerializationInclusion(Include.NON_NULL);
         environment.getObjectMapper().configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false);
