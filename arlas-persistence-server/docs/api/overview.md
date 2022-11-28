@@ -7,7 +7,7 @@ persistence REST services
 
 
 ### Version information
-*Version* : 23.0.1
+*Version* : 23.0.2
 
 
 ### Contact information
