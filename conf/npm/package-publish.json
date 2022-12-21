@@ -10,6 +10,12 @@
     "persistence"
   ],
   "dependencies": {
+    "portable-fetch": "3.0.0",
     "url": "0.11.0"
+  },
+  "overrides": {
+    "portable-fetch": {
+      "node-fetch": "3.3.0"
+    }
   }
 }

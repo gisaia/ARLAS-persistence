@@ -1,0 +1,566 @@
+---
+swagger: "2.0"
+info:
+  description: "persistence REST services"
+  version: "API_VERSION"
+  title: "ARLAS persistence API"
+  contact:
+    name: "Gisaia"
+    url: "http://www.gisaia.com/"
+    email: "contact@gisaia.com"
+  license:
+    name: "Apache 2.0"
+    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+basePath: "/arlas_persistence_server"
+tags:
+- name: "persist"
+schemes:
+- "http"
+- "https"
+paths:
+  /persist/resource/id/{id}:
+    get:
+      tags:
+      - "persist"
+      summary: "Fetch an entry given its id."
+      description: "Fetch an entry given its id."
+      operationId: "getById"
+      consumes:
+      - "application/json;charset=utf-8"
+      produces:
+      - "application/json;charset=utf-8"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "The id of the data."
+        required: true
+        type: "string"
+      - name: "pretty"
+        in: "query"
+        description: "Pretty print"
+        required: false
+        type: "boolean"
+        default: false
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/DataWithLinks"
+        "404":
+          description: "Id not found."
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Arlas Persistence Error."
+          schema:
+            $ref: "#/definitions/Error"
+    put:
+      tags:
+      - "persist"
+      summary: "Update an existing value."
+      description: "Update an existing value."
+      operationId: "update"
+      consumes:
+      - "application/json;charset=utf-8"
+      produces:
+      - "application/json;charset=utf-8"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "The id of the data."
+        required: true
+        type: "string"
+      - name: "key"
+        in: "query"
+        description: "The key of the data."
+        required: false
+        type: "string"
+      - name: "readers"
+        in: "query"
+        description: "Comma separated values of groups authorized to read the data."
+        required: false
+        type: "array"
+        items:
+          type: "string"
+        collectionFormat: "multi"
+      - name: "writers"
+        in: "query"
+        description: "Comma separated values of groups authorized to modify the data."
+        required: false
+        type: "array"
+        items:
+          type: "string"
+        collectionFormat: "multi"
+      - in: "body"
+        name: "value"
+        description: "Value to be persisted."
+        required: true
+        schema:
+          type: "string"
+      - name: "last_update"
+        in: "query"
+        description: "Previous date value of last modification known by client."
+        required: true
+        type: "integer"
+        format: "int64"
+      - name: "pretty"
+        in: "query"
+        description: "Pretty print"
+        required: false
+        type: "boolean"
+        default: false
+      responses:
+        "201":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/DataWithLinks"
+        "404":
+          description: "Key or id not found."
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Arlas Server Error."
+          schema:
+            $ref: "#/definitions/Error"
+    delete:
+      tags:
+      - "persist"
+      summary: "Delete an entry given its key and id."
+      description: "Delete an entry given its key and id."
+      operationId: "deleteById"
+      consumes:
+      - "application/json;charset=utf-8"
+      produces:
+      - "application/json;charset=utf-8"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "The id of the data."
+        required: true
+        type: "string"
+      - name: "pretty"
+        in: "query"
+        description: "Pretty print"
+        required: false
+        type: "boolean"
+        default: false
+      responses:
+        "202":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/DataWithLinks"
+        "404":
+          description: "Key or id not found."
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Arlas Server Error."
+          schema:
+            $ref: "#/definitions/Error"
+  /persist/resources/{zone}:
+    get:
+      tags:
+      - "persist"
+      summary: "Fetch a list of data related to a zone."
+      description: "Fetch a list of data related to a zone."
+      operationId: "list"
+      consumes:
+      - "application/json;charset=utf-8"
+      produces:
+      - "application/json;charset=utf-8"
+      parameters:
+      - name: "zone"
+        in: "path"
+        description: "Zone of the document."
+        required: true
+        type: "string"
+        default: "pref"
+      - name: "size"
+        in: "query"
+        description: "Page Size"
+        required: false
+        type: "integer"
+        default: 10
+        minimum: 1
+        format: "int32"
+      - name: "page"
+        in: "query"
+        description: "Page ID"
+        required: false
+        type: "integer"
+        default: 1
+        minimum: 1
+        format: "int32"
+      - name: "order"
+        in: "query"
+        description: "Date sort order"
+        required: false
+        type: "string"
+        default: "desc"
+        enum:
+        - "desc"
+        - "asc"
+      - name: "pretty"
+        in: "query"
+        description: "Pretty print"
+        required: false
+        type: "boolean"
+        default: false
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/DataResource"
+        "404":
+          description: "Zone not found."
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Arlas Persistence Error."
+          schema:
+            $ref: "#/definitions/Error"
+  /persist/resource/{zone}/{key}:
+    get:
+      tags:
+      - "persist"
+      summary: "Fetch an entry given its zone and key."
+      description: "Fetch an entry given its zone and key."
+      operationId: "getByKey"
+      consumes:
+      - "application/json;charset=utf-8"
+      produces:
+      - "application/json;charset=utf-8"
+      parameters:
+      - name: "zone"
+        in: "path"
+        description: "Zone of the document."
+        required: true
+        type: "string"
+        default: "pref"
+      - name: "key"
+        in: "path"
+        description: "The key of the data."
+        required: true
+        type: "string"
+      - name: "pretty"
+        in: "query"
+        description: "Pretty print"
+        required: false
+        type: "boolean"
+        default: false
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/DataWithLinks"
+        "404":
+          description: "Key or zone not found."
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Arlas Persistence Error."
+          schema:
+            $ref: "#/definitions/Error"
+    post:
+      tags:
+      - "persist"
+      summary: "Store a new piece of data for the provided zone and key (auto generate\
+        \ id)."
+      description: "Store a new piece of data for the provided zone and key (auto\
+        \ generate id)."
+      operationId: "create"
+      consumes:
+      - "application/json;charset=utf-8"
+      produces:
+      - "application/json;charset=utf-8"
+      parameters:
+      - name: "zone"
+        in: "path"
+        description: "Zone of the document."
+        required: true
+        type: "string"
+        default: "pref"
+      - name: "key"
+        in: "path"
+        description: "The key of the data."
+        required: true
+        type: "string"
+      - name: "readers"
+        in: "query"
+        description: "Comma separated values of groups authorized to read the data."
+        required: false
+        type: "array"
+        items:
+          type: "string"
+        collectionFormat: "multi"
+      - name: "writers"
+        in: "query"
+        description: "Comma separated values of groups authorized to modify the data."
+        required: false
+        type: "array"
+        items:
+          type: "string"
+        collectionFormat: "multi"
+      - in: "body"
+        name: "value"
+        description: "Value to be persisted."
+        required: true
+        schema:
+          type: "string"
+      - name: "pretty"
+        in: "query"
+        description: "Pretty print"
+        required: false
+        type: "boolean"
+        default: false
+      responses:
+        "201":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/DataWithLinks"
+        "500":
+          description: "Arlas Server Error."
+          schema:
+            $ref: "#/definitions/Error"
+    delete:
+      tags:
+      - "persist"
+      summary: "Delete an entry given its key and id."
+      description: "Delete an entry given its key and id."
+      operationId: "delete"
+      consumes:
+      - "application/json;charset=utf-8"
+      produces:
+      - "application/json;charset=utf-8"
+      parameters:
+      - name: "zone"
+        in: "path"
+        description: "Zone of the document."
+        required: true
+        type: "string"
+        default: "pref"
+      - name: "key"
+        in: "path"
+        description: "The key of the data."
+        required: true
+        type: "string"
+      - name: "pretty"
+        in: "query"
+        description: "Pretty print"
+        required: false
+        type: "boolean"
+        default: false
+      responses:
+        "202":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/DataWithLinks"
+        "404":
+          description: "Zone or key not found."
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Arlas Server Error."
+          schema:
+            $ref: "#/definitions/Error"
+  /persist/resource/exists/{zone}/{key}:
+    get:
+      tags:
+      - "persist"
+      summary: "Check the existence of an entry given its zone and key."
+      description: "Check the existence of an entry given its zone and key."
+      operationId: "existsByKey"
+      consumes:
+      - "application/json;charset=utf-8"
+      produces:
+      - "application/json;charset=utf-8"
+      parameters:
+      - name: "zone"
+        in: "path"
+        description: "Zone of the document."
+        required: true
+        type: "string"
+        default: "pref"
+      - name: "key"
+        in: "path"
+        description: "The key of the data."
+        required: true
+        type: "string"
+      - name: "pretty"
+        in: "query"
+        description: "Pretty print"
+        required: false
+        type: "boolean"
+        default: false
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Exists"
+        "500":
+          description: "Arlas Persistence Error."
+          schema:
+            $ref: "#/definitions/Error"
+  /persist/resource/exists/id/{id}:
+    get:
+      tags:
+      - "persist"
+      summary: "Check the existence of an entry given its id."
+      description: "Check the existence of an entry given its id."
+      operationId: "existsById"
+      consumes:
+      - "application/json;charset=utf-8"
+      produces:
+      - "application/json;charset=utf-8"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "The id of the data."
+        required: true
+        type: "string"
+      - name: "pretty"
+        in: "query"
+        description: "Pretty print"
+        required: false
+        type: "boolean"
+        default: false
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Exists"
+        "500":
+          description: "Arlas Persistence Error."
+          schema:
+            $ref: "#/definitions/Error"
+  /persist/groups/{zone}:
+    get:
+      tags:
+      - "persist"
+      summary: "Returns the users' groups allowed to interact with the given zone."
+      description: "Returns the users' groups allowed to interact with the given zone."
+      operationId: "getGroupsByZone"
+      consumes:
+      - "application/json;charset=utf-8"
+      produces:
+      - "application/json;charset=utf-8"
+      parameters:
+      - name: "zone"
+        in: "path"
+        description: "Zone of the document."
+        required: true
+        type: "string"
+        default: "pref"
+      - name: "pretty"
+        in: "query"
+        description: "Pretty print"
+        required: false
+        type: "boolean"
+        default: false
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            type: "array"
+            items:
+              type: "string"
+        "404":
+          description: "Zone not found."
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Arlas Persistence Error."
+          schema:
+            $ref: "#/definitions/Error"
+definitions:
+  DataWithLinks:
+    type: "object"
+    required:
+    - "doc_key"
+    - "doc_organization"
+    - "doc_owner"
+    - "doc_value"
+    - "doc_zone"
+    - "last_update_date"
+    properties:
+      id:
+        type: "string"
+      doc_key:
+        type: "string"
+      doc_zone:
+        type: "string"
+      last_update_date:
+        type: "string"
+        format: "date-time"
+      doc_value:
+        type: "string"
+      doc_owner:
+        type: "string"
+      doc_organization:
+        type: "string"
+      doc_entities:
+        type: "array"
+        items:
+          type: "string"
+      doc_writers:
+        type: "array"
+        items:
+          type: "string"
+      doc_readers:
+        type: "array"
+        items:
+          type: "string"
+      _links:
+        type: "object"
+        additionalProperties:
+          $ref: "#/definitions/Link"
+      updatable:
+        type: "boolean"
+  Link:
+    type: "object"
+    required:
+    - "href"
+    - "method"
+    - "relation"
+    - "type"
+    properties:
+      relation:
+        type: "string"
+      href:
+        type: "string"
+      type:
+        type: "string"
+      method:
+        type: "string"
+  Error:
+    type: "object"
+    properties:
+      status:
+        type: "integer"
+        format: "int32"
+      message:
+        type: "string"
+      error:
+        type: "string"
+  DataResource:
+    type: "object"
+    properties:
+      count:
+        type: "integer"
+        format: "int32"
+      total:
+        type: "integer"
+        format: "int64"
+      _links:
+        type: "object"
+        additionalProperties:
+          $ref: "#/definitions/Link"
+      data:
+        type: "array"
+        items:
+          $ref: "#/definitions/DataWithLinks"
+  Exists:
+    type: "object"
+    properties:
+      exists:
+        type: "boolean"
