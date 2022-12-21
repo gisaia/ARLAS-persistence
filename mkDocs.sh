@@ -1,14 +1,9 @@
 #!/bin/bash
 set -e
 
-function clean_docker {
-    ./scripts/docker-clean.sh
-}
-
 function clean_exit {
   ARG=$?
-	echo "===> Exit stage ${STAGE} = ${ARG}"
-  clean_docker
+  echo "===> Exit stage ${STAGE} = ${ARG}"
   exit $ARG
 }
 trap clean_exit EXIT
@@ -16,10 +11,6 @@ trap clean_exit EXIT
 # GO TO PROJECT PATH
 SCRIPT_PATH=`cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd`
 cd ${SCRIPT_PATH}
-
-# START STACK
-./scripts/docker-clean.sh
-./scripts/docker-run.sh --build
 
 # SWAGGER DOC
 echo "=> Get swagger documentation"
@@ -32,27 +23,14 @@ docker run --rm \
         && (mkdir /opt/maven/target/tmp/typescript-fetch || echo "target/tmp/typescript-fetch exists") \
         && (mkdir /opt/maven/target/tmp/python-api || echo "target/tmp/python-api exists") \
         && (mkdir /opt/maven/target/generated-docs || echo "target/generated-docs exists") \
+        && (mkdir /opt/maven/target/generated-docs/typescript-doc || echo "target/generated-docs/typescript-doc exists") \
+        && (mkdir /opt/maven/target/generated-docs/python-doc || echo "target/generated-docs/python-doc exists") \
         && (cp -r /opt/maven/docs/* /opt/maven/target/generated-docs)'
-
-docker run --rm \
-  -v $PWD:/opt/maven \
-	-v $HOME/.m2:/root/.m2 \
-	--entrypoint sh \
-	--network arlaspersist_default \
-	byrnedo/alpine-curl \
-	-c 'i=1; until curl -XGET http://arlas-persistence-server:9997/arlas_persistence_server/swagger.json -o /opt/maven/target/tmp/swagger.json; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done'
-docker run --rm \
-    -v $PWD:/opt/maven \
-	-v $HOME/.m2:/root/.m2 \
-	--entrypoint sh \
-	--network arlaspersist_default \
-	byrnedo/alpine-curl \
-    -c 'i=1; until curl -XGET http://arlas_persistence_server:9997/arlas_persistence_server/swagger.yaml -o /opt/maven/target/tmp/swagger.yaml; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done'
 
 
 echo "=> Generate API"
 docker run --rm \
-    --mount dst=/input/api.json,src="$PWD/target/tmp/swagger.json",type=bind,ro \
+    --mount dst=/input/api.json,src="$PWD/openapi/swagger.json",type=bind,ro \
     --mount dst=/output,src="$PWD/target/tmp/typescript-fetch",type=bind \
 	gisaia/swagger-codegen-2.4.14 \
         -l typescript-fetch --additional-properties modelPropertyNaming=snake_case
@@ -62,13 +40,13 @@ docker run --rm \
     -v $PWD:/opt/maven \
 	-v $HOME/.m2:/root/.m2 \
 	busybox \
-        sh -c '(cp /opt/maven/conf/npm/package-build.json /opt/maven/target/tmp/typescript-fetch/package.json) \
+        sh -c '(cp /opt/maven/conf/npm/package-doc.json /opt/maven/target/tmp/typescript-fetch/package.json) \
         && (cp /opt/maven/conf/npm/tsconfig-build.json /opt/maven/target/tmp/typescript-fetch/tsconfig.json)'
 
 
 echo "=> Generate Python API and its documentation"
 docker run --rm \
-    --mount dst=/input/api.json,src="$PWD/target/tmp/swagger.json",type=bind,ro \
+    --mount dst=/input/api.json,src="$PWD/openapi/swagger.json",type=bind,ro \
     --mount dst=/input/config.json,src="$PWD/conf/swagger/python-config.json",type=bind,ro \
     --mount dst=/output,src="$PWD/target/tmp/python-api",type=bind \
 	gisaia/swagger-codegen-2.4.14 \
@@ -77,23 +55,20 @@ docker run --rm \
 BASEDIR=$PWD
 
 cd ${BASEDIR}/target/tmp/typescript-fetch/
-docker run -a STDERR --rm  -i -v `pwd`:/docs gisaia/typedocgen:0.0.5 generatedoc api.ts
+docker run -a STDERR --rm  -i -v `pwd`:/docs gisaia/typedocgen:0.0.7 generatedoc api.ts
 cd ${BASEDIR}
 
 docker run --rm \
     -v $PWD:/opt/maven \
 	-v $HOME/.m2:/root/.m2 \
 	busybox \
-        sh -c '(mv /opt/maven/target/tmp/typescript-fetch/typedoc_docs/ /opt/maven/target/generated-docs \
-        && mv /opt/maven/target/generated-docs/typedoc_docs/ /opt/maven/target/generated-docs/typescript-doc)'
+        sh -c 'mv /opt/maven/target/tmp/typescript-fetch/typedoc_docs/* /opt/maven/target/generated-docs/typescript-doc'
 
 docker run --rm \
     -v $PWD:/opt/maven \
 	-v $HOME/.m2:/root/.m2 \
 	busybox \
-        sh -c '(mv /opt/maven/target/tmp/python-api/docs/ /opt/maven/target/generated-docs \
-        && mv /opt/maven/target/generated-docs/docs/ /opt/maven/target/generated-docs/python-doc \
-        && mv /opt/maven/target/tmp/python-api/README.md /opt/maven/target/generated-docs/python-doc)'
+        sh -c 'mv /opt/maven/target/tmp/python-api/docs/* /opt/maven/target/generated-docs/python-doc'
 
 echo "=> Generate API documentation"
 docker run --rm \
@@ -119,8 +94,8 @@ docker run --rm \
         sh -c 'cp /opt/maven/CHANGELOG.md /opt/maven/target/generated-docs/CHANGELOG_ARLAS-persistence.md'
 
 echo "=> Check generated documentation"
-if [[ ! -f ${BASEDIR}/target/generated-docs/typescript-doc/classes/_api_.persistapi.md ]] ; then
-    echo 'File "_api_.persistapi.md" was not generated, aborting.'
+if [[ ! -f ${BASEDIR}/target/generated-docs/typescript-doc/classes/PersistApi.md ]] ; then
+    echo 'File "PersistApi.md" was not generated, aborting.'
     exit -1
 fi
 if [[ ! -f ${BASEDIR}/target/generated-docs/persistence_reference.md ]] ; then
