@@ -19,11 +19,11 @@
 
 package io.arlas.persistence.rest;
 
+import io.arlas.filter.core.IdentityParam;
 import io.arlas.persistence.model.DataResource;
 import io.arlas.persistence.model.DataWithLinks;
 import io.arlas.persistence.model.Link;
 import io.arlas.persistence.server.model.Data;
-import io.arlas.persistence.server.model.IdentityParam;
 import io.arlas.persistence.server.utils.SortOrder;
 import org.apache.commons.lang3.tuple.Pair;
 

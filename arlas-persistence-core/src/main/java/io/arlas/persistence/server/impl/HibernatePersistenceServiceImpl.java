@@ -21,11 +21,11 @@ package io.arlas.persistence.server.impl;
 
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.NotFoundException;
+import io.arlas.filter.core.IdentityParam;
 import io.arlas.persistence.server.core.PersistenceService;
 import io.arlas.persistence.server.exceptions.ConflictException;
 import io.arlas.persistence.server.exceptions.ForbiddenException;
 import io.arlas.persistence.server.model.Data;
-import io.arlas.persistence.server.model.IdentityParam;
 import io.arlas.persistence.server.utils.SortOrder;
 import io.arlas.persistence.server.utils.UUIDHelper;
 import io.dropwizard.hibernate.AbstractDAO;
@@ -54,7 +54,7 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
                         + "or " + getGroupsRequest(identityParam.groups) + ")"
                 , Long.class)
                 .setParameter("zone", zone)
-                .setParameter("organization", identityParam.organization)
+                .setParameter("organization", identityParam.organisation)
                 .setParameter("userId", identityParam.userId)
                 .uniqueResult();
 
@@ -67,7 +67,7 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
                 "or" + getGroupsRequest(identityParam.groups) + ")" +
                 " order by ud." + Data.lastUpdateDateColumn + " " + order.toString(), Data.class)
                 .setParameter("zone", zone)
-                .setParameter("organization", identityParam.organization)
+                .setParameter("organization", identityParam.organisation)
                 .setParameter("userId", identityParam.userId)
                 .setMaxResults(size)
                 .setFirstResult((page - 1) * size);
@@ -76,7 +76,7 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
 
     @Override
     public Data get(String zone, String key, IdentityParam identityParam) throws ArlasException {
-        Optional<Data> data = getByZoneKeyOrga(zone, key, identityParam.organization);
+        Optional<Data> data = getByZoneKeyOrga(zone, key, identityParam.organisation);
         if (data.isPresent()) {
             if (PersistenceService.isReaderOnData(identityParam, data.get()) ||
                     PersistenceService.isWriterOnData(identityParam, data.get())) {
@@ -103,7 +103,7 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
 
     @Override
     public Data create(String zone, String key, IdentityParam identityParam, Set<String> readers, Set<String> writers, String value) throws ArlasException {
-        Optional<Data> data = getByZoneKeyOrga(zone, key, identityParam.organization);
+        Optional<Data> data = getByZoneKeyOrga(zone, key, identityParam.organisation);
         if (data.isPresent()) {
             throw new ArlasException("A resource with zone " + zone + " and key " + key + " already exists.");
         } else {
@@ -113,7 +113,7 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
                     zone,
                     value,
                     identityParam.userId,
-                    identityParam.organization,
+                    identityParam.organisation,
                     new ArrayList<>(writers),
                     new ArrayList<>(readers),
                     new Date());
@@ -158,7 +158,7 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
 
     @Override
     public Data delete(String zone, String key, IdentityParam identityParam) throws ArlasException {
-        Optional<Data> data = getByZoneKeyOrga(zone, key, identityParam.organization);
+        Optional<Data> data = getByZoneKeyOrga(zone, key, identityParam.organisation);
         if (data.isPresent()) {
             return deleteData(data.get(), identityParam);
         } else {

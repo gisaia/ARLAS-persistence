@@ -20,8 +20,8 @@
 package io.arlas.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.arlas.filter.core.IdentityParam;
 import io.arlas.persistence.server.model.Data;
-import io.arlas.persistence.server.model.IdentityParam;
 import io.dropwizard.jackson.JsonSnakeCase;
 
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public class DataWithLinks extends Data {
     @JsonProperty("updatable")
     public boolean updatable;
 
-    public DataWithLinks(Data data,IdentityParam identityParam) {
+    public DataWithLinks(Data data, IdentityParam identityParam) {
         this.setDocZone(data.getDocZone());
         this.setDocKey(data.getDocKey());
         this.setLastUpdateDate(data.getLastUpdateDate());
@@ -61,9 +61,9 @@ public class DataWithLinks extends Data {
         return this;
     }
 
-    public boolean isUpdatable(Data data,IdentityParam identityParam) {
+    public boolean isUpdatable(Data data, IdentityParam identityParam) {
         List<String> writers = Optional.ofNullable(data.getDocWriters()).orElse(new ArrayList<>());
-        return data.getDocOrganization().equals(identityParam.organization) &&
+        return data.getDocOrganization().equals(identityParam.organisation) &&
                 (data.getDocOwner().equals(identityParam.userId) || intersect(identityParam.groups, writers));
     }
 }

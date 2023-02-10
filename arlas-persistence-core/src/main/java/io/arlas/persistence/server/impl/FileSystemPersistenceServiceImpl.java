@@ -22,12 +22,12 @@ package io.arlas.persistence.server.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.NotFoundException;
+import io.arlas.filter.core.IdentityParam;
 import io.arlas.persistence.server.core.PersistenceService;
 import io.arlas.persistence.server.exceptions.ConflictException;
 import io.arlas.persistence.server.exceptions.ForbiddenException;
 import io.arlas.persistence.server.model.Data;
 import io.arlas.persistence.server.model.FileWrapper;
-import io.arlas.persistence.server.model.IdentityParam;
 import io.arlas.persistence.server.utils.SortOrder;
 import io.arlas.persistence.server.utils.UUIDHelper;
 import org.apache.commons.lang3.tuple.Pair;
@@ -55,7 +55,7 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
     @Override
     public Pair<Long, List<Data>> list(String zone, IdentityParam identityParam, Integer size, Integer page, SortOrder order) throws ArlasException {
         Stream<Data> rawlist = getByFilenameFilter(
-                prefixFilter(zone, identityParam.organization),
+                prefixFilter(zone, identityParam.organisation),
                 identityParam, true).stream()
                 .map(fw -> fw.data);
         List<Data> list;
@@ -66,7 +66,7 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
             list = rawlist.sorted(Comparator.comparing(Data::getLastUpdateDate))
                     .collect(Collectors.toList());
         }
-        return Pair.of(Long.valueOf(list.size()),
+        return Pair.of((long) list.size(),
                 (page - 1) * size > list.size() ? Collections.emptyList() : list.subList((page - 1) * size, Math.min(list.size(), page * size)));
     }
 
@@ -112,7 +112,7 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
                     zone,
                     value,
                     identityParam.userId,
-                    identityParam.organization,
+                    identityParam.organisation,
                     new ArrayList<>(writers),
                     new ArrayList<>(readers),
                     new Date());
@@ -215,7 +215,7 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
 
     private Optional<FileWrapper> getByZoneKeyOrga(String zone, String key, IdentityParam identityParam) throws ArlasException {
         List<FileWrapper> list = getByFilenameFilter(
-                prefixFilter(zone, identityParam.organization, key),
+                prefixFilter(zone, identityParam.organisation, key),
                 identityParam, false);
         return list.size() > 0 ? Optional.of(list.get(0)) : Optional.empty();
     }

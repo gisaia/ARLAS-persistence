@@ -28,11 +28,11 @@ import com.google.firestore.admin.v1.CollectionGroupName;
 import com.google.firestore.admin.v1.Index;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.NotFoundException;
+import io.arlas.filter.core.IdentityParam;
 import io.arlas.persistence.server.core.PersistenceService;
 import io.arlas.persistence.server.exceptions.ConflictException;
 import io.arlas.persistence.server.exceptions.ForbiddenException;
 import io.arlas.persistence.server.model.Data;
-import io.arlas.persistence.server.model.IdentityParam;
 import io.arlas.persistence.server.utils.SortOrder;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -137,12 +137,12 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
     @Override
     public Pair<Long, List<Data>> list(String zone, IdentityParam identityParam, Integer size, Integer page, SortOrder order) throws ArlasException {
         List<String> entities =  new ArrayList<>(identityParam.groups);
-        entities.addAll(Stream.of(identityParam.userId).collect(Collectors.toList()));
+        entities.addAll(Stream.of(identityParam.userId).toList());
         try {
             return Pair.of(
                     (long) db.collection(this.collection)
                             .whereEqualTo(Data.zoneColumn, zone)
-                            .whereEqualTo(Data.organizationColumn, identityParam.organization)
+                            .whereEqualTo(Data.organizationColumn, identityParam.organisation)
                             .whereArrayContainsAny(Data.docEntitiesColumn, entities)
                             .get()
                             .get()
@@ -150,7 +150,7 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
 
                     db.collection(this.collection)
                             .whereEqualTo(Data.zoneColumn, zone)
-                            .whereEqualTo(Data.organizationColumn, identityParam.organization)
+                            .whereEqualTo(Data.organizationColumn, identityParam.organisation)
                             .whereArrayContainsAny(Data.docEntitiesColumn, entities)
                             .orderBy(Data.lastUpdateDateColumn, order == SortOrder.ASC ? Query.Direction.ASCENDING : Query.Direction.DESCENDING)
                             .limit(size)
@@ -178,7 +178,7 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
 
     @Override
     public Data get(String zone, String key, IdentityParam identityParam) throws ArlasException {
-        Optional<Data> data = getByZoneKeyOrga(zone, key, identityParam.organization);
+        Optional<Data> data = getByZoneKeyOrga(zone, key, identityParam.organisation);
         if (data.isPresent()) {
             if (PersistenceService.isReaderOnData(identityParam, data.get()) ||
                     PersistenceService.isWriterOnData(identityParam, data.get())) {
@@ -206,7 +206,7 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
     @Override
     public Data create(String zone, String key, IdentityParam identityParam, Set<String> readers, Set<String> writers, String value) throws ArlasException {
         try {
-            Optional<Data> data = getByZoneKeyOrga(zone, key, identityParam.organization);
+            Optional<Data> data = getByZoneKeyOrga(zone, key, identityParam.organisation);
             if (data.isPresent()) {
                 throw new ArlasException("A resource with zone " + zone + " and key " + key + " already exists.");
             } else {
@@ -216,7 +216,7 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
                 entities.addAll(writers);
                 entities.addAll(readers);
                 entities.addAll(Stream.of(identityParam.userId).collect(Collectors.toSet()));
-                Data newData = new Data(docRef.getId(), key, zone, value, identityParam.userId, identityParam.organization, new ArrayList<>(writers), new ArrayList<>(readers), new ArrayList<>(entities), new Date());
+                Data newData = new Data(docRef.getId(), key, zone, value, identityParam.userId, identityParam.organisation, new ArrayList<>(writers), new ArrayList<>(readers), new ArrayList<>(entities), new Date());
                 Timestamp result = docRef.create(newData).get().getUpdateTime();
                 LOGGER.debug("Created doc " + docRef.getId() + " at " + result);
                 return newData;
@@ -276,7 +276,7 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
 
     @Override
     public Data delete(String zone, String key, IdentityParam identityParam) throws ArlasException {
-        Optional<Data> data = getByZoneKeyOrga(zone, key, identityParam.organization);
+        Optional<Data> data = getByZoneKeyOrga(zone, key, identityParam.organisation);
         if (data.isPresent()) {
             return deleteData(data.get(), identityParam);
         } else {
