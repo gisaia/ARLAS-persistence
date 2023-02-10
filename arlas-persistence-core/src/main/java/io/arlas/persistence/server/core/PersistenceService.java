@@ -18,9 +18,9 @@
  */
 package io.arlas.persistence.server.core;
 
+import io.arlas.filter.core.IdentityParam;
 import io.arlas.persistence.server.exceptions.ForbiddenException;
 import io.arlas.persistence.server.model.Data;
-import io.arlas.persistence.server.model.IdentityParam;
 import io.arlas.persistence.server.utils.SortOrder;
 import io.arlas.commons.exceptions.ArlasException;
 import org.apache.commons.lang3.tuple.Pair;
@@ -102,12 +102,12 @@ public interface PersistenceService {
 
 
     static boolean isReaderOnData(IdentityParam idp, Data data) {
-        return data.getDocOrganization().equals(idp.organization) &&
+        return data.getDocOrganization().equals(idp.organisation) &&
                 (data.getDocOwner().equals(idp.userId) || intersect(idp.groups, data.getDocReaders()));
     }
 
     static boolean isWriterOnData(IdentityParam idp, Data data) {
-        return data.getDocOrganization().equals(idp.organization) &&
+        return data.getDocOrganization().equals(idp.organisation) &&
                 (data.getDocOwner().equals(idp.userId) || intersect(idp.groups, data.getDocWriters()));
     }
 }

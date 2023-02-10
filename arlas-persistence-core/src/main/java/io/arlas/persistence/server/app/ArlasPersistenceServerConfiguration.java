@@ -21,10 +21,10 @@ package io.arlas.persistence.server.app;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.arlas.commons.config.ArlasConfiguration;
 import io.arlas.commons.exceptions.ArlasConfigurationException;
+import io.arlas.commons.rest.utils.ServerConstants;
 import io.dropwizard.db.DataSourceFactory;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,10 +32,6 @@ public class ArlasPersistenceServerConfiguration extends ArlasConfiguration {
 
     @JsonProperty("arlas-base-uri")
     public String arlasBaseUri;
-
-    @NotNull
-    @JsonProperty("arlas_organization_header")
-    public String organizationHeader;
 
     @JsonProperty("persistence_engine")
     public String engine;
@@ -45,9 +41,6 @@ public class ArlasPersistenceServerConfiguration extends ArlasConfiguration {
 
     @JsonProperty("local_folder")
     public String localFolder;
-
-    @JsonProperty("anonymous_value")
-    public String anonymousValue;
 
     @Valid
     @JsonProperty("database")
@@ -63,8 +56,8 @@ public class ArlasPersistenceServerConfiguration extends ArlasConfiguration {
                     .map(String::trim).toList();
 
             boolean allHeaderIsAllowed =
-                    allowedHeaders.contains(arlasAuthConfiguration.getHeaderUser()) && allowedHeaders.contains(arlasAuthConfiguration.getHeaderGroup()) &&
-                            allowedHeaders.contains(organizationHeader);
+                    allowedHeaders.contains(arlasAuthConfiguration.headerUser) && allowedHeaders.contains(arlasAuthConfiguration.headerUser) &&
+                            allowedHeaders.contains(ServerConstants.ARLAS_ORGANISATION);
             if (!allHeaderIsAllowed) {
                 throw new ArlasConfigurationException("User header or Groups header or Organization Header is missing from Arlas Allowed Headers.");
             }

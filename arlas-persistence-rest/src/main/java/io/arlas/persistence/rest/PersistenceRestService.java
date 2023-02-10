@@ -20,17 +20,19 @@
 package io.arlas.persistence.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import io.arlas.commons.config.ArlasAuthConfiguration;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.NotFoundException;
 import io.arlas.commons.rest.response.Error;
 import io.arlas.commons.rest.utils.ResponseFormatter;
+import io.arlas.commons.rest.utils.ServerConstants;
+import io.arlas.filter.core.IdentityParam;
 import io.arlas.persistence.model.DataResource;
 import io.arlas.persistence.model.DataWithLinks;
 import io.arlas.persistence.model.Exists;
 import io.arlas.persistence.server.app.ArlasPersistenceServerConfiguration;
 import io.arlas.persistence.server.app.Documentation;
 import io.arlas.persistence.server.core.PersistenceService;
-import io.arlas.persistence.server.model.IdentityParam;
 import io.arlas.persistence.server.utils.SortOrder;
 import io.dropwizard.hibernate.UnitOfWork;
 import io.swagger.annotations.*;
@@ -61,19 +63,12 @@ public class PersistenceRestService {
 
     private final PersistenceService persistenceService;
     private final DataHALService halService;
-    private final String userHeader;
-    private final String organizationHeader;
-    private final String groupsHeader;
-    private final String anonymousValue;
-
+    private final ArlasAuthConfiguration configuration;
 
     public PersistenceRestService(PersistenceService persistenceService, ArlasPersistenceServerConfiguration configuration) {
         this.persistenceService = persistenceService;
         this.halService = new DataHALService(configuration.arlasBaseUri);
-        this.userHeader = configuration.arlasAuthConfiguration.getHeaderUser();
-        this.organizationHeader = configuration.organizationHeader;
-        this.groupsHeader = configuration.arlasAuthConfiguration.getHeaderGroup();
-        this.anonymousValue = configuration.anonymousValue;
+        this.configuration = configuration.arlasAuthConfiguration;
     }
 
     @Timed
@@ -531,25 +526,15 @@ public class PersistenceRestService {
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
         IdentityParam identityparam = getIdentityParam(headers);
-        DataWithLinks dataWithLinks =new DataWithLinks(persistenceService.delete(zone,key,identityparam),identityparam);
+        DataWithLinks dataWithLinks = new DataWithLinks(persistenceService.delete(zone,key,identityparam),identityparam);
         return Response.accepted().entity(halService.dataWithLinks(dataWithLinks, uriInfo,identityparam))
                 .type("application/json")
                 .build();
     }
 
     private IdentityParam getIdentityParam(HttpHeaders headers) {
-        String userId = Optional.ofNullable(headers.getHeaderString(this.userHeader))
-                .orElse(this.anonymousValue);
-
-        String organization = Optional.ofNullable(headers.getHeaderString(this.organizationHeader))
-                .orElse(""); // in a context where resources are publicly available, no organisation is defined
-
-        List<String> groups = Arrays.stream(
-                Optional.ofNullable(headers.getHeaderString(this.groupsHeader)).orElse("group/public").split(","))
-                .map(String::trim)
-                .collect(Collectors.toList());
-
-        LOGGER.info("User='" + userId + "' / Org='" + organization + "' / Groups='" + groups + "'");
-        return new IdentityParam(userId, organization, groups);
+        IdentityParam idp = new IdentityParam(configuration, headers);
+        LOGGER.info("User='" + idp.userId + "' / Org='" + idp.organisation + "' / Groups='" + idp.groups + "'");
+        return idp;
     }
 }
