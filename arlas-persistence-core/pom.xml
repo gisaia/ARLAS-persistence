@@ -6,14 +6,14 @@
 
     <groupId>io.arlas</groupId>
     <artifactId>arlas-persistence-core</artifactId>
-    <version>23.0.4</version>
+    <version>23.0.5-SNAPSHOT-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>ARLAS persistence server core</name>
 
     <parent>
         <groupId>io.arlas</groupId>
         <artifactId>arlas-persistence-parent</artifactId>
-        <version>23.0.4</version>
+        <version>23.0.5-SNAPSHOT-SNAPSHOT</version>
     </parent>
 
     <dependencies>
