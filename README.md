@@ -1,5 +1,5 @@
 # ARLAS-persistence
 Microservice for storing key/value data.
-  - [Overview](docs/arlas-persistence-overview.md)  
-  - [Configuration](docs/arlas-persistence-configuration.md)  
-  - [API Persistence](docs/arlas-api-persistence.md)  
+  - [Overview](https://docs.arlas.io/arlas-persistence-overview/)  
+  - [Configuration](https://docs.arlas.io/arlas-persistence-configuration/)  
+  - [API Persistence](https://docs.arlas.io/arlas-api-persistence/)  
