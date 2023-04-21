@@ -75,15 +75,12 @@ public interface PersistenceService {
     }
 
     static boolean intersect(List<String> a, List<String> b) {
-        return a.stream()
-                .distinct()
-                .filter(b::contains)
-                .count() > 0;
+        return a.stream().distinct().anyMatch(b::contains);
     }
 
     static boolean isShareableGroup(List<String> group, String zone, IdentityParam identityParam) throws ForbiddenException {
         List<String> userGroupsForZone = getGroupsForZone(zone, identityParam);
-        List<String> authorizeGroup = group.stream().filter(g -> userGroupsForZone.contains(g)).collect(Collectors.toList());
+        List<String> authorizeGroup = group.stream().filter(userGroupsForZone::contains).toList();
         if (!authorizeGroup.isEmpty() || group.isEmpty()){
             return true;
         } else {
@@ -102,12 +99,12 @@ public interface PersistenceService {
 
 
     static boolean isReaderOnData(IdentityParam idp, Data data) {
-        return data.getDocOrganization().equals(idp.organisation) &&
+        return (idp.isAnonymous || idp.organisation.contains(data.getDocOrganization())) &&
                 (data.getDocOwner().equals(idp.userId) || intersect(idp.groups, data.getDocReaders()));
     }
 
     static boolean isWriterOnData(IdentityParam idp, Data data) {
-        return data.getDocOrganization().equals(idp.organisation) &&
+        return (idp.isAnonymous || idp.organisation.contains(data.getDocOrganization())) &&
                 (data.getDocOwner().equals(idp.userId) || intersect(idp.groups, data.getDocWriters()));
     }
 }
