@@ -43,11 +43,11 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
     }
 
     @Override
-    public Pair<Long, List<Data>> list(String zone, IdentityParam identityParam, Integer size, Integer page, SortOrder order) {
+    public Pair list(String zone, IdentityParam identityParam, Integer size, Integer page, SortOrder order) {
 
         Long totalCount = currentSession().createQuery("SELECT count(ud) FROM Data ud  "
                         + "    where ud." + Data.zoneColumn + "=:zone"
-                        + "    and ud." + Data.organizationColumn + "=:organization"
+                        + (identityParam.isAnonymous ? "" : "    and ud." + Data.organizationColumn + " in :organization")
                         + "    and " +
                         "( " +
                         "ud." + Data.ownerColumn + "=:userId "
@@ -60,7 +60,7 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
 
         Query query = currentSession().createQuery(" from Data ud "
                 + "    where ud." + Data.zoneColumn + "=:zone"
-                + "    and ud." + Data.organizationColumn + "=:organization"
+                + (identityParam.isAnonymous ? "" : "    and ud." + Data.organizationColumn + " in :organization")
                 + "    and " +
                 "( " +
                 "ud." + Data.ownerColumn + "=:userId " +
@@ -103,6 +103,9 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
 
     @Override
     public Data create(String zone, String key, IdentityParam identityParam, Set<String> readers, Set<String> writers, String value) throws ArlasException {
+        if (identityParam.organisation.size() != 1) {
+            throw new ArlasException("A unique organisation must be set in IdParam but received: " + identityParam.organisation);
+        }
         Optional<Data> data = getByZoneKeyOrga(zone, key, identityParam.organisation);
         if (data.isPresent()) {
             throw new ArlasException("A resource with zone " + zone + " and key " + key + " already exists.");
@@ -113,7 +116,7 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
                     zone,
                     value,
                     identityParam.userId,
-                    identityParam.organisation,
+                    identityParam.organisation.get(0),
                     new ArrayList<>(writers),
                     new ArrayList<>(readers),
                     new Date());
@@ -123,13 +126,16 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
 
     @Override
     public Data update(String id, String key, IdentityParam identityParam, Set<String> readers, Set<String> writers, String value, Date lastUpdate) throws ArlasException {
+        if (identityParam.organisation.size() != 1) {
+            throw new ArlasException("A unique organisation must be set in IdParam but received: " + identityParam.organisation);
+        }
         Data data = getById(id);
         if (PersistenceService.isWriterOnData(identityParam, data)) {
             String zone = data.getDocZone();
             PersistenceService.checkReadersWritersGroups(zone, identityParam, readers,writers);
             // If the key is updated, we need to check if a triplet Zone/Key/orga already exist with this new key
             if(Optional.ofNullable(key).isPresent() && !Optional.ofNullable(key).get().equals(data.getDocKey())){
-                Optional<Data> alreadyExisting = getByZoneKeyOrga(zone, key, data.getDocOrganization());
+                Optional<Data> alreadyExisting = getByZoneKeyOrga(zone, key, List.of(data.getDocOrganization()));
                 if (alreadyExisting.isPresent()) {
                     throw new ArlasException("A resource with zone " + zone + " and key " + key + " already exists.");
                 }
@@ -171,11 +177,11 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
                 .orElseThrow(() -> new NotFoundException("Data with id " + id + " not found."));
     }
 
-    private Optional<Data> getByZoneKeyOrga(String zone, String key, String organization) {
+    private Optional<Data> getByZoneKeyOrga(String zone, String key, List<String> organization) {
         Data data = currentSession().createQuery("from Data ud"
                 + "    where ud." + Data.zoneColumn + "=:zone"
                 + "    and ud." + Data.keyColumn + "=:key"
-                + "    and ud." + Data.organizationColumn + "=:organization", Data.class)
+                + "    and ud." + Data.organizationColumn + " in :organization", Data.class)
                 .setParameter("zone", zone)
                 .setParameter("key", key)
                 .setParameter("organization", organization)

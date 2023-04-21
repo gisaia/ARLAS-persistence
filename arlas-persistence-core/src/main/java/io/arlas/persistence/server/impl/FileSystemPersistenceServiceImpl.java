@@ -54,15 +54,17 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
 
     @Override
     public Pair<Long, List<Data>> list(String zone, IdentityParam identityParam, Integer size, Integer page, SortOrder order) throws ArlasException {
-        Stream<Data> rawlist = getByFilenameFilter(
-                prefixFilter(zone, identityParam.organisation),
-                identityParam, true).stream()
-                .map(fw -> fw.data);
+        List<FileWrapper> fileWrappers = new ArrayList<>();
+        List<String> orgs = identityParam.isAnonymous ? List.of(".*") : identityParam.organisation;
+        for (String org : identityParam.organisation) {
+            fileWrappers.addAll(getByFilenameFilter(prefixFilter(zone, org), identityParam, true));
+        }
+        Stream<Data> rawlist = fileWrappers.stream().map(fw -> fw.data);
         List<Data> list;
-        if(order.equals(SortOrder.DESC)){
+        if (order.equals(SortOrder.DESC)) {
             list = rawlist.sorted(Comparator.comparing(Data::getLastUpdateDate).reversed())
                     .collect(Collectors.toList());
-        }else{
+        } else {
             list = rawlist.sorted(Comparator.comparing(Data::getLastUpdateDate))
                     .collect(Collectors.toList());
         }
@@ -102,6 +104,9 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
 
     @Override
     public Data create(String zone, String key, IdentityParam identityParam, Set<String> readers, Set<String> writers, String value) throws ArlasException {
+        if (identityParam.organisation.size() != 1) {
+            throw new ArlasException("A unique organisation must be set in IdParam but received: " + identityParam.organisation);
+        }
         Optional<FileWrapper> data = getByZoneKeyOrga(zone, key, identityParam);
         if (data.isPresent()) {
             throw new ArlasException("A resource with zone " + zone + " and key " + key + " already exists.");
@@ -112,7 +117,7 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
                     zone,
                     value,
                     identityParam.userId,
-                    identityParam.organisation,
+                    identityParam.organisation.get(0),
                     new ArrayList<>(writers),
                     new ArrayList<>(readers),
                     new Date());
@@ -214,9 +219,10 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
     }
 
     private Optional<FileWrapper> getByZoneKeyOrga(String zone, String key, IdentityParam identityParam) throws ArlasException {
-        List<FileWrapper> list = getByFilenameFilter(
-                prefixFilter(zone, identityParam.organisation, key),
-                identityParam, false);
+        List<FileWrapper> list = new ArrayList<>();
+        for (String org : identityParam.organisation) {
+            list.addAll(getByFilenameFilter(prefixFilter(zone, org, key), identityParam, false));
+        }
         return list.size() > 0 ? Optional.of(list.get(0)) : Optional.empty();
     }
 

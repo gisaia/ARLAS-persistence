@@ -111,6 +111,32 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
                 LOGGER.error("Could not create Firestore index4, it will need to be created manually", e);
             }
 
+            try {
+                firestoreAdminClient.createIndexAsync(parent, Index.newBuilder()
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.docEntitiesColumn).setArrayConfig(Index.IndexField.ArrayConfig.CONTAINS).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.zoneColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.lastUpdateDateColumn).setOrder(Index.IndexField.Order.DESCENDING).build())
+                        .setQueryScope(Index.QueryScope.COLLECTION)
+                        .build()).get();
+            } catch (AlreadyExistsException e) {
+                LOGGER.debug("Firestore index5 was already created");
+            } catch (Exception e) {
+                LOGGER.error("Could not create Firestore index5, it will need to be created manually", e);
+            }
+
+            try {
+                firestoreAdminClient.createIndexAsync(parent, Index.newBuilder()
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.docEntitiesColumn).setArrayConfig(Index.IndexField.ArrayConfig.CONTAINS).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.zoneColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.lastUpdateDateColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
+                        .setQueryScope(Index.QueryScope.COLLECTION)
+                        .build()).get();
+            } catch (AlreadyExistsException e) {
+                LOGGER.debug("Firestore index6 was already created");
+            } catch (Exception e) {
+                LOGGER.error("Could not create Firestore index6, it will need to be created manually", e);
+            }
+
         } catch (IOException e) {
             LOGGER.error("Could not create Firestore indices", e);
             throw new ArlasException("Could not connect to Firestore");
@@ -139,35 +165,65 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
         List<String> entities =  new ArrayList<>(identityParam.groups);
         entities.addAll(Stream.of(identityParam.userId).toList());
         try {
-            return Pair.of(
-                    (long) db.collection(this.collection)
-                            .whereEqualTo(Data.zoneColumn, zone)
-                            .whereEqualTo(Data.organizationColumn, identityParam.organisation)
-                            .whereArrayContainsAny(Data.docEntitiesColumn, entities)
-                            .get()
-                            .get()
-                            .size(),
+            if (identityParam.isAnonymous) {
+                return Pair.of(
+                        (long) db.collection(this.collection)
+                                .whereEqualTo(Data.zoneColumn, zone)
+                                .whereArrayContainsAny(Data.docEntitiesColumn, entities)
+                                .get()
+                                .get()
+                                .size(),
 
-                    db.collection(this.collection)
-                            .whereEqualTo(Data.zoneColumn, zone)
-                            .whereEqualTo(Data.organizationColumn, identityParam.organisation)
-                            .whereArrayContainsAny(Data.docEntitiesColumn, entities)
-                            .orderBy(Data.lastUpdateDateColumn, order == SortOrder.ASC ? Query.Direction.ASCENDING : Query.Direction.DESCENDING)
-                            .limit(size)
-                            .offset((page - 1) * size)
-                            .get()
-                            .get()
-                            .getDocuments()
-                            .stream()
-                            .map(d -> {
-                                try {
-                                    return toData(d.getId(), d);
-                                } catch (NotFoundException e) { //can't happen in this case
-                                    return null;
-                                }
-                            })
-                            .filter(Objects::nonNull)
-                            .collect(Collectors.toList()));
+                        db.collection(this.collection)
+                                .whereEqualTo(Data.zoneColumn, zone)
+                                .whereArrayContainsAny(Data.docEntitiesColumn, entities)
+                                .orderBy(Data.lastUpdateDateColumn, order == SortOrder.ASC ? Query.Direction.ASCENDING : Query.Direction.DESCENDING)
+                                .limit(size)
+                                .offset((page - 1) * size)
+                                .get()
+                                .get()
+                                .getDocuments()
+                                .stream()
+                                .map(d -> {
+                                    try {
+                                        return toData(d.getId(), d);
+                                    } catch (NotFoundException e) { //can't happen in this case
+                                        return null;
+                                    }
+                                })
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.toList()));
+            } else {
+                return Pair.of(
+                        (long) db.collection(this.collection)
+                                .whereEqualTo(Data.zoneColumn, zone)
+                                .whereIn(Data.organizationColumn, identityParam.organisation)
+                                .whereArrayContainsAny(Data.docEntitiesColumn, entities)
+                                .get()
+                                .get()
+                                .size(),
+
+                        db.collection(this.collection)
+                                .whereEqualTo(Data.zoneColumn, zone)
+                                .whereIn(Data.organizationColumn, identityParam.organisation)
+                                .whereArrayContainsAny(Data.docEntitiesColumn, entities)
+                                .orderBy(Data.lastUpdateDateColumn, order == SortOrder.ASC ? Query.Direction.ASCENDING : Query.Direction.DESCENDING)
+                                .limit(size)
+                                .offset((page - 1) * size)
+                                .get()
+                                .get()
+                                .getDocuments()
+                                .stream()
+                                .map(d -> {
+                                    try {
+                                        return toData(d.getId(), d);
+                                    } catch (NotFoundException e) { //can't happen in this case
+                                        return null;
+                                    }
+                                })
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.toList()));
+            }
         } catch (FailedPreconditionException e) {
             LOGGER.error(e.getMessage()); // happens when index is missing
             throw new ArlasException("Error listing document: " + e.getMessage());
@@ -205,6 +261,9 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
 
     @Override
     public Data create(String zone, String key, IdentityParam identityParam, Set<String> readers, Set<String> writers, String value) throws ArlasException {
+        if (identityParam.organisation.size() != 1) {
+            throw new ArlasException("A unique organisation must be set in IdParam but received: " + identityParam.organisation);
+        }
         try {
             Optional<Data> data = getByZoneKeyOrga(zone, key, identityParam.organisation);
             if (data.isPresent()) {
@@ -216,7 +275,9 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
                 entities.addAll(writers);
                 entities.addAll(readers);
                 entities.addAll(Stream.of(identityParam.userId).collect(Collectors.toSet()));
-                Data newData = new Data(docRef.getId(), key, zone, value, identityParam.userId, identityParam.organisation, new ArrayList<>(writers), new ArrayList<>(readers), new ArrayList<>(entities), new Date());
+                Data newData = new Data(docRef.getId(), key, zone, value, identityParam.userId,
+                        identityParam.organisation.get(0), new ArrayList<>(writers), new ArrayList<>(readers),
+                        new ArrayList<>(entities), new Date());
                 Timestamp result = docRef.create(newData).get().getUpdateTime();
                 LOGGER.debug("Created doc " + docRef.getId() + " at " + result);
                 return newData;
@@ -228,6 +289,9 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
 
     @Override
     public Data update(String id, String key, IdentityParam identityParam, Set<String> readers, Set<String> writers, String value, Date lastUpdate) throws ArlasException {
+        if (identityParam.organisation.size() != 1) {
+            throw new ArlasException("A unique organisation must be set in IdParam but received: " + identityParam.organisation);
+        }
         try {
             Data data = getById(id);
             if (PersistenceService.isWriterOnData(identityParam, data)) {
@@ -235,7 +299,7 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
                 PersistenceService.checkReadersWritersGroups(zone, identityParam, readers,writers);
                 // If the key is updated, we need to check if a triplet Zone/Key/orga already exist with this new key
                 if(Optional.ofNullable(key).isPresent() && !Optional.ofNullable(key).get().equals(data.getDocKey())){
-                    Optional<Data> alreadyExisting = getByZoneKeyOrga(zone, key, data.getDocOrganization());
+                    Optional<Data> alreadyExisting = getByZoneKeyOrga(zone, key, List.of(data.getDocOrganization()));
                     if (alreadyExisting.isPresent()) {
                         throw new ArlasException("A resource with zone " + zone + " and key " + key + " already exists.");
                     }
@@ -284,13 +348,13 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
         }
     }
 
-    private Optional<Data> getByZoneKeyOrga(String zone, String key, String organization) throws ArlasException {
+    private Optional<Data> getByZoneKeyOrga(String zone, String key, List<String> organization) throws ArlasException {
 
         try {
             return db.collection(this.collection)
                     .whereEqualTo(Data.zoneColumn, zone)
                     .whereEqualTo(Data.keyColumn, key)
-                    .whereEqualTo(Data.organizationColumn, organization)
+                    .whereIn(Data.organizationColumn, organization)
                     .limit(1)
                     .get().get()
                     .getDocuments()

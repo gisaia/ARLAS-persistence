@@ -63,7 +63,7 @@ public class DataWithLinks extends Data {
 
     public boolean isUpdatable(Data data, IdentityParam identityParam) {
         List<String> writers = Optional.ofNullable(data.getDocWriters()).orElse(new ArrayList<>());
-        return data.getDocOrganization().equals(identityParam.organisation) &&
+        return identityParam.organisation.contains(data.getDocOrganization()) &&
                 (data.getDocOwner().equals(identityParam.userId) || intersect(identityParam.groups, writers));
     }
 }

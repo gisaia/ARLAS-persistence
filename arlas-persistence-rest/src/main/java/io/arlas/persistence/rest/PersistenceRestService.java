@@ -25,7 +25,6 @@ import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.NotFoundException;
 import io.arlas.commons.rest.response.Error;
 import io.arlas.commons.rest.utils.ResponseFormatter;
-import io.arlas.commons.rest.utils.ServerConstants;
 import io.arlas.filter.core.IdentityParam;
 import io.arlas.persistence.model.DataResource;
 import io.arlas.persistence.model.DataWithLinks;
@@ -44,7 +43,6 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 @Path("/persist")
@@ -483,7 +481,7 @@ public class PersistenceRestService {
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
         IdentityParam identityparam = getIdentityParam(headers);
-        DataWithLinks dataWithLinks =new DataWithLinks(persistenceService.deleteById(id, identityparam), identityparam);
+        DataWithLinks dataWithLinks = new DataWithLinks(persistenceService.deleteById(id, identityparam), identityparam);
         return Response.accepted().entity(halService.dataWithLinks(dataWithLinks, uriInfo, identityparam))
                 .type("application/json")
                 .build();
