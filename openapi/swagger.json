@@ -2,7 +2,7 @@
   "swagger" : "2.0",
   "info" : {
     "description" : "persistence REST services",
-    "version" : "24.0.1-SNAPSHOT",
+    "version" : "24.0.2",
     "title" : "ARLAS persistence API",
     "contact" : {
       "name" : "Gisaia",
