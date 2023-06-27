@@ -21,14 +21,14 @@
         <skipTests>true</skipTests>
         <surefire.version>2.22.2</surefire.version>
 
-        <arlas-commons.version>24.0.0</arlas-commons.version>
+        <arlas-commons.version>24.0.2</arlas-commons.version>
         <log4j.version>2.19.0</log4j.version>
         <jug.version>4.0.1</jug.version>
-        <dropwizard.version>2.1.5</dropwizard.version>
+        <dropwizard.version>2.1.6</dropwizard.version>
         <postgresql.version>42.6.0</postgresql.version>
         <hibernate.types.version>2.21.1</hibernate.types.version>
-        <google.cloud.bom.version>26.12.0</google.cloud.bom.version>
-        <jackson.databind.version>2.14.1</jackson.databind.version>
+        <google.cloud.bom.version>26.17.0</google.cloud.bom.version>
+        <jackson.databind.version>2.15.2</jackson.databind.version>
 
         <!-- TESTS -->
         <junit.version>4.13.2</junit.version>
