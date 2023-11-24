@@ -45,6 +45,7 @@ public class PersistenceIT {
     private static final UserIdentity commercial;
     private static final UserIdentity otherCompany;
     private static final UserIdentity publicProfile;
+    private static final UserIdentity anonymous;
 
     private static final String ALL = "group/user_pref/arlas_company1/all";
     private static final String TECHNICAL = "group/user_pref/arlas_company1/technical";
@@ -63,6 +64,7 @@ public class PersistenceIT {
         technical = new UserIdentity("technical", String.join(",",ALL, TECHNICAL, PUBLIC), "company1");
         commercial = new UserIdentity("commercial", String.join(",",ALL, SALES, PUBLIC), "company1");
         otherCompany = new UserIdentity("other", String.join(",",ALL2, SALES2, PUBLIC), "company2");
+        anonymous = new UserIdentity("anonymous", "", "");
 
         publicProfile = new UserIdentity("public", String.join(",", PUBLIC), "company1");
 
@@ -88,8 +90,13 @@ public class PersistenceIT {
     }
 
     @Test
-    public void test01ListEmpty() {
+    public void test00ListEmpty() {
         listEmpty(technical);
+    }
+
+    @Test
+    public void test01ListEmptyAsAnonymous() {
+        listEmpty(anonymous);
     }
 
     @Test
