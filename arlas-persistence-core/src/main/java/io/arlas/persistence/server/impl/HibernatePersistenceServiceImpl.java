@@ -45,7 +45,7 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
     @Override
     public Pair list(String zone, IdentityParam identityParam, Integer size, Integer page, SortOrder order) {
 
-        Long totalCount = currentSession().createQuery("SELECT count(ud) FROM Data ud  "
+        Query<Long> qCount = currentSession().createQuery("SELECT count(ud) FROM Data ud  "
                         + "    where ud." + Data.zoneColumn + "=:zone"
                         + (identityParam.isAnonymous ? "" : "    and ud." + Data.organizationColumn + " in :organization")
                         + "    and " +
@@ -53,10 +53,11 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
                         "ud." + Data.ownerColumn + "=:userId "
                         + "or " + getGroupsRequest(identityParam.groups) + ")"
                 , Long.class)
-                .setParameter("zone", zone)
-                .setParameter("organization", identityParam.organisation)
-                .setParameter("userId", identityParam.userId)
-                .uniqueResult();
+                .setParameter("zone", zone);
+        if (!identityParam.isAnonymous) {
+            qCount.setParameter("organization", identityParam.organisation);
+        }
+        Long totalCount = qCount.setParameter("userId", identityParam.userId).uniqueResult();
 
         Query query = currentSession().createQuery(" from Data ud "
                 + "    where ud." + Data.zoneColumn + "=:zone"
@@ -66,9 +67,11 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
                 "ud." + Data.ownerColumn + "=:userId " +
                 "or" + getGroupsRequest(identityParam.groups) + ")" +
                 " order by ud." + Data.lastUpdateDateColumn + " " + order.toString(), Data.class)
-                .setParameter("zone", zone)
-                .setParameter("organization", identityParam.organisation)
-                .setParameter("userId", identityParam.userId)
+                .setParameter("zone", zone);
+        if (!identityParam.isAnonymous) {
+            query.setParameter("organization", identityParam.organisation);
+        }
+        query.setParameter("userId", identityParam.userId)
                 .setMaxResults(size)
                 .setFirstResult((page - 1) * size);
         return Pair.of(totalCount, list(query));
