@@ -106,9 +106,12 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
 
     @Override
     public Data create(String zone, String key, IdentityParam identityParam, Set<String> readers, Set<String> writers, String value) throws ArlasException {
-        if (identityParam.organisation.size() != 1) {
+        if (identityParam.organisation.size() != 1 && !identityParam.isAnonymous) {
             throw new ArlasException("A unique organisation must be set in IdParam but received: " + identityParam.organisation);
+        } else if (identityParam.isAnonymous && !PersistenceService.hasPublicGroup(identityParam)) {
+            throw new ArlasException("An anonymous user is not allowed to create a resource");
         }
+        Boolean isAnonymous = identityParam.isAnonymous && PersistenceService.hasPublicGroup(identityParam);
         Optional<Data> data = getByZoneKeyOrga(zone, key, identityParam.organisation);
         if (data.isPresent()) {
             throw new ArlasException("A resource with zone " + zone + " and key " + key + " already exists.");
@@ -119,7 +122,7 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
                     zone,
                     value,
                     identityParam.userId,
-                    identityParam.organisation.get(0),
+                    !isAnonymous ? identityParam.organisation.get(0): "",
                     new ArrayList<>(writers),
                     new ArrayList<>(readers),
                     new Date());

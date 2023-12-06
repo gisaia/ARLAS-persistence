@@ -261,8 +261,10 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
 
     @Override
     public Data create(String zone, String key, IdentityParam identityParam, Set<String> readers, Set<String> writers, String value) throws ArlasException {
-        if (identityParam.organisation.size() != 1) {
+        if (identityParam.organisation.size() != 1 && !identityParam.isAnonymous) {
             throw new ArlasException("A unique organisation must be set in IdParam but received: " + identityParam.organisation);
+        } else if (identityParam.isAnonymous && !PersistenceService.hasPublicGroup(identityParam)) {
+            throw new ArlasException("An anonymous user is not allowed to create a resource");
         }
         try {
             Optional<Data> data = getByZoneKeyOrga(zone, key, identityParam.organisation);
@@ -275,8 +277,10 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
                 entities.addAll(writers);
                 entities.addAll(readers);
                 entities.addAll(Stream.of(identityParam.userId).collect(Collectors.toSet()));
+                Boolean isAnonymous = identityParam.isAnonymous && PersistenceService.hasPublicGroup(identityParam);
+                String org = isAnonymous ? "" : identityParam.organisation.get(0);
                 Data newData = new Data(docRef.getId(), key, zone, value, identityParam.userId,
-                        identityParam.organisation.get(0), new ArrayList<>(writers), new ArrayList<>(readers),
+                        org, new ArrayList<>(writers), new ArrayList<>(readers),
                         new ArrayList<>(entities), new Date());
                 Timestamp result = docRef.create(newData).get().getUpdateTime();
                 LOGGER.debug("Created doc " + docRef.getId() + " at " + result);

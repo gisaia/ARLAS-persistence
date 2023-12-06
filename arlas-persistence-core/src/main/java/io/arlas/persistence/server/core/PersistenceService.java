@@ -74,6 +74,11 @@ public interface PersistenceService {
         return identityParam.groups.stream().filter(g -> g.contains(zone) || g.equals("group/public")).collect(Collectors.toList());
     }
 
+    static Boolean hasPublicGroup(IdentityParam identityParam) {
+        return identityParam.groups.stream().filter(g -> g.equals("group/public")).count() > 0;
+
+    }
+
     static boolean intersect(List<String> a, List<String> b) {
         return a.stream().distinct().anyMatch(b::contains);
     }
