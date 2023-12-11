@@ -17,6 +17,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
             <groupId>io.arlas</groupId>
             <artifactId>arlas-persistence-rest</artifactId>
             <version>24.0.3-SNAPSHOT</version>

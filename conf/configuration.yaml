@@ -79,6 +79,8 @@ database:
   properties:
     charSet: UTF-8
     hibernate.dialect: ${ARLAS_PERSISTENCE_HIBERNATE_DIALECT:-org.hibernate.dialect.PostgreSQLDialect}
+    hibernate.hbm2ddl.auto: ${ARLAS_PERSISTENCE_HIBERNATE_HBM2DDL:-update}
+    hibernate.session.events.log: false
   # the maximum amount of time to wait on an empty pool before throwing an exception
   maxWaitForConnection: 1s
   # the SQL query to run when validating a connection's liveness
@@ -87,8 +89,10 @@ database:
   minSize: 8
   # the maximum number of connections to keep open
   maxSize: 32
-  # whether or not idle connections should be validated
-  checkConnectionWhileIdle: false
+  # whether or not connections will be validated before being borrowed from the pool
+  checkConnectionOnBorrow: true
+  # whether or not connections will be validated after being returned to the pool
+  checkConnectionOnReturn: true
 
 ########################################################
 ############ AUTHENTICATION              ###############
