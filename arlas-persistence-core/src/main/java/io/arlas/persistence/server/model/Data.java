@@ -19,8 +19,8 @@
 
 package io.arlas.persistence.server.model;
 
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import io.dropwizard.jackson.JsonSnakeCase;
+import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Type;
