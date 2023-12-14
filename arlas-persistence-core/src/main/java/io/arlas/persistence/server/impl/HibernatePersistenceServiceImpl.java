@@ -79,7 +79,7 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
 
     @Override
     public Data get(String zone, String key, IdentityParam identityParam) throws ArlasException {
-        Optional<Data> data = getByZoneKeyOrga(zone, key, identityParam.organisation);
+        Optional<Data> data = getByZoneKeyOrga(zone, key, identityParam);
         if (data.isPresent()) {
             if (PersistenceService.isReaderOnData(identityParam, data.get()) ||
                     PersistenceService.isWriterOnData(identityParam, data.get())) {
@@ -190,6 +190,29 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
                 .setParameter("organization", organization)
                 .uniqueResult();
         return Optional.ofNullable(data);
+    }
+
+    private Optional<Data> getByZoneKeyOrga(String zone, String key, IdentityParam idp) throws ArlasException {
+        List<Data> res = currentSession().createQuery("from Data ud"
+                + "    where ud." + Data.zoneColumn + "=:zone"
+                + "    and ud." + Data.keyColumn + "=:key", Data.class)
+                .setParameter("zone", zone)
+                .setParameter("key", key)
+                .list()
+                .stream()
+                // if the data's organisation is the org of the user
+                .filter(d -> idp.organisation.contains(d.getDocOrganization())
+                        // or the user is anonymous (we don't have an organisation to match with)
+                        || idp.isAnonymous)
+                .toList();
+
+        if (res.isEmpty()) {
+            return Optional.empty();
+        } else if (res.size() == 1) {
+            return Optional.of(res.get(0));
+        } else {
+            throw new ArlasException("More than one doc for key/zone: need one org to filter properly");
+        }
     }
 
     private Data deleteData(Data data, IdentityParam identityParam) throws ForbiddenException {
