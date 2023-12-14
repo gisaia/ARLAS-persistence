@@ -532,6 +532,9 @@ public class PersistenceRestService {
 
     private IdentityParam getIdentityParam(HttpHeaders headers) {
         IdentityParam idp = new IdentityParam(configuration, headers);
+        if (!idp.organisation.contains("")) {
+            idp.organisation.add(""); // add the "no org" to allowed orgs of logged-in users too
+        }
         LOGGER.info("User='" + idp.userId + "' / Org='" + idp.organisation + "' / Groups='" + idp.groups + "'");
         return idp;
     }
