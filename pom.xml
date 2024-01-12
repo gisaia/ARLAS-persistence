@@ -27,7 +27,7 @@
         <dropwizard.version>2.1.10</dropwizard.version>
         <postgresql.version>42.7.1</postgresql.version>
         <hibernate.utils.version>3.5.2</hibernate.utils.version>
-        <google.cloud.bom.version>26.28.0</google.cloud.bom.version>
+        <google.cloud.bom.version>26.29.0</google.cloud.bom.version>
         <jackson.version>2.15.2</jackson.version>
 
         <!-- TESTS -->

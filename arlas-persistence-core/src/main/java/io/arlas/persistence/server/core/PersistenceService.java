@@ -18,18 +18,19 @@
  */
 package io.arlas.persistence.server.core;
 
+import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.filter.core.IdentityParam;
 import io.arlas.persistence.server.exceptions.ForbiddenException;
 import io.arlas.persistence.server.model.Data;
 import io.arlas.persistence.server.utils.SortOrder;
-import io.arlas.commons.exceptions.ArlasException;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
+
+import static io.arlas.filter.config.TechnicalRoles.GROUP_PUBLIC;
 
 public interface PersistenceService {
 
@@ -39,10 +40,6 @@ public interface PersistenceService {
                                 Integer size,
                                 Integer page,
                                 SortOrder order) throws ArlasException;
-
-    Data get(String zone,
-             String key,
-             IdentityParam identityParam) throws ArlasException;
 
     Data getById(String id,
                  IdentityParam identityParam) throws ArlasException;
@@ -64,10 +61,6 @@ public interface PersistenceService {
 
     Data deleteById(String id,
                     IdentityParam identityParam) throws ArlasException;
-
-    Data delete(String zone,
-                String key,
-                IdentityParam identityParam) throws ArlasException;
 
     static List<String> getGroupsForZone(String zone,
                                          IdentityParam identityParam) {
@@ -96,7 +89,9 @@ public interface PersistenceService {
         isShareableGroup(readersList, zone, identityParam);
     }
 
-
+    static boolean isPublic(Data data) {
+        return data.getDocReaders().contains(GROUP_PUBLIC) || data.getDocWriters().contains(GROUP_PUBLIC);
+    }
 
     static boolean isReaderOnData(IdentityParam idp, Data data) {
         return (idp.isAnonymous || idp.organisation.contains(data.getDocOrganization())) &&

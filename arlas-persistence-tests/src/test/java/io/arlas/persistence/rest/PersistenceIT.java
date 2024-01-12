@@ -30,6 +30,7 @@ import org.junit.runners.MethodSorters;
 
 import java.util.*;
 
+import static io.restassured.RestAssured.delete;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -57,14 +58,14 @@ public class PersistenceIT {
 
     private static final String dataZone;
     private static String id;
-    private static String idBis;
+    private static final List<String> idBis = new ArrayList<>();
 
     static {
         admin = new UserIdentity("admin", String.join(",", ALL, TECHNICAL, SALES, ADMIN, PUBLIC), "company1");
         technical = new UserIdentity("technical", String.join(",",ALL, TECHNICAL, PUBLIC), "company1");
         commercial = new UserIdentity("commercial", String.join(",",ALL, SALES, PUBLIC), "company1");
         otherCompany = new UserIdentity("other", String.join(",",ALL2, SALES2, PUBLIC), "company2");
-        anonymous = new UserIdentity("anonymous", "", "");
+        anonymous = new UserIdentity("anonymous", PUBLIC, "");
 
         publicProfile = new UserIdentity("public", String.join(",", PUBLIC), "company1");
 
@@ -105,38 +106,12 @@ public class PersistenceIT {
                 .then().statusCode(201)
                 .body("doc_value", equalTo("{\"age\":1}"))
                 .extract().jsonPath().get("id");
-        idBis = createData(technical, "myFirstDocumentBis", Collections.EMPTY_LIST, Collections.EMPTY_LIST)
-                .then().statusCode(201)
-                .body("doc_value", equalTo("{\"age\":1}"))
-                .extract().jsonPath().get("id");
     }
 
-    @Test
-    public void test02PostPutDataKeyAlreadyExist() {
-        createData(technical, "myFirstDocument", Collections.EMPTY_LIST, Collections.EMPTY_LIST)
-                .then().statusCode(500);
-        Long currentDate = getData(technical, "myFirstDocument")
-                .then().statusCode(200)
-                .contentType(ContentType.JSON)
-                .extract().jsonPath().get("last_update_date");
-        updateData(technical,"myFirstDocumentBis",id,currentDate,Collections.EMPTY_LIST, Collections.EMPTY_LIST)
-                .then().statusCode(500);
-        Long currentDateBis = getData(technical, "myFirstDocumentBis")
-                .then().statusCode(200)
-                .contentType(ContentType.JSON)
-                .extract().jsonPath().get("last_update_date");
-        updateData(technical,"myFirstDocumentBis",idBis,currentDateBis,Collections.EMPTY_LIST, Collections.EMPTY_LIST)
-                .then().statusCode(201);
-        givenForUser(technical)
-                .contentType("application/json")
-                .delete(arlasAppPath.concat("resource/id/") + idBis)
-                .then().statusCode(202)
-                .body("id", equalTo(idBis));
-    }
 
     @Test
     public void test03GetData() {
-        getData(technical, "myFirstDocument")
+        getData(technical, id)
                 .then().statusCode(200)
                 .contentType(ContentType.JSON)
                 .body("doc_value", equalTo("{\"age\":1}"))
@@ -145,8 +120,8 @@ public class PersistenceIT {
     }
 
     @Test
-    public void test04PutData() {
-        Long currentDate = getData(technical, "myFirstDocument")
+    public void test04UpdateData() {
+        Long currentDate = getData(technical, id)
                 .then().statusCode(200)
                 .contentType(ContentType.JSON)
                 .extract().jsonPath().get("last_update_date");
@@ -159,7 +134,7 @@ public class PersistenceIT {
                 .then().statusCode(201)
                 .body("doc_value", equalTo("{\"age\":2}"));
 
-        getData(technical, "myFirstDocument")
+        getData(technical, id)
                 .then().statusCode(200)
                 .contentType(ContentType.JSON)
                 .body("doc_value", equalTo("{\"age\":2}"))
@@ -169,27 +144,22 @@ public class PersistenceIT {
 
     @Test
     public void test05DeleteData() {
-        givenForUser(technical)
-                .contentType("application/json")
-                .delete(arlasAppPath.concat("resource/id/") + id)
-                .then().statusCode(202)
-                .body("id", equalTo(id));
-
-        getData(technical, "myFirstDocument")
-                .then().statusCode(404);
+        deleteData(technical, id);
+        getData(technical, id).then().statusCode(404);
     }
 
     @Test
     public void test06ListWithPagination() {
         for (int i = 0; i < 7; i++) {
-            givenForUser(technical)
+            idBis.add(givenForUser(technical)
                     .pathParam("zone", dataZone)
                     .pathParam("key", "document".concat(String.valueOf(i)))
                     .contentType("application/json")
                     .body(generateData(i))
                     .post(arlasAppPath.concat("resource/{zone}/{key}"))
                     .then().statusCode(201)
-                    .body("doc_value", equalTo("{\"age\":" + i + "}"));
+                    .body("doc_value", equalTo("{\"age\":" + i + "}"))
+                    .extract().jsonPath().get("id"));
         }
 
         givenForUser(technical)
@@ -208,30 +178,23 @@ public class PersistenceIT {
     }
 
     @Test
-    public void test07DeleteAllByZoneKey() {
-        for (int i = 0; i < 7; i++) {
-            givenForUser(technical)
-                    .pathParam("zone", dataZone)
-                    .pathParam("key", "document".concat(String.valueOf(i)))
-                    .contentType("application/json")
-                    .delete(arlasAppPath.concat("resource/{zone}/{key}"))
-                    .then().statusCode(202);
-
-            getData(technical, "document".concat(String.valueOf(i)))
-                    .then().statusCode(404);
+    public void test07DeleteAllById() {
+        for (String i : idBis) {
+            deleteData(technical, i);
+            getData(technical, i).then().statusCode(404);
         }
-
     }
 
     @Test
     public void test08PostWithWriteAccess() {
-        id = createData(admin, "myFirstRestrictedDocument", Collections.EMPTY_LIST, Collections.singletonList(SALES))
+        id = createData(admin, "myFirstRestrictedDocument", Collections.EMPTY_LIST, List.of(SALES))
                 .then().statusCode(201)
                 .body("doc_value", equalTo("{\"age\":1}"))
                 .extract().jsonPath().get("id");
 
         listEmpty(technical);
         listEmpty(otherCompany);
+        listEmpty(anonymous);
         givenForUser(commercial)
                 .pathParam("zone", dataZone)
                 .param("order", "asc")
@@ -244,9 +207,9 @@ public class PersistenceIT {
                 .body("count", equalTo(1))
                 .body("total", equalTo(1));
 
-        getData(technical, "myFirstRestrictedDocument").then().statusCode(403);
-        getData(otherCompany, "myFirstRestrictedDocument").then().statusCode(404);
-        getData(commercial, "myFirstRestrictedDocument").then().statusCode(200).contentType(ContentType.JSON)
+        getData(technical, id).then().statusCode(403);
+        getData(otherCompany, id).then().statusCode(403);
+        getData(commercial, id).then().statusCode(200).contentType(ContentType.JSON)
                 .body("updatable", equalTo(true));
 
 
@@ -254,12 +217,13 @@ public class PersistenceIT {
 
     @Test
     public void test09PostWithReadWriteAccess() {
-        id = createData(admin, "mySecondRestrictedDocument", Collections.singletonList(TECHNICAL), Collections.singletonList(SALES))
+        id = createData(admin, "mySecondRestrictedDocument", List.of(TECHNICAL), List.of(SALES))
                 .then().statusCode(201)
                 .body("doc_value", equalTo("{\"age\":1}"))
                 .extract().jsonPath().get("id");
 
         listEmpty(otherCompany);
+        listEmpty(anonymous);
         givenForUser(commercial)
                 .pathParam("zone", dataZone)
                 .param("order", "asc")
@@ -284,19 +248,17 @@ public class PersistenceIT {
                 .body("count", equalTo(1))
                 .body("total", equalTo(1));
 
-        getData(technical, "mySecondRestrictedDocument").then().statusCode(200).contentType(ContentType.JSON)
+        getData(technical, id).then().statusCode(200).contentType(ContentType.JSON)
                 .body("updatable", equalTo(false));
 
-        getData(otherCompany, "mySecondRestrictedDocument").then().statusCode(404);
-        getData(commercial, "mySecondRestrictedDocument").then().statusCode(200).contentType(ContentType.JSON)
+        getData(otherCompany, id).then().statusCode(403);
+        getData(commercial, id).then().statusCode(200).contentType(ContentType.JSON)
                 .body("updatable", equalTo(true));
-
-
     }
 
     @Test
     public void test10UpdateWithJustReadAccess() {
-        Long currentDate = getData(technical, "mySecondRestrictedDocument")
+        Long currentDate = getData(technical, id)
                 .then().statusCode(200)
                 .contentType(ContentType.JSON)
                 .extract().jsonPath().get("last_update_date");
@@ -313,7 +275,7 @@ public class PersistenceIT {
     @Test
     public void test11UpdateWithJustWriteAccess() {
 
-        Long currentDate = getData(commercial, "mySecondRestrictedDocument")
+        Long currentDate = getData(commercial, id)
                 .then().statusCode(200)
                 .contentType(ContentType.JSON)
                 .extract().jsonPath().get("last_update_date");
@@ -322,8 +284,8 @@ public class PersistenceIT {
                 .contentType("application/json")
                 .body(generateData(3))
                 .param("last_update", currentDate)
-                .queryParam("readers", Collections.singletonList(PUBLIC))
-                .queryParam("writers", Collections.singletonList(SALES))
+                .queryParam("readers", List.of(PUBLIC))
+                .queryParam("writers", List.of(SALES))
                 .put(arlasAppPath.concat("resource/id/") + id)
                 .then().statusCode(201)
                 .body("doc_value", equalTo("{\"age\":3}"));
@@ -332,12 +294,12 @@ public class PersistenceIT {
 
     @Test
     public void test12UpdateConflicts() {
-        Long currentDateCommercial = getData(commercial, "mySecondRestrictedDocument")
+        Long currentDateCommercial = getData(commercial, id)
                 .then().statusCode(200)
                 .contentType(ContentType.JSON)
                 .extract().jsonPath().get("last_update_date");
 
-        Long currentDateAdmin = getData(admin, "mySecondRestrictedDocument")
+        Long currentDateAdmin = getData(admin, id)
                 .then().statusCode(200)
                 .contentType(ContentType.JSON)
                 .extract().jsonPath().get("last_update_date");
@@ -347,8 +309,8 @@ public class PersistenceIT {
                 .contentType("application/json")
                 .body(generateData(4))
                 .param("last_update", currentDateCommercial)
-                .queryParam("readers", Collections.singletonList(PUBLIC))
-                .queryParam("writers", Collections.singletonList(SALES))
+                .queryParam("readers", List.of(PUBLIC))
+                .queryParam("writers", List.of(SALES))
                 .put(arlasAppPath.concat("resource/id/") + id)
                 .then().statusCode(201)
                 .body("doc_value", equalTo("{\"age\":4}"));
@@ -357,8 +319,8 @@ public class PersistenceIT {
                 .contentType("application/json")
                 .body(generateData(5))
                 .param("last_update", currentDateAdmin)
-                .queryParam("readers", Collections.singletonList(PUBLIC))
-                .queryParam("writers", Collections.singletonList(ADMIN))
+                .queryParam("readers", List.of(PUBLIC))
+                .queryParam("writers", List.of(ADMIN))
                 .put(arlasAppPath.concat("resource/id/") + id)
                 .then().statusCode(409);
     }
@@ -374,53 +336,45 @@ public class PersistenceIT {
 
     @Test
     public void test14DeleteWithJustWriteAccess() {
-
-        givenForUser(commercial)
-                .contentType("application/json")
-                .delete(arlasAppPath.concat("resource/id/") + id)
-                .then().statusCode(202)
-                .body("id", equalTo(id));
-
-        getData(commercial, "mySecondRestrictedDocument")
-                .then().statusCode(404);
+        deleteData(commercial, id);
+        getData(commercial, id).then().statusCode(404);
     }
 
     @Test
     public void test15CreateOtherOrganisation() {
-        id = createData(otherCompany, "mySecondRestrictedDocument", Collections.singletonList(PUBLIC), Collections.singletonList(PUBLIC))
+        id = createData(otherCompany, "mySecondRestrictedDocument", List.of(PUBLIC), List.of(PUBLIC))
                 .then().statusCode(201)
                 .body("doc_value", equalTo("{\"age\":1}"))
                 .extract().jsonPath().get("id");
-
-        createData(otherCompany, "mySecondRestrictedDocument", Collections.singletonList(TECHNICAL), Collections.singletonList(SALES))
-                .then().statusCode(500);
-
+        deleteData(otherCompany, id);
     }
 
     @Test
     public void test16CreateWithoutHeader() {
-        given()
+        String idanon = given()
                 .pathParam("key", "key")
                 .pathParam("zone", "zone")
                 .contentType("application/json")
                 .body(generateData(1))
                 .post(arlasAppPath.concat("resource/{zone}/{key}"))
                 .then().statusCode(201)
-                .body("doc_value", equalTo("{\"age\":1}"));
+                .body("doc_value", equalTo("{\"age\":1}"))
+                .extract().jsonPath().get("id");
 
-       //return anonymous data
+        //return anonymous data
         given()
-                .pathParam("zone", "zone")
-                .pathParam("key", "key")
+                .pathParam("id", idanon)
                 .when()
-                .get(arlasAppPath.concat("resource/{zone}/{key}")).then()
+                .get(arlasAppPath.concat("resource/id/{id}")).then()
                 .statusCode(200)
                 .body("doc_value", equalTo("{\"age\":1}"));
+
+        deleteData(anonymous, idanon);
     }
 
     @Test
     public void test17GetGroups() {
-       List<String> groups =  given().header(userHeader, admin.userId)
+        List<String> groups =  given().header(userHeader, admin.userId)
                 .header(groupsHeader, admin.groups)
                 .header(organizationHeader, admin.organization)
                 .pathParam("zone", dataZone)
@@ -435,44 +389,86 @@ public class PersistenceIT {
 
     @Test
     public void test18PostData() {
-        createData(technical, "myNewDocument", Collections.EMPTY_LIST,  Collections.singletonList("group/private"))
+        createData(technical, "myNewDocument", Collections.EMPTY_LIST, List.of("group/private"))
                 .then().statusCode(403);
-        createData(technical, "myNewDocument2", Collections.EMPTY_LIST,  Arrays.asList("group/private",TECHNICAL))
-                .then().statusCode(201);
+        String id2 = createData(technical, "myNewDocument2", Collections.EMPTY_LIST, Arrays.asList("group/private", TECHNICAL))
+                .then().statusCode(201)
+                .extract().jsonPath().get("id");
+        deleteData(technical, id2);
     }
+
     @Test
     public void test19PostData() {
-        createData(technical, "myNewDocument", Collections.singletonList("group/private"),Collections.EMPTY_LIST)
+        createData(technical, "myNewDocument", List.of("group/private"), Collections.EMPTY_LIST)
                 .then().statusCode(403);
     }
+
     @Test
     public void test20ExistsNot() {
         givenForUser(technical)
-                .pathParam("zone", dataZone)
-                .pathParam("key", "foo")
+                .pathParam("id", "foo")
                 .when()
-                .get(arlasAppPath.concat("resource/exists/{zone}/{key}"))
+                .get(arlasAppPath.concat("resource/exists/id/{id}"))
                 .then().statusCode(200)
                 .contentType(ContentType.JSON)
                 .body("exists", equalTo(false));
     }
 
     @Test
-    public void test21ExistsByKey() {
-        createData(technical, "foo", Collections.EMPTY_LIST, Collections.EMPTY_LIST)
+    public void test21ListWithPublic() {
+        String id1 = createData(technical, "privateDocument", List.of(TECHNICAL), Collections.EMPTY_LIST)
                 .then().statusCode(201)
-                .body("doc_value", equalTo("{\"age\":1}"));
+                .extract().jsonPath().get("id");
+
+        String id2 = createData(technical, "publicDocument1", List.of(PUBLIC), Collections.EMPTY_LIST)
+                .then().statusCode(201)
+                .extract().jsonPath().get("id");
+
+        String id3 = createData(otherCompany, "publicDocument2", List.of(PUBLIC), Collections.EMPTY_LIST)
+                .then().statusCode(201)
+                .extract().jsonPath().get("id");
 
         givenForUser(technical)
                 .pathParam("zone", dataZone)
-                .pathParam("key", "foo")
+                .param("order", "asc")
+                .param("size", "10")
+                .param("page", "1")
                 .when()
-                .get(arlasAppPath.concat("resource/exists/{zone}/{key}"))
+                .get(arlasAppPath.concat("resources/{zone}"))
                 .then().statusCode(200)
                 .contentType(ContentType.JSON)
-                .body("exists", equalTo(true));
-    }
+                .body("count", equalTo(3))
+                .body("total", equalTo(3));
 
+        givenForUser(otherCompany)
+                .pathParam("zone", dataZone)
+                .param("order", "asc")
+                .param("size", "10")
+                .param("page", "1")
+                .when()
+                .get(arlasAppPath.concat("resources/{zone}"))
+                .then().statusCode(200)
+                .contentType(ContentType.JSON)
+                .body("count", equalTo(2))
+                .body("total", equalTo(2));
+
+        givenForUser(anonymous)
+                .pathParam("zone", dataZone)
+                .param("order", "asc")
+                .param("size", "10")
+                .param("page", "1")
+                .when()
+                .get(arlasAppPath.concat("resources/{zone}"))
+                .then().statusCode(200)
+                .contentType(ContentType.JSON)
+                .body("count", equalTo(2))
+                .body("total", equalTo(2));
+
+
+        deleteData(technical, id1);
+        deleteData(technical, id2);
+        deleteData(otherCompany, id3);
+    }
 
     protected RequestSpecification givenForUser(UserIdentity userIdentity) {
         return given().header(userHeader, userIdentity.userId)
@@ -492,39 +488,20 @@ public class PersistenceIT {
                 .pathParam("key", key);
 
         if(!readers.isEmpty())
-            request=request.queryParam("readers", readers);
+            request = request.queryParam("readers", readers);
         if(!writers.isEmpty())
-            request=request.queryParam("writers", writers);
-        return
-                request
-                .contentType("application/json")
+            request = request.queryParam("writers", writers);
+
+        return request.contentType("application/json")
                 .body(generateData(1))
                 .post(arlasAppPath.concat("resource/{zone}/{key}"));
     }
 
-    protected Response updateData(UserIdentity userIdentity, String key ,String id, Long currentDate, List<String> readers, List<String> writers) {
-        RequestSpecification request = givenForUser(userIdentity)
-                .pathParam("id", id);
-
-        if(!readers.isEmpty())
-            request=request.queryParam("readers", readers);
-        if(!writers.isEmpty())
-            request=request.queryParam("writers", writers);
-        request=request.queryParam("key", key);
-        return
-                request
-                        .contentType("application/json")
-                        .body(generateData(2))
-                        .param("last_update", currentDate)
-                        .put(arlasAppPath.concat("resource/id/{id}"));
-    }
-
-    protected Response getData(UserIdentity userIdentity, String key) {
+    protected Response getData(UserIdentity userIdentity, String id) {
         return givenForUser(userIdentity)
-                .pathParam("zone", dataZone)
-                .pathParam("key", key)
+                .pathParam("id", id)
                 .when()
-                .get(arlasAppPath.concat("resource/{zone}/{key}"));
+                .get(arlasAppPath.concat("resource/id/{id}"));
     }
 
 
@@ -540,5 +517,14 @@ public class PersistenceIT {
                 .contentType(ContentType.JSON)
                 .body("count", equalTo(0))
                 .body("total", equalTo(0));
+    }
+
+    protected void deleteData(UserIdentity userIdentity, String id) {
+        givenForUser(userIdentity)
+                .contentType("application/json")
+                .delete(arlasAppPath.concat("resource/id/") + id)
+                .then().statusCode(202)
+                .body("id", equalTo(id));
+
     }
 }

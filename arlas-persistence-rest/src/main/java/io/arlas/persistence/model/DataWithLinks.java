@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.arlas.filter.config.TechnicalRoles.GROUP_PUBLIC;
 import static io.arlas.persistence.server.core.PersistenceService.intersect;
 
 @JsonSnakeCase
@@ -40,7 +41,11 @@ public class DataWithLinks extends Data {
     @JsonProperty("updatable")
     public boolean updatable;
 
+    @JsonProperty("ispublic")
+    public boolean isPublic;
+
     public DataWithLinks(Data data, IdentityParam identityParam) {
+        this.setDocOrganization(data.getDocOrganization());
         this.setDocZone(data.getDocZone());
         this.setDocKey(data.getDocKey());
         this.setLastUpdateDate(data.getLastUpdateDate());
@@ -50,10 +55,15 @@ public class DataWithLinks extends Data {
         this.setDocOwner(data.getDocOwner());
         this.setDocReaders(data.getDocReaders());
         this.setDocWriters(data.getDocWriters());
+        this.setPublic(data.getDocEntities().contains(GROUP_PUBLIC));
     }
 
     public void setUpdatable(boolean updatable) {
         this.updatable = updatable;
+    }
+
+    public void setPublic(boolean isPublic) {
+        this.isPublic = isPublic;
     }
 
     public DataWithLinks withLinks(Map<String, Link> links) {
