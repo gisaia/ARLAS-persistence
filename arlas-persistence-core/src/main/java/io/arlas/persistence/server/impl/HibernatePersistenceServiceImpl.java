@@ -36,6 +36,8 @@ import org.hibernate.query.Query;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.arlas.filter.config.TechnicalRoles.GROUP_PUBLIC;
+
 public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implements PersistenceService {
 
     public HibernatePersistenceServiceImpl(SessionFactory factory) {
@@ -43,54 +45,28 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
     }
 
     @Override
-    public Pair list(String zone, IdentityParam identityParam, Integer size, Integer page, SortOrder order) {
+    public Pair<Long, List<Data>> list(String zone, IdentityParam identityParam, Integer size, Integer page, SortOrder order) {
+        String from = " from Data ud "
+                + " where ud." + Data.zoneColumn + "=:zone"
+                + " and (ud." + Data.organizationColumn + " in :organization"
+                + "   and (ud." + Data.ownerColumn + "=:userId"
+                + "   or " + getGroupsRequest(identityParam.groups) + "))"
+                + " or (" + getGroupsRequest(List.of(GROUP_PUBLIC)) + ")";
 
-        Query<Long> qCount = currentSession().createQuery("SELECT count(ud) FROM Data ud  "
-                        + "    where ud." + Data.zoneColumn + "=:zone"
-                        + (identityParam.isAnonymous ? "" : "    and ud." + Data.organizationColumn + " in :organization")
-                        + "    and " +
-                        "( " +
-                        "ud." + Data.ownerColumn + "=:userId "
-                        + "or " + getGroupsRequest(identityParam.groups) + ")"
-                , Long.class)
-                .setParameter("zone", zone);
-        if (!identityParam.isAnonymous) {
-            qCount.setParameter("organization", identityParam.organisation);
-        }
-        Long totalCount = qCount.setParameter("userId", identityParam.userId).uniqueResult();
+        Long totalCount = currentSession().createQuery("SELECT count(ud) " + from, Long.class)
+                .setParameter("zone", zone)
+                .setParameter("organization", identityParam.organisation)
+                .setParameter("userId", identityParam.userId)
+                .uniqueResult();
 
-        Query query = currentSession().createQuery(" from Data ud "
-                + "    where ud." + Data.zoneColumn + "=:zone"
-                + (identityParam.isAnonymous ? "" : "    and ud." + Data.organizationColumn + " in :organization")
-                + "    and " +
-                "( " +
-                "ud." + Data.ownerColumn + "=:userId " +
-                "or" + getGroupsRequest(identityParam.groups) + ")" +
-                " order by ud." + Data.lastUpdateDateColumn + " " + order.toString(), Data.class)
-                .setParameter("zone", zone);
-        if (!identityParam.isAnonymous) {
-            query.setParameter("organization", identityParam.organisation);
-        }
-        query.setParameter("userId", identityParam.userId)
+        Query<Data> query = currentSession().createQuery(from
+                        + " order by ud." + Data.lastUpdateDateColumn + " " + order.toString(), Data.class)
+                .setParameter("zone", zone)
+                .setParameter("organization", identityParam.organisation)
+                .setParameter("userId", identityParam.userId)
                 .setMaxResults(size)
                 .setFirstResult((page - 1) * size);
         return Pair.of(totalCount, list(query));
-    }
-
-    @Override
-    public Data get(String zone, String key, IdentityParam identityParam) throws ArlasException {
-        Optional<Data> data = getByZoneKeyOrga(zone, key, identityParam.organisation);
-        if (data.isPresent()) {
-            if (PersistenceService.isReaderOnData(identityParam, data.get()) ||
-                    PersistenceService.isWriterOnData(identityParam, data.get())) {
-                return data
-                        .orElseThrow(() -> new NotFoundException("Data with zone " + zone + " and key " + key + " not found."));
-            } else {
-                throw new ForbiddenException("You are not authorized to get this resource.");
-            }
-        } else {
-            throw new NotFoundException("Data with zone " + zone + " and key " +key +" not found.");
-        }
     }
 
     @Override
@@ -109,40 +85,25 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
         if (identityParam.organisation.size() != 1) {
             throw new ArlasException("A unique organisation must be set in IdParam but received: " + identityParam.organisation);
         }
-        Optional<Data> data = getByZoneKeyOrga(zone, key, identityParam.organisation);
-        if (data.isPresent()) {
-            throw new ArlasException("A resource with zone " + zone + " and key " + key + " already exists.");
-        } else {
-            PersistenceService.checkReadersWritersGroups(zone, identityParam, readers,writers);
-            Data newData = new Data(UUIDHelper.generateUUID().toString(),
-                    key,
-                    zone,
-                    value,
-                    identityParam.userId,
-                    identityParam.organisation.get(0),
-                    new ArrayList<>(writers),
-                    new ArrayList<>(readers),
-                    new Date());
-            return persist(newData);
-        }
+        PersistenceService.checkReadersWritersGroups(zone, identityParam, readers, writers);
+        Data newData = new Data(UUIDHelper.generateUUID().toString(),
+                key,
+                zone,
+                value,
+                identityParam.userId,
+                identityParam.organisation.get(0),
+                new ArrayList<>(writers),
+                new ArrayList<>(readers),
+                new Date());
+        return persist(newData);
     }
 
     @Override
     public Data update(String id, String key, IdentityParam identityParam, Set<String> readers, Set<String> writers, String value, Date lastUpdate) throws ArlasException {
-        if (identityParam.organisation.size() != 1) {
-            throw new ArlasException("A unique organisation must be set in IdParam but received: " + identityParam.organisation);
-        }
         Data data = getById(id);
         if (PersistenceService.isWriterOnData(identityParam, data)) {
             String zone = data.getDocZone();
             PersistenceService.checkReadersWritersGroups(zone, identityParam, readers,writers);
-            // If the key is updated, we need to check if a triplet Zone/Key/orga already exist with this new key
-            if(Optional.ofNullable(key).isPresent() && !Optional.ofNullable(key).get().equals(data.getDocKey())){
-                Optional<Data> alreadyExisting = getByZoneKeyOrga(zone, key, List.of(data.getDocOrganization()));
-                if (alreadyExisting.isPresent()) {
-                    throw new ArlasException("A resource with zone " + zone + " and key " + key + " already exists.");
-                }
-            }
             data.setDocKey(Optional.ofNullable(key).orElse(data.getDocKey()));
             Set<String> readersToUpdate = Optional.ofNullable(readers).orElse(new HashSet<>(data.getDocReaders()));
             Set<String> writersToUpdate = Optional.ofNullable(writers).orElse(new HashSet<>(data.getDocWriters()));
@@ -165,31 +126,9 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
         return deleteData(data, identityParam);
     }
 
-    @Override
-    public Data delete(String zone, String key, IdentityParam identityParam) throws ArlasException {
-        Optional<Data> data = getByZoneKeyOrga(zone, key, identityParam.organisation);
-        if (data.isPresent()) {
-            return deleteData(data.get(), identityParam);
-        } else {
-            throw new NotFoundException("Data with zone " + zone + " and key " +key +" not found.");
-        }
-    }
-
     private Data getById(String id) throws ArlasException {
         return Optional.ofNullable(get(id))
                 .orElseThrow(() -> new NotFoundException("Data with id " + id + " not found."));
-    }
-
-    private Optional<Data> getByZoneKeyOrga(String zone, String key, List<String> organization) {
-        Data data = currentSession().createQuery("from Data ud"
-                + "    where ud." + Data.zoneColumn + "=:zone"
-                + "    and ud." + Data.keyColumn + "=:key"
-                + "    and ud." + Data.organizationColumn + " in :organization", Data.class)
-                .setParameter("zone", zone)
-                .setParameter("key", key)
-                .setParameter("organization", organization)
-                .uniqueResult();
-        return Optional.ofNullable(data);
     }
 
     private Data deleteData(Data data, IdentityParam identityParam) throws ForbiddenException {

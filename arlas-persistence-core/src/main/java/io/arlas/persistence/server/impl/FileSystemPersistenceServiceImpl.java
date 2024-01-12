@@ -55,9 +55,16 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
     @Override
     public Pair<Long, List<Data>> list(String zone, IdentityParam identityParam, Integer size, Integer page, SortOrder order) throws ArlasException {
         List<FileWrapper> fileWrappers = new ArrayList<>();
-        List<String> orgs = identityParam.isAnonymous ? List.of(".*") : identityParam.organisation;
         for (String org : identityParam.organisation) {
             fileWrappers.addAll(getByFilenameFilter(prefixFilter(zone, org), identityParam, true));
+        }
+        if (!identityParam.isAnonymous) {
+            // add public from other orgs
+            List<FileWrapper> pub = getByFilenameFilter(prefixFilter(zone, ""), null,false);
+            fileWrappers.addAll(pub.stream()
+                    .filter(f -> PersistenceService.isPublic(f.data))
+                    .filter(f -> !identityParam.organisation.contains(f.data.getDocOrganization()))
+                    .toList());
         }
         Stream<Data> rawlist = fileWrappers.stream().map(fw -> fw.data);
         List<Data> list;
@@ -72,22 +79,6 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
                 (page - 1) * size > list.size() ? Collections.emptyList() : list.subList((page - 1) * size, Math.min(list.size(), page * size)));
     }
 
-    @Override
-    public Data get(String zone, String key, IdentityParam identityParam) throws ArlasException {
-        Optional<FileWrapper> fw = getByZoneKeyOrga(zone, key, identityParam);
-        if (fw.isPresent()) {
-            if (PersistenceService.isReaderOnData(identityParam, fw.get().data) ||
-                    PersistenceService.isWriterOnData(identityParam, fw.get().data)) {
-                return fw.get().data;
-            } else {
-                throw new ForbiddenException("You are not authorized to view this resource");
-            }
-        } else {
-            throw new NotFoundException("Data with zone " + zone + " and key " + key + " not found.");
-        }
-    }
-
-    @Override
     public Data getById(String id, IdentityParam identityParam) throws ArlasException {
         List<FileWrapper> list = getByFilenameFilter(suffixFilter(id), identityParam, false);
         if (list.size() == 1) {
@@ -107,26 +98,21 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
         if (identityParam.organisation.size() != 1) {
             throw new ArlasException("A unique organisation must be set in IdParam but received: " + identityParam.organisation);
         }
-        Optional<FileWrapper> data = getByZoneKeyOrga(zone, key, identityParam);
-        if (data.isPresent()) {
-            throw new ArlasException("A resource with zone " + zone + " and key " + key + " already exists.");
-        } else {
-            PersistenceService.checkReadersWritersGroups(zone, identityParam, readers,writers);
-            Data newData = new Data(UUIDHelper.generateUUID().toString(),
-                    key,
-                    zone,
-                    value,
-                    identityParam.userId,
-                    identityParam.organisation.get(0),
-                    new ArrayList<>(writers),
-                    new ArrayList<>(readers),
-                    new Date());
-            try (FileOutputStream fos = new FileOutputStream(storageFolder.concat(getFileName(newData)))) {
-                objectMapper.writeValue(fos, newData);
-                return newData;
-            } catch (IOException e) {
-                throw new ArlasException("An error occur in writing file: " + e.getMessage());
-            }
+        PersistenceService.checkReadersWritersGroups(zone, identityParam, readers,writers);
+        Data newData = new Data(UUIDHelper.generateUUID().toString(),
+                key,
+                zone,
+                value,
+                identityParam.userId,
+                identityParam.organisation.get(0),
+                new ArrayList<>(writers),
+                new ArrayList<>(readers),
+                new Date());
+        try (FileOutputStream fos = new FileOutputStream(storageFolder.concat(getFileName(newData)))) {
+            objectMapper.writeValue(fos, newData);
+            return newData;
+        } catch (IOException e) {
+            throw new ArlasException("An error occur in writing file: " + e.getMessage());
         }
     }
 
@@ -138,13 +124,6 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
             String zone = data.getDocZone();
             if (PersistenceService.isWriterOnData(identityParam, data)) {
                 PersistenceService.checkReadersWritersGroups(zone, identityParam, readers,writers);
-                // If the key is updated, we need to check if a triplet Zone/Key/orga already exist with this new key
-                if(Optional.ofNullable(key).isPresent() && !Optional.ofNullable(key).get().equals(data.getDocKey())){
-                    Optional<FileWrapper> alreadyExisting = getByZoneKeyOrga(zone, key, identityParam);
-                    if (alreadyExisting.isPresent()) {
-                        throw new ArlasException("A resource with zone " + zone + " and key " + key + " already exists.");
-                    }
-                }
                 data.setDocKey(Optional.ofNullable(key).orElse(data.getDocKey()));
                 Set<String> readersToUpdate = Optional.ofNullable(readers).orElse(new HashSet<>(data.getDocReaders()));
                 Set<String> writersToUpdate = Optional.ofNullable(writers).orElse(new HashSet<>(data.getDocWriters()));
@@ -189,27 +168,8 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
         }
     }
 
-    @Override
-    public Data delete(String zone, String key, IdentityParam identityParam) throws ArlasException {
-        Optional<FileWrapper> fw = getByZoneKeyOrga(zone, key, identityParam);
-        if (fw.isPresent()) {
-            if (PersistenceService.isWriterOnData(identityParam, fw.get().data)) {
-                try {
-                    fw.get().file.delete();
-                } catch (Exception e) {
-                    throw new ArlasException("Could not delete data: " + e.getMessage());
-                }
-                return fw.get().data;
-            } else {
-                throw new ForbiddenException("You are not authorized to delete this resource");
-            }
-        } else {
-            throw new NotFoundException("Data with zone " + zone + " and key " + key + " not found.");
-        }
-    }
-
     private String getFileName(Data data){
-        // zone_org_userid_key_id
+        // zone_org_key_userid_id
         return String.join("_",
                 data.getDocZone(),
                 data.getDocOrganization(),
@@ -218,16 +178,9 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
                 data.getId());
     }
 
-    private Optional<FileWrapper> getByZoneKeyOrga(String zone, String key, IdentityParam identityParam) throws ArlasException {
-        List<FileWrapper> list = new ArrayList<>();
-        for (String org : identityParam.organisation) {
-            list.addAll(getByFilenameFilter(prefixFilter(zone, org, key), identityParam, false));
-        }
-        return list.size() > 0 ? Optional.of(list.get(0)) : Optional.empty();
-    }
-
-    private Predicate<Path> prefixFilter(String... prefix) {
-        return p -> p.getFileName().toString().startsWith(String.join("_", prefix).concat("_"));
+    private Predicate<Path> prefixFilter(String zone, String org) {
+        String prefix = org.isBlank() ? zone + "_" : zone + "_" + org + "_";
+        return p -> p.getFileName().toString().startsWith(prefix);
     }
 
     private Predicate<Path> suffixFilter(String suffix) {
