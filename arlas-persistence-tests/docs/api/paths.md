@@ -80,44 +80,6 @@ Check the existence of an entry given its id.
 * `application/json;charset=utf-8`
 
 
-<a name="existsbykey"></a>
-#### Check the existence of an entry given its zone and key.
-```
-GET /persist/resource/exists/{zone}/{key}
-```
-
-
-##### Description
-Check the existence of an entry given its zone and key.
-
-
-##### Parameters
-
-|Type|Name|Description|Schema|Default|
-|---|---|---|---|---|
-|**Path**|**key**  <br>*required*|The key of the data.|string||
-|**Path**|**zone**  <br>*required*|Zone of the document.|string|`"pref"`|
-|**Query**|**pretty**  <br>*optional*|Pretty print|boolean|`"false"`|
-
-
-##### Responses
-
-|HTTP Code|Description|Schema|
-|---|---|---|
-|**200**|Successful operation|[Exists](#exists)|
-|**500**|Arlas Persistence Error.|[Error](#error)|
-
-
-##### Consumes
-
-* `application/json;charset=utf-8`
-
-
-##### Produces
-
-* `application/json;charset=utf-8`
-
-
 <a name="getbyid"></a>
 #### Fetch an entry given its id.
 ```
@@ -265,84 +227,6 @@ Store a new piece of data for the provided zone and key (auto generate id).
 |HTTP Code|Description|Schema|
 |---|---|---|
 |**201**|Successful operation|[DataWithLinks](#datawithlinks)|
-|**500**|Arlas Server Error.|[Error](#error)|
-
-
-##### Consumes
-
-* `application/json;charset=utf-8`
-
-
-##### Produces
-
-* `application/json;charset=utf-8`
-
-
-<a name="getbykey"></a>
-#### Fetch an entry given its zone and key.
-```
-GET /persist/resource/{zone}/{key}
-```
-
-
-##### Description
-Fetch an entry given its zone and key.
-
-
-##### Parameters
-
-|Type|Name|Description|Schema|Default|
-|---|---|---|---|---|
-|**Path**|**key**  <br>*required*|The key of the data.|string||
-|**Path**|**zone**  <br>*required*|Zone of the document.|string|`"pref"`|
-|**Query**|**pretty**  <br>*optional*|Pretty print|boolean|`"false"`|
-
-
-##### Responses
-
-|HTTP Code|Description|Schema|
-|---|---|---|
-|**200**|Successful operation|[DataWithLinks](#datawithlinks)|
-|**404**|Key or zone not found.|[Error](#error)|
-|**500**|Arlas Persistence Error.|[Error](#error)|
-
-
-##### Consumes
-
-* `application/json;charset=utf-8`
-
-
-##### Produces
-
-* `application/json;charset=utf-8`
-
-
-<a name="delete"></a>
-#### Delete an entry given its key and id.
-```
-DELETE /persist/resource/{zone}/{key}
-```
-
-
-##### Description
-Delete an entry given its key and id.
-
-
-##### Parameters
-
-|Type|Name|Description|Schema|Default|
-|---|---|---|---|---|
-|**Path**|**key**  <br>*required*|The key of the data.|string||
-|**Path**|**zone**  <br>*required*|Zone of the document.|string|`"pref"`|
-|**Query**|**pretty**  <br>*optional*|Pretty print|boolean|`"false"`|
-
-
-##### Responses
-
-|HTTP Code|Description|Schema|
-|---|---|---|
-|**202**|Successful operation|[DataWithLinks](#datawithlinks)|
-|**404**|Zone or key not found.|[Error](#error)|
 |**500**|Arlas Server Error.|[Error](#error)|
 
 

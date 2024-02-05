@@ -28,6 +28,7 @@
 |**doc_writers**  <br>*optional*|< string > array|
 |**doc_zone**  <br>*required*|string|
 |**id**  <br>*optional*|string|
+|**ispublic**  <br>*optional*|boolean|
 |**last_update_date**  <br>*required*|string (date-time)|
 |**updatable**  <br>*optional*|boolean|
 

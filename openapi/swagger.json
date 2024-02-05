@@ -2,7 +2,7 @@
   "swagger" : "2.0",
   "info" : {
     "description" : "persistence REST services",
-    "version" : "24.0.5-SNAPSHOT",
+    "version" : "24.0.5",
     "title" : "ARLAS persistence API",
     "contact" : {
       "name" : "Gisaia",
@@ -261,55 +261,6 @@
       }
     },
     "/persist/resource/{zone}/{key}" : {
-      "get" : {
-        "tags" : [ "persist" ],
-        "summary" : "Fetch an entry given its zone and key.",
-        "description" : "Fetch an entry given its zone and key.",
-        "operationId" : "getByKey",
-        "consumes" : [ "application/json;charset=utf-8" ],
-        "produces" : [ "application/json;charset=utf-8" ],
-        "parameters" : [ {
-          "name" : "zone",
-          "in" : "path",
-          "description" : "Zone of the document.",
-          "required" : true,
-          "type" : "string",
-          "default" : "pref"
-        }, {
-          "name" : "key",
-          "in" : "path",
-          "description" : "The key of the data.",
-          "required" : true,
-          "type" : "string"
-        }, {
-          "name" : "pretty",
-          "in" : "query",
-          "description" : "Pretty print",
-          "required" : false,
-          "type" : "boolean",
-          "default" : false
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful operation",
-            "schema" : {
-              "$ref" : "#/definitions/DataWithLinks"
-            }
-          },
-          "404" : {
-            "description" : "Key or zone not found.",
-            "schema" : {
-              "$ref" : "#/definitions/Error"
-            }
-          },
-          "500" : {
-            "description" : "Arlas Persistence Error.",
-            "schema" : {
-              "$ref" : "#/definitions/Error"
-            }
-          }
-        }
-      },
       "post" : {
         "tags" : [ "persist" ],
         "summary" : "Store a new piece of data for the provided zone and key (auto generate id).",
@@ -375,100 +326,6 @@
           },
           "500" : {
             "description" : "Arlas Server Error.",
-            "schema" : {
-              "$ref" : "#/definitions/Error"
-            }
-          }
-        }
-      },
-      "delete" : {
-        "tags" : [ "persist" ],
-        "summary" : "Delete an entry given its key and id.",
-        "description" : "Delete an entry given its key and id.",
-        "operationId" : "delete",
-        "consumes" : [ "application/json;charset=utf-8" ],
-        "produces" : [ "application/json;charset=utf-8" ],
-        "parameters" : [ {
-          "name" : "zone",
-          "in" : "path",
-          "description" : "Zone of the document.",
-          "required" : true,
-          "type" : "string",
-          "default" : "pref"
-        }, {
-          "name" : "key",
-          "in" : "path",
-          "description" : "The key of the data.",
-          "required" : true,
-          "type" : "string"
-        }, {
-          "name" : "pretty",
-          "in" : "query",
-          "description" : "Pretty print",
-          "required" : false,
-          "type" : "boolean",
-          "default" : false
-        } ],
-        "responses" : {
-          "202" : {
-            "description" : "Successful operation",
-            "schema" : {
-              "$ref" : "#/definitions/DataWithLinks"
-            }
-          },
-          "404" : {
-            "description" : "Zone or key not found.",
-            "schema" : {
-              "$ref" : "#/definitions/Error"
-            }
-          },
-          "500" : {
-            "description" : "Arlas Server Error.",
-            "schema" : {
-              "$ref" : "#/definitions/Error"
-            }
-          }
-        }
-      }
-    },
-    "/persist/resource/exists/{zone}/{key}" : {
-      "get" : {
-        "tags" : [ "persist" ],
-        "summary" : "Check the existence of an entry given its zone and key.",
-        "description" : "Check the existence of an entry given its zone and key.",
-        "operationId" : "existsByKey",
-        "consumes" : [ "application/json;charset=utf-8" ],
-        "produces" : [ "application/json;charset=utf-8" ],
-        "parameters" : [ {
-          "name" : "zone",
-          "in" : "path",
-          "description" : "Zone of the document.",
-          "required" : true,
-          "type" : "string",
-          "default" : "pref"
-        }, {
-          "name" : "key",
-          "in" : "path",
-          "description" : "The key of the data.",
-          "required" : true,
-          "type" : "string"
-        }, {
-          "name" : "pretty",
-          "in" : "query",
-          "description" : "Pretty print",
-          "required" : false,
-          "type" : "boolean",
-          "default" : false
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful operation",
-            "schema" : {
-              "$ref" : "#/definitions/Exists"
-            }
-          },
-          "500" : {
-            "description" : "Arlas Persistence Error.",
             "schema" : {
               "$ref" : "#/definitions/Error"
             }
@@ -615,6 +472,9 @@
           }
         },
         "updatable" : {
+          "type" : "boolean"
+        },
+        "ispublic" : {
           "type" : "boolean"
         }
       }

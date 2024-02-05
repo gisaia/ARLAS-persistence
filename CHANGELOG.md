@@ -1,5 +1,15 @@
 # Change Log
 
+## [v24.0.5](https://github.com/gisaia/arlas-persistence/tree/v24.0.5) (2024-02-05)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v24.0.4...v24.0.5)
+
+**Miscellaneous:**
+
+- List with no arlas-org-filter returns only public ressource [\#92](https://github.com/gisaia/ARLAS-persistence/issues/92)
+- Add organisation and public status in each element of the resouces list [\#90](https://github.com/gisaia/ARLAS-persistence/issues/90)
+- Public dashboards are not available when logged in [\#89](https://github.com/gisaia/ARLAS-persistence/issues/89)
+
 ## [v24.0.4](https://github.com/gisaia/arlas-persistence/tree/v24.0.4) (2023-12-11)
 
 [Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v24.0.2...v24.0.4)
