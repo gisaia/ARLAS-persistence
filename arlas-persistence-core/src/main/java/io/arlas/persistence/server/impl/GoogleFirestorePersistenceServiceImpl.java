@@ -238,7 +238,7 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
                 Set<String> entities = new HashSet<>();
                 entities.addAll(readersToUpdate);
                 entities.addAll(writersToUpdate);
-                entities.addAll(Stream.of(identityParam.userId).collect(Collectors.toSet()));
+                entities.addAll(Stream.of(data.getDocOwner()).collect(Collectors.toSet()));
                 newData.setDocEntities(new ArrayList<>(entities));
                 if (data.getLastUpdateDate().equals(lastUpdate)) {
                     newData.setDocValue(value, true);

@@ -64,7 +64,9 @@ public interface PersistenceService {
 
     static List<String> getGroupsForZone(String zone,
                                          IdentityParam identityParam) {
-        return identityParam.groups;
+        return identityParam.groups.stream()
+                .filter(g -> !g.startsWith("group/preview/") && !g.startsWith("group/i18n/") && !g.startsWith("group/tour/"))
+                .toList();
     }
 
     static boolean intersect(List<String> a, List<String> b) {
