@@ -21,10 +21,8 @@ docker run --rm \
         sh -c '(mkdir /opt/maven/target || echo "target exists") \
         && (mkdir /opt/maven/target/tmp || echo "target/tmp exists") \
         && (mkdir /opt/maven/target/tmp/typescript-fetch || echo "target/tmp/typescript-fetch exists") \
-        && (mkdir /opt/maven/target/tmp/python-api || echo "target/tmp/python-api exists") \
         && (mkdir /opt/maven/target/generated-docs || echo "target/generated-docs exists") \
         && (mkdir /opt/maven/target/generated-docs/typescript-doc || echo "target/generated-docs/typescript-doc exists") \
-        && (mkdir /opt/maven/target/generated-docs/python-doc || echo "target/generated-docs/python-doc exists") \
         && (cp -r /opt/maven/docs/* /opt/maven/target/generated-docs)'
 
 
@@ -43,14 +41,6 @@ docker run --rm \
         sh -c '(cp /opt/maven/conf/npm/package-doc.json /opt/maven/target/tmp/typescript-fetch/package.json) \
         && (cp /opt/maven/conf/npm/tsconfig-build.json /opt/maven/target/tmp/typescript-fetch/tsconfig.json)'
 
-
-echo "=> Generate Python API and its documentation"
-docker run --rm \
-    --mount dst=/input/api.json,src="$PWD/openapi/swagger.json",type=bind,ro \
-    --mount dst=/input/config.json,src="$PWD/conf/swagger/python-config.json",type=bind,ro \
-    --mount dst=/output,src="$PWD/target/tmp/python-api",type=bind \
-	gisaia/swagger-codegen-2.4.14 \
-        -l python --type-mappings GeoJsonObject=object
 
 BASEDIR=$PWD
 
