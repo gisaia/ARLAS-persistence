@@ -21,7 +21,7 @@ ARLAS Persistence can run as a docker container. A rich set of properties of the
 docker run -ti -d \
    --name arlas-persistence \
    -e "ARLAS_PERSISTENCE_HIBERNATE_DRIVER=org.postgresql.Driver" \
-   gisaia/arlas-persistence:latest
+   gisaia/arlas-persistence-server:latest
 ```
 All supported environment variables are listed below.
 
@@ -37,7 +37,7 @@ The ARLAS Persistence container can start with a mounted configuration file than
 docker run -ti -d \
    --name arlas-persistence \
    -v `pwd`/configuration.yaml:/opt/app/configuration.yaml \
-   gisaia/arlas-persistence:latest
+   gisaia/arlas-persistence-server:latest
 ```
 
 #### URL
@@ -54,7 +54,7 @@ For instance, if the current directory of the host contains a `configuration.yam
 docker run -ti -d \
    --name arlas-persistence \
    -e ARLAS_PERSISTENCE_CONFIGURATION_URL="http://somemachine/conf.yaml" \
-   gisaia/arlas-persistence:latest
+   gisaia/arlas-persistence-server:latest
 ```
 
 ## ARLAS Persistence configuration properties
