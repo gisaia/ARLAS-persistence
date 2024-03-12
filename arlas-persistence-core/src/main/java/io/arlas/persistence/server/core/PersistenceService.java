@@ -76,7 +76,7 @@ public interface PersistenceService {
     static boolean isShareableGroup(List<String> group, String zone, IdentityParam identityParam) throws ForbiddenException {
         List<String> userGroupsForZone = getGroupsForZone(zone, identityParam);
         List<String> authorizeGroup = group.stream().filter(userGroupsForZone::contains).toList();
-        if (!authorizeGroup.isEmpty() || group.isEmpty()){
+        if (!authorizeGroup.isEmpty() || group.isEmpty()) {
             return true;
         } else {
             throw new ForbiddenException("You are not authorized to give rights to this group: " + group);
@@ -87,6 +87,9 @@ public interface PersistenceService {
 
         List<String> writersList = new ArrayList<>(writers);
         List<String> readersList = new ArrayList<>(readers);
+        if (writersList.contains("group/public")) {
+            throw new ForbiddenException("You are not authorized to give writers rights to this group: group/public");
+        }
         isShareableGroup(writersList, zone, identityParam);
         isShareableGroup(readersList, zone, identityParam);
     }
