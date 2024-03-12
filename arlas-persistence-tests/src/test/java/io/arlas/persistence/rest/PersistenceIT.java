@@ -342,7 +342,7 @@ public class PersistenceIT {
 
     @Test
     public void test15CreateOtherOrganisation() {
-        id = createData(otherCompany, "mySecondRestrictedDocument", List.of(PUBLIC), List.of(PUBLIC))
+        id = createData(otherCompany, "mySecondRestrictedDocument", List.of(PUBLIC), Collections.EMPTY_LIST)
                 .then().statusCode(201)
                 .body("doc_value", equalTo("{\"age\":1}"))
                 .extract().jsonPath().get("id");
@@ -468,6 +468,13 @@ public class PersistenceIT {
         deleteData(technical, id1);
         deleteData(technical, id2);
         deleteData(otherCompany, id3);
+    }
+
+    @Test
+    public void test22CreateWithPublicWriteAccess() {
+        createData(technical, "privateDocument", List.of(TECHNICAL), List.of(PUBLIC))
+                .then().statusCode(403);
+
     }
 
     protected RequestSpecification givenForUser(UserIdentity userIdentity) {
