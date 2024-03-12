@@ -30,9 +30,9 @@ The monitoring API provides some information about the health and the performanc
 
 ## Swagger
 
-| URL | Description |
-| --- | --- |
-| http://.../arlas_persistence/swagger  | The web application for testing the API  |
-| http://.../arlas_persistence/swagger.yaml  | The swagger definition of the collections/exploration API with YAML format |
-| http://.../arlas_persistence/swagger.json  | The swagger definition of the collections/exploration API with JSON format |
+| URL                                       | Description                                                    |
+|-------------------------------------------|----------------------------------------------------------------|
+| http://.../arlas_persistence/swagger      | The web application for testing the API                        |
+| http://.../arlas_persistence/openapi.yaml | The swagger definition of the persistence API with YAML format |
+| http://.../arlas_persistence/openapi.json | The swagger definition of the persistence API with JSON format |
 

@@ -15,7 +15,6 @@ function clean_docker {
 function clean_exit {
   ARG=$?
 	echo "===> Exit stage ${STAGE} = ${ARG}"
-  docker logs db
   docker logs arlas-persistence-server
   clean_docker
   rm -rf /tmp/persist
