@@ -1,0 +1,469 @@
+openapi: 3.0.1
+info:
+  title: ARLAS Persistence APIs
+  description: Persistence REST services.
+  contact:
+    name: Gisaia
+    url: http://www.gisaia.com/
+    email: contact@gisaia.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 25.0.0-beta.1
+externalDocs:
+  description: API documentation
+  url: https://docs.arlas.io/arlas-api/
+servers:
+- url: /arlas_persistence_server
+  description: default server
+tags:
+- name: persist
+  description: Persistence API
+paths:
+  /persist/resource/{zone}/{key}:
+    post:
+      tags:
+      - persist
+      summary: Store a new piece of data for the provided zone and key (auto generate
+        id).
+      description: Store a new piece of data for the provided zone and key (auto generate
+        id).
+      operationId: create
+      parameters:
+      - name: zone
+        in: path
+        description: Zone of the document.
+        required: true
+        schema:
+          type: string
+          default: pref
+      - name: key
+        in: path
+        description: The key of the data.
+        required: true
+        schema:
+          type: string
+      - name: readers
+        in: query
+        description: Comma separated values of groups authorized to read the data.
+        schema:
+          type: array
+          items:
+            type: string
+      - name: writers
+        in: query
+        description: Comma separated values of groups authorized to modify the data.
+        schema:
+          type: array
+          items:
+            type: string
+      - name: pretty
+        in: query
+        description: Pretty print
+        schema:
+          type: boolean
+          default: false
+      requestBody:
+        description: Value to be persisted.
+        content:
+          application/json;charset=utf-8:
+            schema:
+              type: string
+        required: true
+      responses:
+        "201":
+          description: Successful operation
+          content:
+            application/json;charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/DataWithLinks'
+        "500":
+          description: Arlas Server Error.
+          content:
+            application/json;charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /persist/resource/id/{id}:
+    get:
+      tags:
+      - persist
+      summary: Fetch an entry given its id.
+      description: Fetch an entry given its id.
+      operationId: getById
+      parameters:
+      - name: id
+        in: path
+        description: The id of the data.
+        required: true
+        schema:
+          type: string
+      - name: pretty
+        in: query
+        description: Pretty print
+        schema:
+          type: boolean
+          default: false
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json;charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/DataWithLinks'
+        "404":
+          description: Id not found.
+          content:
+            application/json;charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Arlas Persistence Error.
+          content:
+            application/json;charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      tags:
+      - persist
+      summary: Update an existing value.
+      description: Update an existing value.
+      operationId: update
+      parameters:
+      - name: id
+        in: path
+        description: The id of the data.
+        required: true
+        schema:
+          type: string
+      - name: key
+        in: query
+        description: The key of the data.
+        schema:
+          type: string
+      - name: readers
+        in: query
+        description: Comma separated values of groups authorized to read the data.
+        schema:
+          type: array
+          items:
+            type: string
+      - name: writers
+        in: query
+        description: Comma separated values of groups authorized to modify the data.
+        schema:
+          type: array
+          items:
+            type: string
+      - name: last_update
+        in: query
+        description: Previous date value of last modification known by client.
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: pretty
+        in: query
+        description: Pretty print
+        schema:
+          type: boolean
+          default: false
+      requestBody:
+        description: Value to be persisted.
+        content:
+          application/json;charset=utf-8:
+            schema:
+              type: string
+        required: true
+      responses:
+        "201":
+          description: Successful operation
+          content:
+            application/json;charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/DataWithLinks'
+        "404":
+          description: Key or id not found.
+          content:
+            application/json;charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Arlas Server Error.
+          content:
+            application/json;charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+      - persist
+      summary: Delete an entry given its key and id.
+      description: Delete an entry given its key and id.
+      operationId: deleteById
+      parameters:
+      - name: id
+        in: path
+        description: The id of the data.
+        required: true
+        schema:
+          type: string
+      - name: pretty
+        in: query
+        description: Pretty print
+        schema:
+          type: boolean
+          default: false
+      responses:
+        "202":
+          description: Successful operation
+          content:
+            application/json;charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/DataWithLinks'
+        "404":
+          description: Key or id not found.
+          content:
+            application/json;charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Arlas Server Error.
+          content:
+            application/json;charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /persist/resource/exists/id/{id}:
+    get:
+      tags:
+      - persist
+      summary: Check the existence of an entry given its id.
+      description: Check the existence of an entry given its id.
+      operationId: existsById
+      parameters:
+      - name: id
+        in: path
+        description: The id of the data.
+        required: true
+        schema:
+          type: string
+      - name: pretty
+        in: query
+        description: Pretty print
+        schema:
+          type: boolean
+          default: false
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json;charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Exists'
+        "500":
+          description: Arlas Persistence Error.
+          content:
+            application/json;charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /persist/groups/{zone}:
+    get:
+      tags:
+      - persist
+      summary: Returns the users' groups allowed to interact with the given zone.
+      description: Returns the users' groups allowed to interact with the given zone.
+      operationId: getGroupsByZone
+      parameters:
+      - name: zone
+        in: path
+        description: Zone of the document.
+        required: true
+        schema:
+          type: string
+          default: pref
+      - name: pretty
+        in: query
+        description: Pretty print
+        schema:
+          type: boolean
+          default: false
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json;charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Zone not found.
+          content:
+            application/json;charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Arlas Persistence Error.
+          content:
+            application/json;charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /persist/resources/{zone}:
+    get:
+      tags:
+      - persist
+      summary: Fetch a list of data related to a zone.
+      description: Fetch a list of data related to a zone.
+      operationId: list
+      parameters:
+      - name: zone
+        in: path
+        description: Zone of the document.
+        required: true
+        schema:
+          type: string
+          default: pref
+      - name: size
+        in: query
+        description: Page Size
+        schema:
+          minimum: 1
+          type: integer
+          format: int64
+          default: 10
+      - name: page
+        in: query
+        description: Page ID
+        schema:
+          minimum: 1
+          type: integer
+          format: int64
+          default: 1
+      - name: order
+        in: query
+        description: Date sort order
+        schema:
+          type: string
+          default: DESC
+          enum:
+          - ASC
+          - DESC
+      - name: pretty
+        in: query
+        description: Pretty print
+        schema:
+          type: boolean
+          default: false
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json;charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/DataResource'
+        "404":
+          description: Zone not found.
+          content:
+            application/json;charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Arlas Persistence Error.
+          content:
+            application/json;charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    DataWithLinks:
+      required:
+      - doc_key
+      - doc_organization
+      - doc_owner
+      - doc_value
+      - doc_zone
+      - last_update_date
+      type: object
+      properties:
+        id:
+          type: string
+        doc_key:
+          type: string
+        doc_zone:
+          type: string
+        last_update_date:
+          type: string
+          format: date-time
+        doc_value:
+          type: string
+        doc_owner:
+          type: string
+        doc_organization:
+          type: string
+        doc_entities:
+          type: array
+          items:
+            type: string
+        doc_writers:
+          type: array
+          items:
+            type: string
+        doc_readers:
+          type: array
+          items:
+            type: string
+        public:
+          type: boolean
+          writeOnly: true
+        _links:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Link'
+        updatable:
+          type: boolean
+        ispublic:
+          type: boolean
+    Link:
+      required:
+      - href
+      - method
+      - relation
+      - type
+      type: object
+      properties:
+        relation:
+          type: string
+        href:
+          type: string
+        type:
+          type: string
+        method:
+          type: string
+    Error:
+      type: object
+      properties:
+        status:
+          type: integer
+          format: int32
+        message:
+          type: string
+        error:
+          type: string
+    Exists:
+      type: object
+      properties:
+        exists:
+          type: boolean
+    DataResource:
+      type: object
+      properties:
+        count:
+          type: integer
+          format: int32
+        total:
+          type: integer
+          format: int64
+        _links:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Link'
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataWithLinks'
