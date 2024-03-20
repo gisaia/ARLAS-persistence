@@ -16,6 +16,12 @@
     </parent>
 
     <dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+
         <!-- ____________________________________________________ -->
         <!-- Tests -->
         <!-- ____________________________________________________ -->
@@ -25,16 +31,12 @@
             <version>${io.rest-assured.version}</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-core</artifactId>
             <version>${org.hamcrest.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
     </dependencies>
 

@@ -24,12 +24,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.fasterxml.uuid</groupId>
-            <artifactId>java-uuid-generator</artifactId>
-            <version>${jug.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-hibernate</artifactId>
             <version>${dropwizard.version}</version>
@@ -37,8 +31,14 @@
 
         <dependency>
             <groupId>io.hypersistence</groupId>
-            <artifactId>hypersistence-utils-hibernate-55</artifactId>
+            <artifactId>hypersistence-utils-hibernate-60</artifactId>
             <version>${hibernate.utils.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-jakarta-xmlbind-annotations</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
 
         <dependency>
@@ -56,6 +56,13 @@
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-firestore-admin</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.uuid</groupId>
+            <artifactId>java-uuid-generator</artifactId>
+            <version>${jug.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>
