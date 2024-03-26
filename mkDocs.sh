@@ -28,9 +28,9 @@ docker run --rm \
 
 echo "=> Generate API"
 docker run --rm \
-    --mount dst=/input/api.json,src="$PWD/openapi/swagger.json",type=bind,ro \
+    --mount dst=/input/api.json,src="$PWD/openapi/openapi.json",type=bind,ro \
     --mount dst=/output,src="$PWD/target/tmp/typescript-fetch",type=bind \
-	gisaia/swagger-codegen-2.4.14 \
+	gisaia/swagger-codegen-3.0.42 \
         -l typescript-fetch --additional-properties modelPropertyNaming=snake_case
 
 echo "=> Generate Typescript client documentation"
@@ -65,10 +65,7 @@ docker run --rm \
     -v $PWD:/opt/maven \
 	-v $HOME/.m2:/root/.m2 \
 	busybox \
-        sh -c 'cat /opt/maven/docs/api/overview.md > /opt/maven/target/generated-docs/persistence_reference.md \
-        && cat /opt/maven/docs/api/paths.md >> /opt/maven/target/generated-docs/persistence_reference.md \
-        && cat /opt/maven/docs/api/definitions.md >> /opt/maven/target/generated-docs/persistence_reference.md \
-        && cat /opt/maven/docs/api/security.md >> /opt/maven/target/generated-docs/persistence_reference.md'
+        sh -c 'cat /opt/maven/docs/api/reference.md > /opt/maven/target/generated-docs/reference.md'
 
 echo "=> Copy CHANGELOG.md"
 docker run --rm \
@@ -82,7 +79,7 @@ if [[ ! -f ${BASEDIR}/target/generated-docs/typescript-doc/classes/PersistApi.md
     echo 'File "PersistApi.md" was not generated, aborting.'
     exit -1
 fi
-if [[ ! -f ${BASEDIR}/target/generated-docs/persistence_reference.md ]] ; then
-    echo 'File "persistence_reference.md" was not generated, aborting.'
+if [[ ! -f ${BASEDIR}/target/generated-docs/reference.md ]] ; then
+    echo 'File "reference.md" was not generated, aborting.'
     exit -1
 fi

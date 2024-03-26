@@ -21,7 +21,6 @@ package io.arlas.persistence.server.app;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.arlas.commons.cache.CacheFactory;
 import io.arlas.commons.config.ArlasConfiguration;
@@ -29,6 +28,7 @@ import io.arlas.commons.config.ArlasCorsConfiguration;
 import io.arlas.commons.exceptions.ArlasExceptionMapper;
 import io.arlas.commons.exceptions.ConstraintViolationExceptionMapper;
 import io.arlas.commons.exceptions.IllegalArgumentExceptionMapper;
+import io.arlas.commons.exceptions.JsonProcessingExceptionMapper;
 import io.arlas.commons.rest.utils.InsensitiveCaseFilter;
 import io.arlas.commons.rest.utils.PrettyPrintFilter;
 import io.arlas.filter.core.PolicyEnforcer;
@@ -38,16 +38,14 @@ import io.arlas.persistence.server.impl.FileSystemPersistenceServiceImpl;
 import io.arlas.persistence.server.impl.GoogleFirestorePersistenceServiceImpl;
 import io.arlas.persistence.server.impl.HibernatePersistenceServiceImpl;
 import io.arlas.persistence.server.model.Data;
-
-import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
+import io.dropwizard.core.Application;
+import io.dropwizard.core.setup.Bootstrap;
+import io.dropwizard.core.setup.Environment;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.hibernate.HibernateBundle;
-import io.dropwizard.jersey.jackson.JsonProcessingExceptionMapper;
-import io.dropwizard.setup.Bootstrap;
-import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
@@ -55,11 +53,10 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.DispatcherType;
-import javax.servlet.FilterRegistration;
-import javax.ws.rs.core.HttpHeaders;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.FilterRegistration;
+import jakarta.ws.rs.core.HttpHeaders;
 import java.util.EnumSet;
-import java.util.Optional;
 
 public class ArlasPersistenceServer extends Application<ArlasPersistenceServerConfiguration> {
     Logger LOGGER = LoggerFactory.getLogger(ArlasPersistenceServer.class);
@@ -99,7 +96,7 @@ public class ArlasPersistenceServer extends Application<ArlasPersistenceServerCo
     public void run(ArlasPersistenceServerConfiguration configuration, Environment environment) throws Exception {
 
         configuration.check();
-        LOGGER.info("Checked configuration: " + (new ObjectMapper()).writer().writeValueAsString(configuration));
+        LOGGER.info("Checked configuration: " + environment.getObjectMapper().writer().writeValueAsString(configuration));
 
         environment.getObjectMapper().setSerializationInclusion(Include.NON_NULL);
         environment.getObjectMapper().configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false);
