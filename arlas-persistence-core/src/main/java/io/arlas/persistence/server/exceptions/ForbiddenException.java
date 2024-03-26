@@ -21,7 +21,7 @@ package io.arlas.persistence.server.exceptions;
 
 import io.arlas.commons.exceptions.ArlasException;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 public class ForbiddenException extends ArlasException {
     public ForbiddenException() {

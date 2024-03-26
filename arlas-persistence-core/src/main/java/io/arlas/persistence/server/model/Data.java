@@ -21,13 +21,13 @@ package io.arlas.persistence.server.model;
 
 import io.dropwizard.jackson.JsonSnakeCase;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -36,7 +36,6 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "user_data")
-@TypeDef(name = "json", typeClass = JsonBinaryType.class)
 @JsonSnakeCase
 public class Data {
     public static final String idColumn = "id";
@@ -67,7 +66,7 @@ public class Data {
     private Date lastUpdateDate;
 
     @NotNull
-    @Type(type = "json")
+    @Type(JsonBinaryType.class)
     @Column(name = valueColumn, columnDefinition = "json")
     private String docValue;
 
