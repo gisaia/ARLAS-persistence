@@ -34,26 +34,44 @@ import io.arlas.persistence.server.app.Documentation;
 import io.arlas.persistence.server.core.PersistenceService;
 import io.arlas.persistence.server.utils.SortOrder;
 import io.dropwizard.hibernate.UnitOfWork;
-import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.ExternalDocumentation;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.info.Contact;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.info.License;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.servers.Server;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.*;
 import java.util.*;
 
-
 @Path("/persist")
-@Api(value = "/persist")
-@SwaggerDefinition(
-        info = @Info(contact = @Contact(email = "contact@gisaia.com", name = "Gisaia", url = "http://www.gisaia.com/"),
-                title = "ARLAS persistence API",
-                description = "persistence REST services",
+@Tag(name="persist", description="Persistence API")
+@OpenAPIDefinition(
+        info = @Info(
+                title = "ARLAS Persistence APIs",
+                description = "Persistence REST services.",
                 license = @License(name = "Apache 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0.html"),
+                contact = @Contact(email = "contact@gisaia.com", name = "Gisaia", url = "http://www.gisaia.com/"),
                 version = "API_VERSION"),
-        schemes = { SwaggerDefinition.Scheme.HTTP, SwaggerDefinition.Scheme.HTTPS })
+        externalDocs = @ExternalDocumentation(
+                description = "API documentation",
+                url="https://docs.arlas.io/arlas-api/"),
+        servers = {
+                @Server(url = "/arlas_persistence_server", description = "default server")
+        }
+)
 
 public class PersistenceRestService {
     Logger LOGGER = LoggerFactory.getLogger(PersistenceRestService.class);
@@ -74,51 +92,53 @@ public class PersistenceRestService {
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(
-            value = Documentation.LIST_OPERATION,
-            produces = UTF8JSON,
-            notes = Documentation.LIST_OPERATION,
-            consumes = UTF8JSON
+    @Operation(
+            summary = Documentation.LIST_OPERATION,
+            description = Documentation.LIST_OPERATION
     )
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = DataResource.class),
-            @ApiResponse(code = 404, message = "Zone not found.", response = Error.class),
-            @ApiResponse(code = 500, message = "Arlas Persistence Error.", response = Error.class)})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation", 
+                    content = @Content(schema = @Schema(implementation = DataResource.class))),
+            @ApiResponse(responseCode = "404", description = "Zone not found.", 
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "500", description = "Arlas Persistence Error.", 
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
 
     @UnitOfWork
     public Response list(
             @Context UriInfo uriInfo,
             @Context HttpHeaders headers,
 
-            @ApiParam(name = "zone", value = Documentation.ZONE,
-                    defaultValue = "pref",
+            @Parameter(name = "zone", 
+                    description = Documentation.ZONE,
+                    schema = @Schema(defaultValue = "pref"),
                     required = true)
             @PathParam(value = "zone") String zone,
 
-            @ApiParam(name = "size", value = "Page Size",
-                    defaultValue = "10",
-                    allowableValues = "range[1, infinity]",
-                    type = "integer")
+            @Parameter(name = "size", 
+                    description = "Page Size",
+                    schema = @Schema(type="integer", minimum = "1", defaultValue = "10"))
             @DefaultValue("10")
             @QueryParam(value = "size") Integer size,
 
-            @ApiParam(name = "page", value = "Page ID",
-                    defaultValue = "1",
-                    allowableValues = "range[1, infinity]",
-                    type = "integer")
+            @Parameter(name = "page", 
+                    description = "Page ID",
+                    schema = @Schema(type="integer", minimum = "1", defaultValue = "1"))
             @DefaultValue("1")
             @QueryParam(value = "page") Integer page,
 
-            @ApiParam(name = "order", value = "Date sort order",
-                    defaultValue = "desc",
-                    allowableValues = "desc,asc",
-                    type = "string")
+            @Parameter(name = "order", 
+                    description = "Date sort order",
+                    schema = @Schema(defaultValue = "DESC"))
             @QueryParam(value = "order") SortOrder order,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
-                    defaultValue = "false")
+            @Parameter(name = "pretty",
+                    description = Documentation.FORM_PRETTY,
+                    schema = @Schema(defaultValue = "false"))
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
         IdentityParam identityparam = getIdentityParam(headers);
@@ -132,32 +152,35 @@ public class PersistenceRestService {
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(
-            value = Documentation.GET_FROM_ID_OPERATION,
-            produces = UTF8JSON,
-            notes = Documentation.GET_FROM_ID_OPERATION,
-            consumes = UTF8JSON
+    @Operation(
+            summary = Documentation.GET_FROM_ID_OPERATION,
+            description = Documentation.GET_FROM_ID_OPERATION
     )
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = DataWithLinks.class),
-            @ApiResponse(code = 404, message = "Id not found.", response = Error.class),
-            @ApiResponse(code = 500, message = "Arlas Persistence Error.", response = Error.class)})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation", 
+                    content = @Content(schema = @Schema(implementation = DataWithLinks.class))),
+            @ApiResponse(responseCode = "404", description = "Id not found.", 
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "500", description = "Arlas Persistence Error.", 
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
 
     @UnitOfWork
     public Response getById(
             @Context UriInfo uriInfo,
             @Context HttpHeaders headers,
 
-            @ApiParam(name = "id",
-                    value = Documentation.ID,
+            @Parameter(name = "id",
+                    description = Documentation.ID,
                     required = true)
             @PathParam(value = "id") String id,
-
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
-                    defaultValue = "false")
+            @Parameter(name = "pretty",
+                    description = Documentation.FORM_PRETTY,
+                    schema = @Schema(defaultValue = "false"))
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
         IdentityParam identityparam = getIdentityParam(headers);
@@ -170,31 +193,33 @@ public class PersistenceRestService {
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(
-            value = Documentation.EXISTS_FROM_ID_OPERATION,
-            produces = UTF8JSON,
-            notes = Documentation.EXISTS_FROM_ID_OPERATION,
-            consumes = UTF8JSON
+    @Operation(
+            summary = Documentation.EXISTS_FROM_ID_OPERATION,
+            description = Documentation.EXISTS_FROM_ID_OPERATION
     )
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = Exists.class),
-            @ApiResponse(code = 500, message = "Arlas Persistence Error.", response = Error.class)})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation",
+                    content = @Content(schema = @Schema(implementation = Exists.class))),
+            @ApiResponse(responseCode = "500", description = "Arlas Persistence Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
 
     @UnitOfWork
     public Response existsById(
             @Context UriInfo uriInfo,
             @Context HttpHeaders headers,
 
-            @ApiParam(name = "id",
-                    value = Documentation.ID,
+            @Parameter(name = "id",
+                    description = Documentation.ID,
                     required = true)
             @PathParam(value = "id") String id,
-
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
-                    defaultValue = "false")
+            @Parameter(name = "pretty",
+                    description = Documentation.FORM_PRETTY,
+                    schema = @Schema(defaultValue = "false"))
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
         IdentityParam identityparam = getIdentityParam(headers);
@@ -211,31 +236,35 @@ public class PersistenceRestService {
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(
-            value = Documentation.GET_GROUPS_OPERATION,
-            produces = UTF8JSON,
-            notes = Documentation.GET_GROUPS_OPERATION,
-            consumes = UTF8JSON
+    @Operation(
+            summary = Documentation.GET_GROUPS_OPERATION,
+            description = Documentation.GET_GROUPS_OPERATION
     )
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = String[].class),
-            @ApiResponse(code = 404, message = "Zone not found.", response = Error.class),
-            @ApiResponse(code = 500, message = "Arlas Persistence Error.", response = Error.class)})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation",
+                    content = @Content(schema = @Schema(implementation = String[].class))),
+            @ApiResponse(responseCode = "404", description = "Zone not found.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "500", description = "Arlas Persistence Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))})
 
     @UnitOfWork
     public Response getGroupsByZone(
             @Context UriInfo uriInfo,
             @Context HttpHeaders headers,
 
-            @ApiParam(name = "zone", value = Documentation.ZONE,
-                    defaultValue = "pref",
+            @Parameter(name = "zone",
+                    description = Documentation.ZONE,
+                    schema = @Schema(defaultValue = "pref"),
                     required = true)
             @PathParam(value = "zone") String zone,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
-                    defaultValue = "false")
+            @Parameter(name = "pretty",
+                    description = Documentation.FORM_PRETTY,
+                    schema = @Schema(defaultValue = "false"))
             @QueryParam(value = "pretty") Boolean pretty
     ) {
         IdentityParam identityparam = getIdentityParam(headers);
@@ -248,45 +277,52 @@ public class PersistenceRestService {
     @POST
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(
-            value = Documentation.CREATE_OPERATION,
-            produces = UTF8JSON,
-            notes = Documentation.CREATE_OPERATION,
-            consumes = UTF8JSON
+    @Operation(
+            summary = Documentation.CREATE_OPERATION,
+            description = Documentation.CREATE_OPERATION
     )
-    @ApiResponses(value = {@ApiResponse(code = 201, message = "Successful operation", response = DataWithLinks.class),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Successful operation",
+                    content = @Content(schema = @Schema(implementation = DataWithLinks.class))),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
 
     @UnitOfWork
     public Response create(
             @Context UriInfo uriInfo,
             @Context HttpHeaders headers,
 
-            @ApiParam(name = "zone", value = Documentation.ZONE,
-                    defaultValue = "pref",
+            @Parameter(name = "zone",
+                    description = Documentation.ZONE,
+                    schema = @Schema(defaultValue = "pref"),
                     required = true)
             @PathParam(value = "zone") String zone,
 
-            @ApiParam(name = "key", value = Documentation.KEY,
+            @Parameter(name = "key",
+                    description = Documentation.KEY,
                     required = true)
             @PathParam(value = "key") String key,
 
-            @ApiParam(name = "readers", value = Documentation.READERS)
+            @Parameter(name = "readers",
+                    description = Documentation.READERS)
             @QueryParam(value = "readers") List<String> readers,
 
-            @ApiParam(name = "writers", value = Documentation.WRITERS)
+            @Parameter(name = "writers",
+                    description = Documentation.WRITERS)
             @QueryParam(value = "writers") List<String> writers,
 
-            @ApiParam(name = "value",
-                    value = Documentation.VALUE,
+            @Parameter(name = "description",
+                    description = Documentation.VALUE,
                     required = true)
             @NotNull @Valid String value,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
-                    defaultValue = "false")
+            @Parameter(name = "pretty",
+                    description = Documentation.FORM_PRETTY,
+                    schema = @Schema(defaultValue = "false"))
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
         IdentityParam identityparam = getIdentityParam(headers);
@@ -305,42 +341,48 @@ public class PersistenceRestService {
     @PUT
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(
-            value = Documentation.UPDATE_OPERATION,
-            produces = UTF8JSON,
-            notes = Documentation.UPDATE_OPERATION,
-            consumes = UTF8JSON
+    @Operation(
+            summary = Documentation.UPDATE_OPERATION,
+            description = Documentation.UPDATE_OPERATION
     )
-    @ApiResponses(value = {@ApiResponse(code = 201, message = "Successful operation", response = DataWithLinks.class),
-            @ApiResponse(code = 404, message = "Key or id not found.", response = Error.class),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Successful operation",
+                    content = @Content(schema = @Schema(implementation = DataWithLinks.class))),
+            @ApiResponse(responseCode = "404", description = "Key or id not found.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
 
     @UnitOfWork
     public Response update(
             @Context UriInfo uriInfo,
             @Context HttpHeaders headers,
 
-            @ApiParam(name = "id",
-                    value = Documentation.ID,
+            @Parameter(name = "id",
+                    description = Documentation.ID,
                     required = true)
             @PathParam(value = "id") String id,
 
-            @ApiParam(name = "key", value = Documentation.KEY)
+            @Parameter(name = "key",
+                    description = Documentation.KEY)
             @QueryParam(value = "key") String key,
 
-            @ApiParam(name = "readers", value = Documentation.READERS)
+            @Parameter(name = "readers",
+                    description = Documentation.READERS)
             @QueryParam(value = "readers") List<String> readers,
 
-            @ApiParam(name = "writers", value = Documentation.WRITERS)
+            @Parameter(name = "writers",
+                    description = Documentation.WRITERS)
             @QueryParam(value = "writers") List<String> writers,
 
-            @ApiParam(name = "value",
-                    value = Documentation.VALUE,
+            @Parameter(name = "description",
+                    description = Documentation.VALUE,
                     required = true)
             @NotNull @Valid String value,
 
-            @ApiParam(name = "last_update",
-                    value = Documentation.LAST_UPDATE,
+            @Parameter(name = "last_update",
+                    description = Documentation.LAST_UPDATE,
                     required = true)
             @QueryParam(value = "last_update")  Long lastUpdate,
 
@@ -348,8 +390,8 @@ public class PersistenceRestService {
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
-                    defaultValue = "false")
+            @Parameter(name = "pretty", description = Documentation.FORM_PRETTY,
+                    schema = @Schema(defaultValue = "false"))
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
         IdentityParam identityparam = getIdentityParam(headers);
@@ -369,30 +411,34 @@ public class PersistenceRestService {
     @DELETE
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(
-            value = Documentation.DELETE_OPERATION,
-            produces = UTF8JSON,
-            notes = Documentation.DELETE_OPERATION,
-            consumes = UTF8JSON
+    @Operation(
+            summary = Documentation.DELETE_OPERATION,
+            description = Documentation.DELETE_OPERATION
     )
-    @ApiResponses(value = {@ApiResponse(code = 202, message = "Successful operation", response = DataWithLinks.class),
-            @ApiResponse(code = 404, message = "Key or id not found.", response = Error.class),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "202", description = "Successful operation",
+                    content = @Content(schema = @Schema(implementation = DataWithLinks.class))),
+            @ApiResponse(responseCode = "404", description = "Key or id not found.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
 
     @UnitOfWork
     public Response deleteById(
             @Context HttpHeaders headers,
             @Context UriInfo uriInfo,
-            @ApiParam(name = "id",
-                    value = Documentation.ID,
+            @Parameter(name = "id",
+                    description = Documentation.ID,
                     required = true)
             @PathParam(value = "id") String id,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
-                    defaultValue = "false")
+            @Parameter(name = "pretty",
+                    description = Documentation.FORM_PRETTY,
+                    schema = @Schema(defaultValue = "false"))
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
         IdentityParam identityparam = getIdentityParam(headers);
