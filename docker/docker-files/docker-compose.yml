@@ -2,7 +2,7 @@ version: '3'
 
 services:
   db:
-    image: postgres:11-alpine
+    image: postgres
     container_name: db
     restart: always
     environment:
@@ -10,17 +10,26 @@ services:
       POSTGRES_PASSWORD: ${ARLAS_PERSISTENCE_DB_PASSWORD:-iAMs00perSecrEET}
       POSTGRES_DB: arlas_persistence
       POSTGRES_HOST_AUTH_METHOD: trust
-    ports:
-      - 5432:5432
+    expose:
+      - 5432
     volumes:
       - ${ARLAS_PERSISTENCE_CREATESQL_FILE:-/opt/app/pgCreateTable.sql}:/docker-entrypoint-initdb.d/createTable.sql:ro
+    healthcheck:
+      test: "pg_isready -d arlas_persistence"
+      interval: 10s
+      timeout: 3s
+      retries: 30
 
   arlas-persistence-server:
+    depends_on:
+      db:
+        condition: service_healthy
     build:
       context: ../..
       dockerfile: ${DOCKERFILE:-docker/docker-files/Dockerfile-package-only}
     image: gisaia/arlas-persistence-server:${ARLAS_PERSISTENCE_SERVER_VERSION:-latest}
     container_name: arlas-persistence-server
+    restart: always
     environment:
       - ARLAS_PERSISTENCE_HOST="${ARLAS_PERSISTENCE_HOST:-localhost}"
       - ARLAS_PERSISTENCE_PORT="${ARLAS_PERSISTENCE_PORT:-9997}"
@@ -44,7 +53,7 @@ services:
       - ARLAS_PERSISTENCE_HIBERNATE_HBM2DDL="${ARLAS_PERSISTENCE_HIBERNATE_HBM2DDL:-update}"
       - GOOGLE_APPLICATION_CREDENTIALS=/opt/app/google-registry.json
     ports:
-      - 19997:9997
+      - "19997:9997" # !EXPOSE!
     volumes:
       - ${GOOGLE_APPLICATION_CREDENTIALS:-/tmp}:/opt/app/google-registry.json:ro
       - ${ARLAS_PERSISTENCE_LOCAL_FOLDER_HOST:-/tmp/persist/}:${ARLAS_PERSISTENCE_LOCAL_FOLDER:-/tmp/persist/}:rw
