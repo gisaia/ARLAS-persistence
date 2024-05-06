@@ -1,6 +1,6 @@
 <!-- Generator: Widdershins v4.0.1 -->
 
-<h1 id="arlas-persistence-apis">ARLAS Persistence APIs vAPI_VERSION</h1>
+<h1 id="arlas-persistence-apis">ARLAS Persistence APIs v25.0.0-rc.2</h1>
 
 > Scroll down for example requests and responses.
 
