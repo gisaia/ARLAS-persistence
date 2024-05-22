@@ -18,7 +18,7 @@ DOCKER_COMPOSE="${PROJECT_ROOT_DIRECTORY}/docker/docker-files/docker-compose.yml
 #########################################
 function clean_docker {
     echo "===> Stop arlas-persistence-server stack"
-    docker-compose -f ${DOCKER_COMPOSE} --project-name arlaspersist down -v
+    docker compose -f ${DOCKER_COMPOSE} --project-name arlaspersist down -v
 }
 
 function clean_exit {
@@ -175,7 +175,7 @@ fi
 #########################################
 
 echo "=> Start arlas-persistence-server stack"
-docker-compose -f ${DOCKER_COMPOSE} --project-name arlaspersist up -d --build
+docker compose -f ${DOCKER_COMPOSE} --project-name arlaspersist up -d --build
 DOCKER_IP=$(docker-machine ip || echo "localhost")
 
 echo "=> Wait for arlas-persistence-server up and running"
@@ -191,7 +191,7 @@ cp target/tmp/openapi.yaml openapi
 cp target/tmp/openapi.json openapi
 
 echo "=> Stop arlas-persistence-server stack"
-docker-compose -f ${DOCKER_COMPOSE} --project-name arlaspersist down -v
+docker compose -f ${DOCKER_COMPOSE} --project-name arlaspersist down -v
 
 echo "=> Generate API documentation"
 mkdir -p docs/api
