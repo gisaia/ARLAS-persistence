@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres
+    image: postgres:16.3
     container_name: db
     restart: always
     environment:
@@ -29,6 +29,8 @@ services:
     container_name: arlas-persistence-server
     restart: always
     environment:
+      - ARLAS_PERSISTENCE_LOGGING_LEVEL=${ARLAS_PERSISTENCE_LOGGING_LEVEL:-INFO}
+      - ARLAS_PERSISTENCE_LOGGING_CONSOLE_LEVEL=${ARLAS_PERSISTENCE_LOGGING_CONSOLE_LEVEL:-TRACE}
       - ARLAS_PERSISTENCE_HOST="${ARLAS_PERSISTENCE_HOST:-localhost}"
       - ARLAS_PERSISTENCE_PORT="${ARLAS_PERSISTENCE_PORT:-9997}"
       - ARLAS_PERSISTENCE_PREFIX="${ARLAS_PERSISTENCE_PREFIX:-/arlas_persistence_server}"
@@ -48,7 +50,7 @@ services:
       - ARLAS_PERSISTENCE_HIBERNATE_PASSWORD="${ARLAS_PERSISTENCE_HIBERNATE_PASSWORD:-iAMs00perSecrEET}"
       - ARLAS_PERSISTENCE_HIBERNATE_DRIVER="${ARLAS_PERSISTENCE_HIBERNATE_DRIVER:-org.postgresql.Driver}"
       - ARLAS_PERSISTENCE_HIBERNATE_DIALECT="${ARLAS_PERSISTENCE_HIBERNATE_DIALECT:-org.hibernate.dialect.PostgreSQLDialect}"
-      - ARLAS_PERSISTENCE_HIBERNATE_HBM2DDL="${ARLAS_PERSISTENCE_HIBERNATE_HBM2DDL:-update}"
+      - ARLAS_PERSISTENCE_HIBERNATE_HBM2DDL="${ARLAS_PERSISTENCE_HIBERNATE_HBM2DDL:-create-only}"
       - GOOGLE_APPLICATION_CREDENTIALS=/opt/app/google-registry.json
     ports:
       - "19997:9997" # !EXPOSE!

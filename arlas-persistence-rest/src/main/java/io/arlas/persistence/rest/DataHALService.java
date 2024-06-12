@@ -25,9 +25,9 @@ import io.arlas.persistence.model.DataWithLinks;
 import io.arlas.persistence.model.Link;
 import io.arlas.persistence.server.model.Data;
 import io.arlas.persistence.server.utils.SortOrder;
+import jakarta.ws.rs.core.UriInfo;
 import org.apache.commons.lang3.tuple.Pair;
 
-import jakarta.ws.rs.core.UriInfo;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

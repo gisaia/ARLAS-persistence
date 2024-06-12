@@ -23,8 +23,8 @@ import io.arlas.commons.config.ArlasConfiguration;
 import io.arlas.commons.exceptions.ArlasConfigurationException;
 import io.arlas.commons.rest.utils.ServerConstants;
 import io.dropwizard.db.DataSourceFactory;
-
 import jakarta.validation.Valid;
+
 import java.util.Arrays;
 import java.util.List;
 

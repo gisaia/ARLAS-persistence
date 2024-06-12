@@ -21,13 +21,12 @@ package io.arlas.persistence.server.model;
 
 import io.dropwizard.jackson.JsonSnakeCase;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
-import io.hypersistence.utils.hibernate.type.json.JsonType;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Type;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
