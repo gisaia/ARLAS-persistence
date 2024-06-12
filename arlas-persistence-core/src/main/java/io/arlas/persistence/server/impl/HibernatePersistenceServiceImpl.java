@@ -32,6 +32,8 @@ import io.dropwizard.hibernate.AbstractDAO;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -39,6 +41,7 @@ import java.util.stream.Collectors;
 import static io.arlas.filter.config.TechnicalRoles.GROUP_PUBLIC;
 
 public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implements PersistenceService {
+    protected static Logger LOGGER = LoggerFactory.getLogger(HibernatePersistenceServiceImpl.class);
 
     public HibernatePersistenceServiceImpl(SessionFactory factory) {
         super(factory);
@@ -48,10 +51,10 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
     public Pair<Long, List<Data>> list(String zone, IdentityParam identityParam, Integer size, Integer page, SortOrder order) {
         String from = " from Data ud "
                 + " where ud." + Data.zoneColumn + "=:zone"
-                + " and (ud." + Data.organizationColumn + " in :organization"
+                + " and ((ud." + Data.organizationColumn + " in :organization"
                 + "   and (ud." + Data.ownerColumn + "=:userId"
                 + "   or " + getGroupsRequest(identityParam.groups) + "))"
-                + " or (" + getGroupsRequest(List.of(GROUP_PUBLIC)) + ")";
+                + " or (" + getGroupsRequest(List.of(GROUP_PUBLIC)) + "))";
 
         Long totalCount = currentSession().createQuery("SELECT count(ud) " + from, Long.class)
                 .setParameter("zone", zone)
