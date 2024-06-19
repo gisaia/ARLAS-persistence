@@ -174,7 +174,44 @@ public class PersistenceIT {
                 .body("count", equalTo(1))
                 .body("total", equalTo(7));
 
+        givenForUser(technical)
+                .pathParam("zone", dataZone)
+                .param("order", "asc")
+                .param("size", "10")
+                .param("page", "1")
+                .param("key", "document")
+                .when()
+                .get(arlasAppPath.concat("resources/{zone}"))
+                .then().statusCode(200)
+                .contentType(ContentType.JSON)
+                .body("count", equalTo(7))
+                .body("total", equalTo(7));
 
+        givenForUser(technical)
+                .pathParam("zone", dataZone)
+                .param("order", "asc")
+                .param("size", "10")
+                .param("page", "1")
+                .param("key", "ment6")
+                .when()
+                .get(arlasAppPath.concat("resources/{zone}"))
+                .then().statusCode(200)
+                .contentType(ContentType.JSON)
+                .body("count", equalTo(1))
+                .body("total", equalTo(1));
+
+        givenForUser(technical)
+                .pathParam("zone", dataZone)
+                .param("order", "asc")
+                .param("size", "10")
+                .param("page", "1")
+                .param("key", "MenT6")
+                .when()
+                .get(arlasAppPath.concat("resources/{zone}"))
+                .then().statusCode(200)
+                .contentType(ContentType.JSON)
+                .body("count", equalTo(1))
+                .body("total", equalTo(1));
     }
 
     @Test
