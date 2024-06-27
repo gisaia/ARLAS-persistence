@@ -138,31 +138,39 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
     }
 
     @Override
-    public Pair<Long, List<Data>> list(String zone, IdentityParam identityParam, Integer size, Integer page, SortOrder order) throws ArlasException {
+    public Pair<Long, List<Data>> list(String zone, IdentityParam identityParam, Integer size, Integer page, SortOrder order, String key) throws ArlasException {
         List<String> entities =  new ArrayList<>(identityParam.groups);
         entities.add(identityParam.userId);
+        Filter filter = Filter.or(
+                Filter.arrayContainsAny(Data.docEntitiesColumn, List.of(GROUP_PUBLIC)),
+                Filter.and(
+                        Filter.inArray(Data.organizationColumn, identityParam.organisation),
+                        Filter.arrayContainsAny(Data.docEntitiesColumn, entities)
+                ));
+        if(key != null){
+            filter = Filter.and(
+                    Filter.or(
+                            Filter.arrayContainsAny(Data.docEntitiesColumn, List.of(GROUP_PUBLIC)),
+                            Filter.and(
+                                    Filter.inArray(Data.organizationColumn, identityParam.organisation),
+                                    Filter.arrayContainsAny(Data.docEntitiesColumn, entities)
+                            ),
+                    // We can't make %like%  request with firestore
+                    Filter.equalTo(Data.keyColumn, key)
+            ));
+        }
         try {
             return Pair.of(
                     (long) db.collection(this.collection)
                             .whereEqualTo(Data.zoneColumn, zone)
-                            .where(Filter.or(
-                                    Filter.arrayContainsAny(Data.docEntitiesColumn, List.of(GROUP_PUBLIC)),
-                                    Filter.and(
-                                            Filter.inArray(Data.organizationColumn, identityParam.organisation),
-                                            Filter.arrayContainsAny(Data.docEntitiesColumn, entities)
-                                    )))
+                            .where(filter)
                             .get()
                             .get()
                             .size(),
 
                     db.collection(this.collection)
                             .whereEqualTo(Data.zoneColumn, zone)
-                            .where(Filter.or(
-                                    Filter.arrayContainsAny(Data.docEntitiesColumn, List.of(GROUP_PUBLIC)),
-                                    Filter.and(
-                                            Filter.inArray(Data.organizationColumn, identityParam.organisation),
-                                            Filter.arrayContainsAny(Data.docEntitiesColumn, entities)
-                                    )))
+                            .where(filter)
                             .orderBy(Data.lastUpdateDateColumn, order == SortOrder.ASC ? Query.Direction.ASCENDING : Query.Direction.DESCENDING)
                             .limit(size)
                             .offset((page - 1) * size)

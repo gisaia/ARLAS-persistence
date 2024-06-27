@@ -139,12 +139,20 @@ public class PersistenceRestService {
             @Parameter(name = "pretty",
                     description = Documentation.FORM_PRETTY,
                     schema = @Schema(defaultValue = "false"))
-            @QueryParam(value = "pretty") Boolean pretty
+            @QueryParam(value = "pretty") Boolean pretty,
+
+            // --------------------------------------------------------
+            // ----------------------- Filter -----------------------
+            // --------------------------------------------------------
+            @Parameter(name = "key",
+                    description = Documentation.SEARCH_KEY,
+                    schema = @Schema(type = "string"), required = false)
+            @QueryParam(value = "key") String key
     ) throws ArlasException {
         IdentityParam identityparam = getIdentityParam(headers);
         return ResponseFormatter.getResultResponse(
                 halService.dataListToResource(
-                        persistenceService.list(zone, identityparam, size, page, order), uriInfo, page, size, order, identityparam));
+                        persistenceService.list(zone, identityparam, size, page, order, key), uriInfo, page, size, order, identityparam));
     }
 
     @Timed

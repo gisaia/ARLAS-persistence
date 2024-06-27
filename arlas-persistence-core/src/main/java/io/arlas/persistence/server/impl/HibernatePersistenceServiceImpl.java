@@ -48,7 +48,7 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
     }
 
     @Override
-    public Pair<Long, List<Data>> list(String zone, IdentityParam identityParam, Integer size, Integer page, SortOrder order) {
+    public Pair<Long, List<Data>> list(String zone, IdentityParam identityParam, Integer size, Integer page, SortOrder order, String key) {
         String from = " from Data ud "
                 + " where ud." + Data.zoneColumn + "=:zone"
                 + " and ((ud." + Data.organizationColumn + " in :organization"
@@ -56,12 +56,18 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
                 + "   or " + getGroupsRequest(identityParam.groups) + "))"
                 + " or (" + getGroupsRequest(List.of(GROUP_PUBLIC)) + "))";
 
-        Long totalCount = currentSession().createQuery("SELECT count(ud) " + from, Long.class)
+        if(key != null){
+            from = from  + " and ud." + Data.keyColumn + " ilike :searchKey";
+        }
+        Query<Long> countQuery = currentSession().createQuery("SELECT count(ud) " + from, Long.class)
                 .setParameter("zone", zone)
                 .setParameter("organization", identityParam.organisation)
-                .setParameter("userId", identityParam.userId)
-                .uniqueResult();
+                .setParameter("userId", identityParam.userId);
+        if(key != null) {
+            countQuery = countQuery.setParameter("searchKey", "%"+key+"%");
 
+        }
+        Long totalCount = countQuery.uniqueResult();
         Query<Data> query = currentSession().createQuery(from
                         + " order by ud." + Data.lastUpdateDateColumn + " " + order.toString(), Data.class)
                 .setParameter("zone", zone)
@@ -69,6 +75,10 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
                 .setParameter("userId", identityParam.userId)
                 .setMaxResults(size)
                 .setFirstResult((page - 1) * size);
+
+        if(key != null) {
+            query = query.setParameter("searchKey", "%"+key+"%");
+        }
         return Pair.of(totalCount, list(query));
     }
 

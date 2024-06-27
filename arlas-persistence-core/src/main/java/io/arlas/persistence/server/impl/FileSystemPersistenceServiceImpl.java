@@ -53,14 +53,14 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
     }
 
     @Override
-    public Pair<Long, List<Data>> list(String zone, IdentityParam identityParam, Integer size, Integer page, SortOrder order) throws ArlasException {
+    public Pair<Long, List<Data>> list(String zone, IdentityParam identityParam, Integer size, Integer page, SortOrder order, String key) throws ArlasException {
         List<FileWrapper> fileWrappers = new ArrayList<>();
         for (String org : identityParam.organisation) {
-            fileWrappers.addAll(getByFilenameFilter(prefixFilter(zone, org), identityParam, true));
+            fileWrappers.addAll(getByFilenameFilter(prefixFilter(zone, org), identityParam, true, key));
         }
         if (!identityParam.isAnonymous) {
             // add public from other orgs
-            List<FileWrapper> pub = getByFilenameFilter(prefixFilter(zone, ""), null,false);
+            List<FileWrapper> pub = getByFilenameFilter(prefixFilter(zone, ""), null,false, key);
             fileWrappers.addAll(pub.stream()
                     .filter(f -> PersistenceService.isPublic(f.data))
                     .filter(f -> !identityParam.organisation.contains(f.data.getDocOrganization()))
@@ -80,7 +80,7 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
     }
 
     public Data getById(String id, IdentityParam identityParam) throws ArlasException {
-        List<FileWrapper> list = getByFilenameFilter(suffixFilter(id), identityParam, false);
+        List<FileWrapper> list = getByFilenameFilter(suffixFilter(id), identityParam, false, null);
         if (list.size() == 1) {
             if (PersistenceService.isReaderOnData(identityParam, list.get(0).data) ||
                     PersistenceService.isWriterOnData(identityParam, list.get(0).data)) {
@@ -118,7 +118,7 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
 
     @Override
     public Data update(String id, String key, IdentityParam identityParam, Set<String> readers, Set<String> writers, String value, Date lastUpdate) throws ArlasException {
-        List<FileWrapper> list = getByFilenameFilter(suffixFilter(id), identityParam, false);
+        List<FileWrapper> list = getByFilenameFilter(suffixFilter(id), identityParam, false, null);
         if (list.size() == 1) {
             Data data = list.get(0).data;
             String zone = data.getDocZone();
@@ -151,7 +151,7 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
 
     @Override
     public Data deleteById(String id, IdentityParam identityParam) throws ArlasException {
-        List<FileWrapper> list = getByFilenameFilter(suffixFilter(id), identityParam, false);
+        List<FileWrapper> list = getByFilenameFilter(suffixFilter(id), identityParam, false, null);
         if (list.size() == 1) {
             if (PersistenceService.isWriterOnData(identityParam, list.get(0).data)) {
                 try {
@@ -187,9 +187,10 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
         return p -> p.getFileName().toString().endsWith(suffix);
     }
 
-    private List<FileWrapper> getByFilenameFilter(Predicate<Path> fileFilter, IdentityParam identityParam, boolean filterOnRights) throws ArlasException {
+    private List<FileWrapper> getByFilenameFilter(Predicate<Path> fileFilter, IdentityParam identityParam, boolean filterOnRights, String key) throws ArlasException {
         try (Stream<Path> paths = Files.walk(Paths.get(storageFolder))) {
-            return paths
+
+            Stream<FileWrapper> pathsStream = paths
                     .filter(Files::isRegularFile)
                     .filter(fileFilter)
                     .map(Path::toFile)
@@ -201,8 +202,14 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
                         }
                     })
                     .filter(fw -> !filterOnRights || PersistenceService.isReaderOnData(identityParam, fw.data) ||
-                            PersistenceService.isWriterOnData(identityParam, fw.data))
-                    .collect(Collectors.toList());
+                            PersistenceService.isWriterOnData(identityParam, fw.data));
+
+            if(key != null){
+                pathsStream = pathsStream.filter(fw -> fw.data.getDocKey().toLowerCase().contains(key.toLowerCase()));
+            }
+            return pathsStream.collect(Collectors.toList());
+
+
         } catch (Exception e) {
             throw new ArlasException("Error");
         }

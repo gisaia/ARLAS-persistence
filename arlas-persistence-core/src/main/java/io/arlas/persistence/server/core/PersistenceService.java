@@ -39,7 +39,7 @@ public interface PersistenceService {
                                 IdentityParam identityParam,
                                 Integer size,
                                 Integer page,
-                                SortOrder order) throws ArlasException;
+                                SortOrder order, String key) throws ArlasException;
 
     Data getById(String id,
                  IdentityParam identityParam) throws ArlasException;
