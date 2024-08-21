@@ -1,5 +1,13 @@
 # Change Log
 
+## [v26.0.0-rc.1](https://github.com/gisaia/arlas-persistence/tree/v26.0.0-rc.1) (2024-08-21)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v25.0.0...v26.0.0-rc.1)
+
+**Miscellaneous:**
+
+- Add the possibility to filter the documents of a given zone by name [\#109](https://github.com/gisaia/ARLAS-persistence/issues/109)
+
 ## [v25.0.0](https://github.com/gisaia/arlas-persistence/tree/v25.0.0) (2024-05-15)
 
 [Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v25.0.0-rc.2...v25.0.0)

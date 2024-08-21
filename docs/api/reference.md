@@ -1,6 +1,6 @@
 <!-- Generator: Widdershins v4.0.1 -->
 
-<h1 id="arlas-persistence-apis">ARLAS Persistence APIs v25.0.0</h1>
+<h1 id="arlas-persistence-apis">ARLAS Persistence APIs v26.0.0-rc.1</h1>
 
 > Scroll down for example requests and responses.
 
@@ -397,6 +397,7 @@ Fetch a list of data related to a zone.
 |page|query|integer(int64)|false|Page ID|
 |order|query|string|false|Date sort order|
 |pretty|query|boolean|false|Pretty print|
+|key|query|string|false|Filter by key value|
 
 #### Enumerated Values
 
