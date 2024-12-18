@@ -34,7 +34,7 @@ import java.util.Objects;
 
 
 @Entity
-@Table(name = "user_data")
+@Table(name = "user_data", indexes={@Index(columnList="docKey,docZone,docOrganization",name="doc_key_idx_orga")})
 @JsonSnakeCase
 public class Data {
     public static final String idColumn = "id";

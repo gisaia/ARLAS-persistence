@@ -23,7 +23,6 @@ FROM gisaia/arlas-openjdk-17-distroless:20240926175122
 WORKDIR /opt/app
 COPY --from=build /opt/build/arlas-persistence-server.jar /opt/app/
 COPY --from=build /opt/build/conf/configuration.yaml /opt/app/
-COPY --from=build /opt/build/docker/docker-files/pgCreateTable.sql /opt/app/
 EXPOSE 9997
 
 ENV JDK_JAVA_OPTIONS="-Xmx512m -XX:+ExitOnOutOfMemoryError"

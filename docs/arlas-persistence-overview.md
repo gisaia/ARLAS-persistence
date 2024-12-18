@@ -5,7 +5,7 @@
 Three types of storage are available in this server:
   - File system storage
   - All SQL SGBD compliant with hibernate, we use a non configurable unique table [`user_data`](../docker/docker-files/pgCreateTable.sql) in a dedicated configurable database.
-  ARLAS Persistence WILL NOT CREATE the table for you, think to create table before running the server. 
+  ARLAS Persistence WILL  CREATE the database and tables for you. 
   **WARNING** if you want to use this storage, make sure you have the environment variable ``ARLAS_PERSISTENCE_ENGINE`` set to **"hibernate"** with the double quote.
   - Google Cloud Firestore : think to set GOOGLE_APPLICATION_CREDENTIALS as environement variable.
  
