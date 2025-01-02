@@ -521,29 +521,29 @@ public class PersistenceIT {
 
     @Test
     public void test23PublicDataAccess() {
-        id = createData(technical, "myPublicData", List.of(PUBLIC), Collections.EMPTY_LIST)
+        String id1 = createData(technical, "myPublicData", List.of(PUBLIC), Collections.EMPTY_LIST)
                 .then().statusCode(201)
                 .body("doc_value", equalTo("{\"age\":1}"))
                 .extract().jsonPath().get("id");
 
         
 
-        getData(technical, id).then().statusCode(200);
-        getData(otherCompany, id).then().statusCode(200);
-        getDataAsAnonymous(id).then().statusCode(200);
+        getData(technical, id1).then().statusCode(200);
+        getData(otherCompany, id1).then().statusCode(200);
+        getDataAsAnonymous(id1).then().statusCode(200);
     }
 
     @Test
     public void test24OrganisationDataAccess() {
-        id = createData(technical, "myOrgaData", List.of(ALL), Collections.EMPTY_LIST)
+        String id2 = createData(technical, "myOrgaData", List.of(ALL), Collections.EMPTY_LIST)
                 .then().statusCode(201)
                 .body("doc_value", equalTo("{\"age\":1}"))
                 .extract().jsonPath().get("id");
 
-        getData(technical, id).then().statusCode(200);
-        getData(commercial, id).then().statusCode(200);
-        getData(otherCompany, id).then().statusCode(403);
-        getDataAsAnonymous(id).then().statusCode(403);
+        getData(technical, id2).then().statusCode(200);
+        getData(commercial, id2).then().statusCode(200);
+        getData(otherCompany, id2).then().statusCode(403);
+        getDataAsAnonymous(id2).then().statusCode(403);
     }
 
     protected RequestSpecification givenForUser(UserIdentity userIdentity) {

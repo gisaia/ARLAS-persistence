@@ -117,13 +117,13 @@ public interface PersistenceService {
         return isPublic(data) || 
                 (
                     !idp.isAnonymous &&
-                    idp.organisation.contains(data.getDocOrganization()) && /** Always true in case of an KeyCloak Policy inforcer, as idp and doc organisations are both empty strings "". */
+                    idp.organisation.contains(data.getDocOrganization()) && /** Always true in case of a KeyCloak Policy enforcer, as idp and doc organisations are both empty strings "". */
                     (data.getDocOwner().equals(idp.userId) || intersect(idp.groups, data.getDocReaders()))
                 );
     }
 
 /**
-     * A user can read data if:
+     * A user can write data if:
      *  User is authenticated 
      *      AND
      *  User belongs to the doc's organisation in IAM mode
@@ -136,7 +136,7 @@ public interface PersistenceService {
      */
     static boolean isWriterOnData(IdentityParam idp, Data data) {
         return  !idp.isAnonymous &&
-                idp.organisation.contains(data.getDocOrganization()) && /** Always true in case of an KeyCloak Policy inforcer, as idp and doc organisations are both empty strings "". */
+                idp.organisation.contains(data.getDocOrganization()) && /** Always true in case of a KeyCloak Policy enforcer, as idp and doc organisations are both empty strings "". */
                 (data.getDocOwner().equals(idp.userId) 
                     || intersect(idp.groups, data.getDocWriters()));
     }
