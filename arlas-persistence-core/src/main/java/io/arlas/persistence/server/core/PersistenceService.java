@@ -119,7 +119,9 @@ public interface PersistenceService {
                     !idp.isAnonymous &&
                     idp.organisation.contains(data.getDocOrganization()) && /** Always true in case of a KeyCloak Policy enforcer, as idp and doc organisations are both empty strings "". */
                     (data.getDocOwner().equals(idp.userId) || intersect(idp.groups, data.getDocReaders()))
-                );
+                )
+                ||
+                (idp.isAnonymous && data.getDocOwner().equals(idp.userId));
     }
 
 /**
@@ -138,6 +140,7 @@ public interface PersistenceService {
         return  !idp.isAnonymous &&
                 idp.organisation.contains(data.getDocOrganization()) && /** Always true in case of a KeyCloak Policy enforcer, as idp and doc organisations are both empty strings "". */
                 (data.getDocOwner().equals(idp.userId) 
-                    || intersect(idp.groups, data.getDocWriters()));
+                    || intersect(idp.groups, data.getDocWriters())) ||
+                (idp.isAnonymous && data.getDocOwner().equals(idp.userId));
     }
 }
