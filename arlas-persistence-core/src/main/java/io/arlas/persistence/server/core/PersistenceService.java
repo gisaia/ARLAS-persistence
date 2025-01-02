@@ -18,19 +18,19 @@
  */
 package io.arlas.persistence.server.core;
 
-import io.arlas.commons.exceptions.ArlasException;
-import io.arlas.filter.core.IdentityParam;
-import io.arlas.persistence.server.exceptions.ForbiddenException;
-import io.arlas.persistence.server.model.Data;
-import io.arlas.persistence.server.utils.SortOrder;
-import org.apache.commons.lang3.tuple.Pair;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.tuple.Pair;
+
+import io.arlas.commons.exceptions.ArlasException;
 import static io.arlas.filter.config.TechnicalRoles.GROUP_PUBLIC;
+import io.arlas.filter.core.IdentityParam;
+import io.arlas.persistence.server.exceptions.ForbiddenException;
+import io.arlas.persistence.server.model.Data;
+import io.arlas.persistence.server.utils.SortOrder;
 
 public interface PersistenceService {
 
@@ -98,13 +98,46 @@ public interface PersistenceService {
         return data.getDocReaders().contains(GROUP_PUBLIC) || data.getDocWriters().contains(GROUP_PUBLIC);
     }
 
+    /**
+     * A user can read data if:
+     * - data is public
+     * - OR (
+     *      User is authenticated 
+     *          AND
+     *      User belongs to the doc's organisation in IAM mode
+     *          AND
+     *      (  
+     *          User is owner of the doc 
+     *              OR 
+     *          User belongs to the doc readers.
+     *      )
+     *   ).
+     */
     static boolean isReaderOnData(IdentityParam idp, Data data) {
-        return (idp.isAnonymous || idp.organisation.contains(data.getDocOrganization())) &&
-                (data.getDocOwner().equals(idp.userId) || intersect(idp.groups, data.getDocReaders()));
+        return isPublic(data) || 
+                (
+                    !idp.isAnonymous &&
+                    idp.organisation.contains(data.getDocOrganization()) && /** Always true in case of an KeyCloak Policy inforcer, as idp and doc organisations are both empty strings "". */
+                    (data.getDocOwner().equals(idp.userId) || intersect(idp.groups, data.getDocReaders()))
+                );
     }
 
+/**
+     * A user can read data if:
+     *  User is authenticated 
+     *      AND
+     *  User belongs to the doc's organisation in IAM mode
+     *      AND
+     *  (  
+     *     User is owner of the doc 
+     *         OR 
+     *     User belongs to the doc writers.
+     *  ).
+     */
     static boolean isWriterOnData(IdentityParam idp, Data data) {
-        return (idp.isAnonymous || idp.organisation.contains(data.getDocOrganization())) &&
-                (data.getDocOwner().equals(idp.userId) || intersect(idp.groups, data.getDocWriters()));
+        return  !idp.isAnonymous &&
+                idp.organisation.contains(data.getDocOrganization()) && /** Always true in case of an KeyCloak Policy inforcer, as idp and doc organisations are both empty strings "". */
+                (data.getDocOwner().equals(idp.userId) 
+                    || intersect(idp.groups, data.getDocWriters()));
     }
 }

@@ -19,20 +19,25 @@
 
 package io.arlas.persistence.rest;
 
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
-import io.restassured.specification.RequestSpecification;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static org.hamcrest.Matchers.equalTo;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import java.util.*;
-
-import static io.restassured.RestAssured.delete;
+import io.restassured.RestAssured;
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class PersistenceIT {
@@ -514,6 +519,33 @@ public class PersistenceIT {
 
     }
 
+    @Test
+    public void test23PublicDataAccess() {
+        id = createData(technical, "myPublicData", List.of(PUBLIC), Collections.EMPTY_LIST)
+                .then().statusCode(201)
+                .body("doc_value", equalTo("{\"age\":1}"))
+                .extract().jsonPath().get("id");
+
+        
+
+        getData(technical, id).then().statusCode(200);
+        getData(otherCompany, id).then().statusCode(200);
+        getDataAsAnonymous(id).then().statusCode(200);
+    }
+
+    @Test
+    public void test24OrganisationDataAccess() {
+        id = createData(technical, "myOrgaData", List.of(ALL), Collections.EMPTY_LIST)
+                .then().statusCode(201)
+                .body("doc_value", equalTo("{\"age\":1}"))
+                .extract().jsonPath().get("id");
+
+        getData(technical, id).then().statusCode(200);
+        getData(commercial, id).then().statusCode(200);
+        getData(otherCompany, id).then().statusCode(403);
+        getDataAsAnonymous(id).then().statusCode(403);
+    }
+
     protected RequestSpecification givenForUser(UserIdentity userIdentity) {
         return given().header(userHeader, userIdentity.userId)
                 .header(groupsHeader, userIdentity.groups)
@@ -543,6 +575,13 @@ public class PersistenceIT {
 
     protected Response getData(UserIdentity userIdentity, String id) {
         return givenForUser(userIdentity)
+                .pathParam("id", id)
+                .when()
+                .get(arlasAppPath.concat("resource/id/{id}"));
+    }
+
+    protected Response getDataAsAnonymous(String id) {
+        return given()
                 .pathParam("id", id)
                 .when()
                 .get(arlasAppPath.concat("resource/id/{id}"));
