@@ -16,26 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package io.arlas.persistence.rest;
 
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
-import io.restassured.specification.RequestSpecification;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static org.hamcrest.Matchers.equalTo;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import java.util.*;
-
-import static io.restassured.RestAssured.delete;
+import io.restassured.RestAssured;
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class PersistenceIT {
+
     protected static String arlasAppPath;
     private static final String userHeader;
     private static final String organizationHeader;
@@ -62,9 +67,9 @@ public class PersistenceIT {
 
     static {
         admin = new UserIdentity("admin", String.join(",", ALL, TECHNICAL, SALES, ADMIN, PUBLIC), "company1");
-        technical = new UserIdentity("technical", String.join(",",ALL, TECHNICAL, PUBLIC), "company1");
-        commercial = new UserIdentity("commercial", String.join(",",ALL, SALES, PUBLIC), "company1");
-        otherCompany = new UserIdentity("other", String.join(",",ALL2, SALES2, PUBLIC), "company2");
+        technical = new UserIdentity("technical", String.join(",", ALL, TECHNICAL, PUBLIC), "company1");
+        commercial = new UserIdentity("commercial", String.join(",", ALL, SALES, PUBLIC), "company1");
+        otherCompany = new UserIdentity("other", String.join(",", ALL2, SALES2, PUBLIC), "company2");
         anonymous = new UserIdentity("anonymous", PUBLIC, "");
 
         publicProfile = new UserIdentity("public", String.join(",", PUBLIC), "company1");
@@ -81,13 +86,16 @@ public class PersistenceIT {
         RestAssured.basePath = "";
         String arlasPrefix = Optional.ofNullable(System.getenv("ARLAS_PERSISTENCE_PREFIX")).orElse("/arlas_persistence_server");
         arlasAppPath = Optional.ofNullable(System.getenv("ARLAS_PERSISTENCE_APP_PATH")).orElse("/");
-        if (arlasAppPath.endsWith("/"))
+        if (arlasAppPath.endsWith("/")) {
             arlasAppPath = arlasAppPath.substring(0, arlasAppPath.length() - 1);
+        }
         arlasAppPath = arlasAppPath + arlasPrefix;
-        if (arlasAppPath.endsWith("//"))
+        if (arlasAppPath.endsWith("//")) {
             arlasAppPath = arlasAppPath.substring(0, arlasAppPath.length() - 1);
-        if (!arlasAppPath.endsWith("/"))
+        }
+        if (!arlasAppPath.endsWith("/")) {
             arlasAppPath = arlasAppPath + "/persist/";
+        }
     }
 
     @Test
@@ -107,7 +115,6 @@ public class PersistenceIT {
                 .body("doc_value", equalTo("{\"age\":1}"))
                 .extract().jsonPath().get("id");
     }
-
 
     @Test
     public void test03GetData() {
@@ -249,7 +256,6 @@ public class PersistenceIT {
         getData(commercial, id).then().statusCode(200).contentType(ContentType.JSON)
                 .body("updatable", equalTo(true));
 
-
     }
 
     @Test
@@ -341,7 +347,6 @@ public class PersistenceIT {
                 .contentType(ContentType.JSON)
                 .extract().jsonPath().get("last_update_date");
 
-
         givenForUser(commercial)
                 .contentType("application/json")
                 .body(generateData(4))
@@ -361,7 +366,6 @@ public class PersistenceIT {
                 .put(arlasAppPath.concat("resource/id/") + id)
                 .then().statusCode(409);
     }
-
 
     @Test
     public void test13DeleteWithJustReadAccess() {
@@ -398,6 +402,9 @@ public class PersistenceIT {
                 .body("doc_value", equalTo("{\"age\":1}"))
                 .extract().jsonPath().get("id");
 
+        // String idanon = createDataAsAnonymous("key", List.of(PUBLIC), List.of(PUBLIC))
+        //         .then().statusCode(201).extract().jsonPath().get("id");
+
         //return anonymous data
         given()
                 .pathParam("id", idanon)
@@ -411,7 +418,7 @@ public class PersistenceIT {
 
     @Test
     public void test17GetGroups() {
-        List<String> groups =  given().header(userHeader, admin.userId)
+        List<String> groups = given().header(userHeader, admin.userId)
                 .header(groupsHeader, admin.groups)
                 .header(organizationHeader, admin.organization)
                 .pathParam("zone", dataZone)
@@ -501,7 +508,6 @@ public class PersistenceIT {
                 .body("count", equalTo(2))
                 .body("total", equalTo(2));
 
-
         deleteData(technical, id1);
         deleteData(technical, id2);
         deleteData(otherCompany, id3);
@@ -512,6 +518,31 @@ public class PersistenceIT {
         createData(technical, "privateDocument", List.of(TECHNICAL), List.of(PUBLIC))
                 .then().statusCode(403);
 
+    }
+
+    @Test
+    public void test23PublicDataAccess() {
+        String id1 = createData(technical, "myPublicData", List.of(PUBLIC), Collections.EMPTY_LIST)
+                .then().statusCode(201)
+                .body("doc_value", equalTo("{\"age\":1}"))
+                .extract().jsonPath().get("id");
+
+        getData(technical, id1).then().statusCode(200);
+        getData(otherCompany, id1).then().statusCode(200);
+        getDataAsAnonymous(id1).then().statusCode(200);
+    }
+
+    @Test
+    public void test24OrganisationDataAccess() {
+        String id2 = createData(technical, "myOrgaData", List.of(ALL), Collections.EMPTY_LIST)
+                .then().statusCode(201)
+                .body("doc_value", equalTo("{\"age\":1}"))
+                .extract().jsonPath().get("id");
+
+        getData(technical, id2).then().statusCode(200);
+        getData(commercial, id2).then().statusCode(200);
+        getData(otherCompany, id2).then().statusCode(403);
+        getDataAsAnonymous(id2).then().statusCode(403);
     }
 
     protected RequestSpecification givenForUser(UserIdentity userIdentity) {
@@ -531,10 +562,29 @@ public class PersistenceIT {
                 .pathParam("zone", dataZone)
                 .pathParam("key", key);
 
-        if(!readers.isEmpty())
+        if (!readers.isEmpty()) {
             request = request.queryParam("readers", readers);
-        if(!writers.isEmpty())
+        }
+        if (!writers.isEmpty()) {
             request = request.queryParam("writers", writers);
+        }
+
+        return request.contentType("application/json")
+                .body(generateData(1))
+                .post(arlasAppPath.concat("resource/{zone}/{key}"));
+    }
+
+    protected Response createDataAsAnonymous(String key, List<String> readers, List<String> writers) {
+        RequestSpecification request = given()
+                .pathParam("zone", dataZone)
+                .pathParam("key", key);
+
+        if (!readers.isEmpty()) {
+            request = request.queryParam("readers", readers);
+        }
+        if (!writers.isEmpty()) {
+            request = request.queryParam("writers", writers);
+        }
 
         return request.contentType("application/json")
                 .body(generateData(1))
@@ -548,6 +598,12 @@ public class PersistenceIT {
                 .get(arlasAppPath.concat("resource/id/{id}"));
     }
 
+    protected Response getDataAsAnonymous(String id) {
+        return given()
+                .pathParam("id", id)
+                .when()
+                .get(arlasAppPath.concat("resource/id/{id}"));
+    }
 
     protected void listEmpty(UserIdentity userIdentity) {
         givenForUser(userIdentity)
