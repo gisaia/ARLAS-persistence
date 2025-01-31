@@ -112,6 +112,11 @@ public interface PersistenceService {
      *          User belongs to the doc readers.
      *      )
      *   ).
+     * - OR (
+     *      User is not authenticated 
+     *          AND
+     *      User is owner of the doc 
+     *   ).
      */
     static boolean isReaderOnData(IdentityParam idp, Data data) {
         return isPublic(data) || 
@@ -126,15 +131,22 @@ public interface PersistenceService {
 
 /**
      * A user can write data if:
-     *  User is authenticated 
-     *      AND
-     *  User belongs to the doc's organisation in IAM mode
-     *      AND
-     *  (  
-     *     User is owner of the doc 
-     *         OR 
-     *     User belongs to the doc writers.
-     *  ).
+     *  (
+     *      User is authenticated 
+     *          AND
+     *      User belongs to the doc's organisation in IAM mode
+     *          AND
+     *      (  
+     *          User is owner of the doc 
+     *              OR 
+     *          User belongs to the doc readers.
+     *      )
+     *   ).
+     * - OR (
+     *      User is not authenticated 
+     *          AND
+     *      User is owner of the doc 
+     *   ).
      */
     static boolean isWriterOnData(IdentityParam idp, Data data) {
         return  !idp.isAnonymous &&
