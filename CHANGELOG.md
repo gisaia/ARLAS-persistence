@@ -1,6 +1,18 @@
 # Change Log
 
-## [v26.0.0](https://github.com/gisaia/arlas-persistence/tree/v26.0.0) (2024-08-21)
+## [v27.0.0](https://github.com/gisaia/arlas-persistence/tree/v27.0.0) (2025-01-31)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v26.0.1...v27.0.0)
+
+**Miscellaneous:**
+
+- Add send message on chat when release [\#120](https://github.com/gisaia/ARLAS-persistence/issues/120)
+
+## [v26.0.1](https://github.com/gisaia/arlas-persistence/tree/v26.0.1) (2025-01-02)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v26.0.0...v26.0.1)
+
+## [v26.0.0](https://github.com/gisaia/arlas-persistence/tree/v26.0.0) (2024-08-29)
 
 [Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v26.0.0-rc.1...v26.0.0)
 
