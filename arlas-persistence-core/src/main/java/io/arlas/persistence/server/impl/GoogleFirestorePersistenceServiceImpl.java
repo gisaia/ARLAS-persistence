@@ -62,10 +62,10 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
 
             try {
                 firestoreAdminClient.createIndexAsync(parent, Index.newBuilder()
-                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.docEntitiesColumn).setArrayConfig(Index.IndexField.ArrayConfig.CONTAINS).build())
-                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.organizationColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
-                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.zoneColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
-                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.lastUpdateDateColumn).setOrder(Index.IndexField.Order.DESCENDING).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.DOC_ENTITIES_COLUMN).setArrayConfig(Index.IndexField.ArrayConfig.CONTAINS).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.ORGANIZATION_COLUMN).setOrder(Index.IndexField.Order.ASCENDING).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.ZONE_COLUMN).setOrder(Index.IndexField.Order.ASCENDING).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.LAST_UPDATE_DATE_COLUMN).setOrder(Index.IndexField.Order.DESCENDING).build())
                         .setQueryScope(Index.QueryScope.COLLECTION)
                         .build()).get();
             } catch (AlreadyExistsException e) {
@@ -76,10 +76,10 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
 
             try {
                 firestoreAdminClient.createIndexAsync(parent, Index.newBuilder()
-                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.docEntitiesColumn).setArrayConfig(Index.IndexField.ArrayConfig.CONTAINS).build())
-                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.organizationColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
-                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.zoneColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
-                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.lastUpdateDateColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.DOC_ENTITIES_COLUMN).setArrayConfig(Index.IndexField.ArrayConfig.CONTAINS).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.ORGANIZATION_COLUMN).setOrder(Index.IndexField.Order.ASCENDING).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.ZONE_COLUMN).setOrder(Index.IndexField.Order.ASCENDING).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.LAST_UPDATE_DATE_COLUMN).setOrder(Index.IndexField.Order.ASCENDING).build())
                         .setQueryScope(Index.QueryScope.COLLECTION)
                         .build()).get();
             } catch (AlreadyExistsException e) {
@@ -90,9 +90,9 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
 
             try {
                 firestoreAdminClient.createIndexAsync(parent, Index.newBuilder()
-                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.docEntitiesColumn).setArrayConfig(Index.IndexField.ArrayConfig.CONTAINS).build())
-                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.zoneColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
-                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.lastUpdateDateColumn).setOrder(Index.IndexField.Order.DESCENDING).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.DOC_ENTITIES_COLUMN).setArrayConfig(Index.IndexField.ArrayConfig.CONTAINS).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.ZONE_COLUMN).setOrder(Index.IndexField.Order.ASCENDING).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.LAST_UPDATE_DATE_COLUMN).setOrder(Index.IndexField.Order.DESCENDING).build())
                         .setQueryScope(Index.QueryScope.COLLECTION)
                         .build()).get();
             } catch (AlreadyExistsException e) {
@@ -103,9 +103,9 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
 
             try {
                 firestoreAdminClient.createIndexAsync(parent, Index.newBuilder()
-                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.docEntitiesColumn).setArrayConfig(Index.IndexField.ArrayConfig.CONTAINS).build())
-                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.zoneColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
-                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.lastUpdateDateColumn).setOrder(Index.IndexField.Order.ASCENDING).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.DOC_ENTITIES_COLUMN).setArrayConfig(Index.IndexField.ArrayConfig.CONTAINS).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.ZONE_COLUMN).setOrder(Index.IndexField.Order.ASCENDING).build())
+                        .addFields(Index.IndexField.newBuilder().setFieldPath(Data.LAST_UPDATE_DATE_COLUMN).setOrder(Index.IndexField.Order.ASCENDING).build())
                         .setQueryScope(Index.QueryScope.COLLECTION)
                         .build()).get();
             } catch (AlreadyExistsException e) {
@@ -125,15 +125,15 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
             throw new NotFoundException("Doc not found with id: " + id);
         }
         return new Data(d.getId(),
-                d.getString(Data.keyColumn),
-                d.getString(Data.zoneColumn),
-                d.getString(Data.valueColumn),
-                d.getString(Data.ownerColumn),
-                d.getString(Data.organizationColumn),
-                (List<String>) d.get(Data.writersColumn),
-                (List<String>) d.get(Data.readersColumn),
-                (List<String>) d.get(Data.docEntitiesColumn),
-                d.getDate(Data.lastUpdateDateColumn)
+                d.getString(Data.DOC_KEY),
+                d.getString(Data.ZONE_COLUMN),
+                d.getString(Data.VALUE_COLUMN),
+                d.getString(Data.OWNER_COLUMN),
+                d.getString(Data.ORGANIZATION_COLUMN),
+                (List<String>) d.get(Data.WRITERS_COLUMN),
+                (List<String>) d.get(Data.READERS_COLUMN),
+                (List<String>) d.get(Data.DOC_ENTITIES_COLUMN),
+                d.getDate(Data.LAST_UPDATE_DATE_COLUMN)
         );
     }
 
@@ -142,36 +142,36 @@ public class GoogleFirestorePersistenceServiceImpl implements PersistenceService
         List<String> entities =  new ArrayList<>(identityParam.groups);
         entities.add(identityParam.userId);
         Filter filter = Filter.or(
-                Filter.arrayContainsAny(Data.docEntitiesColumn, List.of(GROUP_PUBLIC)),
+                Filter.arrayContainsAny(Data.DOC_ENTITIES_COLUMN, List.of(GROUP_PUBLIC)),
                 Filter.and(
-                        Filter.inArray(Data.organizationColumn, identityParam.organisation),
-                        Filter.arrayContainsAny(Data.docEntitiesColumn, entities)
+                        Filter.inArray(Data.ORGANIZATION_COLUMN, identityParam.organisation),
+                        Filter.arrayContainsAny(Data.DOC_ENTITIES_COLUMN, entities)
                 ));
         if(key != null){
             filter = Filter.and(
                     Filter.or(
-                            Filter.arrayContainsAny(Data.docEntitiesColumn, List.of(GROUP_PUBLIC)),
+                            Filter.arrayContainsAny(Data.DOC_ENTITIES_COLUMN, List.of(GROUP_PUBLIC)),
                             Filter.and(
-                                    Filter.inArray(Data.organizationColumn, identityParam.organisation),
-                                    Filter.arrayContainsAny(Data.docEntitiesColumn, entities)
+                                    Filter.inArray(Data.ORGANIZATION_COLUMN, identityParam.organisation),
+                                    Filter.arrayContainsAny(Data.DOC_ENTITIES_COLUMN, entities)
                             ),
                     // We can't make %like%  request with firestore
-                    Filter.equalTo(Data.keyColumn, key)
+                    Filter.equalTo(Data.DOC_KEY, key)
             ));
         }
         try {
             return Pair.of(
                     (long) db.collection(this.collection)
-                            .whereEqualTo(Data.zoneColumn, zone)
+                            .whereEqualTo(Data.ZONE_COLUMN, zone)
                             .where(filter)
                             .get()
                             .get()
                             .size(),
 
                     db.collection(this.collection)
-                            .whereEqualTo(Data.zoneColumn, zone)
+                            .whereEqualTo(Data.ZONE_COLUMN, zone)
                             .where(filter)
-                            .orderBy(Data.lastUpdateDateColumn, order == SortOrder.ASC ? Query.Direction.ASCENDING : Query.Direction.DESCENDING)
+                            .orderBy(Data.LAST_UPDATE_DATE_COLUMN, order == SortOrder.ASC ? Query.Direction.ASCENDING : Query.Direction.DESCENDING)
                             .limit(size)
                             .offset((page - 1) * size)
                             .get()

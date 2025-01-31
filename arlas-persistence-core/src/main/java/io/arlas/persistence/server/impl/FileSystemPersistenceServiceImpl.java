@@ -44,6 +44,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class FileSystemPersistenceServiceImpl implements PersistenceService {
+    public static final String DATA_WITH_ID = "Data with id ";
+    public static final String NOT_FOUND = " not found.";
     private final String storageFolder;
     private final static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -89,7 +91,7 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
                 throw new ForbiddenException("You are not authorized to view this resource");
             }
         } else {
-            throw new NotFoundException("Data with id " + id + " not found.");
+            throw new NotFoundException(DATA_WITH_ID + id + NOT_FOUND);
         }
     }
 
@@ -145,7 +147,7 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
                 throw new ForbiddenException("You are not authorized to update this resource");
             }
         } else {
-            throw new NotFoundException("Data with id " + id + " not found.");
+            throw new NotFoundException(DATA_WITH_ID + id + NOT_FOUND);
         }
     }
 
@@ -164,7 +166,7 @@ public class FileSystemPersistenceServiceImpl implements PersistenceService {
                 throw new ForbiddenException("You are not authorized to delete this resource");
             }
         } else {
-            throw new NotFoundException("Data with id " + id + " not found.");
+            throw new NotFoundException(DATA_WITH_ID + id + NOT_FOUND);
         }
     }
 

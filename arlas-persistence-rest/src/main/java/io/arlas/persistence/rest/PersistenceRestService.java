@@ -340,7 +340,7 @@ public class PersistenceRestService {
                 persistenceService.create(zone, key, identityparam, readersSet, writersSet, value), identityparam);
         return Response.created(uriInfo.getRequestUriBuilder().build())
                 .entity(halService.dataWithLinks(dataWithLinks, uriInfo, identityparam))
-                .type("application/json")
+                .type(MediaType.APPLICATION_JSON)
                 .build();
     }
 
@@ -410,7 +410,7 @@ public class PersistenceRestService {
                 persistenceService.update(id, key, identityparam, readersSet, writersSet, value, lastUpdateDate), identityparam);
         return Response.created(uriInfo.getRequestUriBuilder().build())
                 .entity(halService.dataWithLinks(dataWithLinks, uriInfo, identityparam))
-                .type("application/json")
+                .type(MediaType.APPLICATION_JSON)
                 .build();
     }
 
@@ -452,7 +452,7 @@ public class PersistenceRestService {
         IdentityParam identityparam = getIdentityParam(headers);
         DataWithLinks dataWithLinks = new DataWithLinks(persistenceService.deleteById(id, identityparam), identityparam);
         return Response.accepted().entity(halService.dataWithLinks(dataWithLinks, uriInfo, identityparam))
-                .type("application/json")
+                .type(MediaType.APPLICATION_JSON)
                 .build();
     }
 

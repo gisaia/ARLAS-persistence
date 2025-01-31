@@ -37,44 +37,44 @@ import java.util.Objects;
 @Table(name = "user_data", indexes={@Index(columnList="docKey,docZone,docOrganization",name="doc_key_idx_orga")})
 @JsonSnakeCase
 public class Data {
-    public static final String idColumn = "id";
-    public static final String keyColumn = "docKey";
-    public static final String zoneColumn = "docZone";
-    public static final String lastUpdateDateColumn = "lastUpdateDate";
-    public static final String valueColumn = "docValue";
-    public static final String ownerColumn = "docOwner";
-    public static final String organizationColumn = "docOrganization";
-    public static final String writersColumn = "docWriters";
-    public static final String readersColumn = "docReaders";
-    public static final String docEntitiesColumn = "docEntities";
+    public static final String ID_COLUMN = "id";
+    public static final String DOC_KEY = "docKey";
+    public static final String ZONE_COLUMN = "docZone";
+    public static final String LAST_UPDATE_DATE_COLUMN = "lastUpdateDate";
+    public static final String VALUE_COLUMN = "docValue";
+    public static final String OWNER_COLUMN = "docOwner";
+    public static final String ORGANIZATION_COLUMN = "docOrganization";
+    public static final String WRITERS_COLUMN = "docWriters";
+    public static final String READERS_COLUMN = "docReaders";
+    public static final String DOC_ENTITIES_COLUMN = "docEntities";
 
     @Id
-    @Column(name = idColumn)
+    @Column(name = ID_COLUMN)
     private String id;
 
     @NotNull
-    @Column(name = keyColumn)
+    @Column(name = DOC_KEY)
     private String docKey;
 
     @NotNull
-    @Column(name = zoneColumn)
+    @Column(name = ZONE_COLUMN)
     private String docZone;
 
     @NotNull
-    @Column(name = lastUpdateDateColumn)
+    @Column(name = LAST_UPDATE_DATE_COLUMN)
     private Date lastUpdateDate;
 
     @NotNull
     @Type(JsonBinaryType.class)
-    @Column(name = valueColumn, columnDefinition = "json")
+    @Column(name = VALUE_COLUMN, columnDefinition = "json")
     private String docValue;
 
     @NotNull
-    @Column(name = ownerColumn)
+    @Column(name = OWNER_COLUMN)
     private String docOwner;
 
     @NotNull
-    @Column(name = organizationColumn)
+    @Column(name = ORGANIZATION_COLUMN)
     private String docOrganization;
 
     @Transient

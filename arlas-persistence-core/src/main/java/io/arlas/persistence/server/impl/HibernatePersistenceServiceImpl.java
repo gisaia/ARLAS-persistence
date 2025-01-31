@@ -50,14 +50,14 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
     @Override
     public Pair<Long, List<Data>> list(String zone, IdentityParam identityParam, Integer size, Integer page, SortOrder order, String key) {
         String from = " from Data ud "
-                + " where ud." + Data.zoneColumn + "=:zone"
-                + " and ((ud." + Data.organizationColumn + " in :organization"
-                + "   and (ud." + Data.ownerColumn + "=:userId"
+                + " where ud." + Data.ZONE_COLUMN + "=:zone"
+                + " and ((ud." + Data.ORGANIZATION_COLUMN + " in :organization"
+                + "   and (ud." + Data.OWNER_COLUMN + "=:userId"
                 + "   or " + getGroupsRequest(identityParam.groups) + "))"
                 + " or (" + getGroupsRequest(List.of(GROUP_PUBLIC)) + "))";
 
         if(key != null){
-            from = from  + " and ud." + Data.keyColumn + " ilike :searchKey";
+            from = from  + " and ud." + Data.DOC_KEY + " ilike :searchKey";
         }
         Query<Long> countQuery = currentSession().createQuery("SELECT count(ud) " + from, Long.class)
                 .setParameter("zone", zone)
@@ -69,7 +69,7 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
         }
         Long totalCount = countQuery.uniqueResult();
         Query<Data> query = currentSession().createQuery(from
-                        + " order by ud." + Data.lastUpdateDateColumn + " " + order.toString(), Data.class)
+                        + " order by ud." + Data.LAST_UPDATE_DATE_COLUMN + " " + order.toString(), Data.class)
                 .setParameter("zone", zone)
                 .setParameter("organization", identityParam.organisation)
                 .setParameter("userId", identityParam.userId)
@@ -155,8 +155,8 @@ public class HibernatePersistenceServiceImpl extends AbstractDAO<Data> implement
 
     private String getGroupsRequest(List<String> groups) {
         return groups.stream()
-                .map(group -> "'" + group.trim() + "' member of ud." + Data.readersColumn + " or " +
-                        "'" + group.trim() + "' member of ud." + Data.writersColumn)
+                .map(group -> "'" + group.trim() + "' member of ud." + Data.READERS_COLUMN + " or " +
+                        "'" + group.trim() + "' member of ud." + Data.WRITERS_COLUMN)
                 .collect(Collectors.joining(" or "));
     }
 }

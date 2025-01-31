@@ -42,9 +42,9 @@ import io.restassured.specification.RequestSpecification;
 public class PersistenceIT {
 
     protected static String arlasAppPath;
-    private static final String userHeader;
-    private static final String organizationHeader;
-    private static final String groupsHeader;
+    private static final String USER_HEADER;
+    private static final String ORGANIZATION_HEADER;
+    private static final String GROUPS_HEADER;
 
     private static final UserIdentity admin;
     private static final UserIdentity technical;
@@ -61,7 +61,7 @@ public class PersistenceIT {
     private static final String SALES2 = "group/user_pref/arlas_company2/sales";
     private static final String PUBLIC = "group/public";
 
-    private static final String dataZone;
+    private static final String DATA_ZONE;
     private static String id;
     private static final List<String> idBis = new ArrayList<>();
 
@@ -74,11 +74,11 @@ public class PersistenceIT {
 
         publicProfile = new UserIdentity("public", String.join(",", PUBLIC), "company1");
 
-        userHeader = Optional.ofNullable(System.getenv("ARLAS_USER_HEADER")).orElse("arlas-user");
-        organizationHeader = Optional.ofNullable(System.getenv("ARLAS_ORGANIZATION_HEADER")).orElse("arlas-organization");
-        groupsHeader = Optional.ofNullable(System.getenv("ARLAS_GROUPS_HEADER")).orElse("arlas-groups");
+        USER_HEADER = Optional.ofNullable(System.getenv("ARLAS_USER_HEADER")).orElse("arlas-user");
+        ORGANIZATION_HEADER = Optional.ofNullable(System.getenv("ARLAS_ORGANIZATION_HEADER")).orElse("arlas-organization");
+        GROUPS_HEADER = Optional.ofNullable(System.getenv("ARLAS_GROUPS_HEADER")).orElse("arlas-groups");
 
-        dataZone = Optional.ofNullable(System.getenv("ARLAS_PERSISTENCE_DATA_TYPE")).orElse("user_pref");
+        DATA_ZONE = Optional.ofNullable(System.getenv("ARLAS_PERSISTENCE_DATA_TYPE")).orElse("user_pref");
         String arlasHost = Optional.ofNullable(System.getenv("ARLAS_PERSISTENCE_HOST")).orElse("localhost");
         int arlasPort = Integer.parseInt(Optional.ofNullable(System.getenv("ARLAS_PERSISTENCE_PORT")).orElse("9997"));
         RestAssured.baseURI = "http://" + arlasHost;
@@ -123,7 +123,7 @@ public class PersistenceIT {
                 .contentType(ContentType.JSON)
                 .body("doc_value", equalTo("{\"age\":1}"))
                 .body("doc_key", equalTo("myFirstDocument"))
-                .body("doc_zone", equalTo(dataZone));
+                .body("doc_zone", equalTo(DATA_ZONE));
     }
 
     @Test
@@ -146,7 +146,7 @@ public class PersistenceIT {
                 .contentType(ContentType.JSON)
                 .body("doc_value", equalTo("{\"age\":2}"))
                 .body("doc_key", equalTo("myFirstDocument"))
-                .body("doc_zone", equalTo(dataZone));
+                .body("doc_zone", equalTo(DATA_ZONE));
     }
 
     @Test
@@ -159,7 +159,7 @@ public class PersistenceIT {
     public void test06ListWithPagination() {
         for (int i = 0; i < 7; i++) {
             idBis.add(givenForUser(technical)
-                    .pathParam("zone", dataZone)
+                    .pathParam("zone", DATA_ZONE)
                     .pathParam("key", "document".concat(String.valueOf(i)))
                     .contentType("application/json")
                     .body(generateData(i))
@@ -170,7 +170,7 @@ public class PersistenceIT {
         }
 
         givenForUser(technical)
-                .pathParam("zone", dataZone)
+                .pathParam("zone", DATA_ZONE)
                 .param("order", "asc")
                 .param("size", "2")
                 .param("page", "4")
@@ -182,7 +182,7 @@ public class PersistenceIT {
                 .body("total", equalTo(7));
 
         givenForUser(technical)
-                .pathParam("zone", dataZone)
+                .pathParam("zone", DATA_ZONE)
                 .param("order", "asc")
                 .param("size", "10")
                 .param("page", "1")
@@ -195,7 +195,7 @@ public class PersistenceIT {
                 .body("total", equalTo(7));
 
         givenForUser(technical)
-                .pathParam("zone", dataZone)
+                .pathParam("zone", DATA_ZONE)
                 .param("order", "asc")
                 .param("size", "10")
                 .param("page", "1")
@@ -208,7 +208,7 @@ public class PersistenceIT {
                 .body("total", equalTo(1));
 
         givenForUser(technical)
-                .pathParam("zone", dataZone)
+                .pathParam("zone", DATA_ZONE)
                 .param("order", "asc")
                 .param("size", "10")
                 .param("page", "1")
@@ -240,7 +240,7 @@ public class PersistenceIT {
         listEmpty(otherCompany);
         listEmpty(anonymous);
         givenForUser(commercial)
-                .pathParam("zone", dataZone)
+                .pathParam("zone", DATA_ZONE)
                 .param("order", "asc")
                 .param("size", "1")
                 .param("page", "1")
@@ -268,7 +268,7 @@ public class PersistenceIT {
         listEmpty(otherCompany);
         listEmpty(anonymous);
         givenForUser(commercial)
-                .pathParam("zone", dataZone)
+                .pathParam("zone", DATA_ZONE)
                 .param("order", "asc")
                 .param("size", "10")
                 .param("page", "1")
@@ -280,7 +280,7 @@ public class PersistenceIT {
                 .body("total", equalTo(2));
 
         givenForUser(technical)
-                .pathParam("zone", dataZone)
+                .pathParam("zone", DATA_ZONE)
                 .param("order", "asc")
                 .param("size", "10")
                 .param("page", "1")
@@ -418,10 +418,10 @@ public class PersistenceIT {
 
     @Test
     public void test17GetGroups() {
-        List<String> groups = given().header(userHeader, admin.userId)
-                .header(groupsHeader, admin.groups)
-                .header(organizationHeader, admin.organization)
-                .pathParam("zone", dataZone)
+        List<String> groups = given().header(USER_HEADER, admin.userId)
+                .header(GROUPS_HEADER, admin.groups)
+                .header(ORGANIZATION_HEADER, admin.organization)
+                .pathParam("zone", DATA_ZONE)
                 .contentType("application/json")
                 .get(arlasAppPath.concat("groups/{zone}"))
                 .then().statusCode(200).extract().jsonPath().get();
@@ -473,7 +473,7 @@ public class PersistenceIT {
                 .extract().jsonPath().get("id");
 
         givenForUser(technical)
-                .pathParam("zone", dataZone)
+                .pathParam("zone", DATA_ZONE)
                 .param("order", "asc")
                 .param("size", "10")
                 .param("page", "1")
@@ -485,7 +485,7 @@ public class PersistenceIT {
                 .body("total", equalTo(3));
 
         givenForUser(otherCompany)
-                .pathParam("zone", dataZone)
+                .pathParam("zone", DATA_ZONE)
                 .param("order", "asc")
                 .param("size", "10")
                 .param("page", "1")
@@ -497,7 +497,7 @@ public class PersistenceIT {
                 .body("total", equalTo(2));
 
         givenForUser(anonymous)
-                .pathParam("zone", dataZone)
+                .pathParam("zone", DATA_ZONE)
                 .param("order", "asc")
                 .param("size", "10")
                 .param("page", "1")
@@ -546,9 +546,9 @@ public class PersistenceIT {
     }
 
     protected RequestSpecification givenForUser(UserIdentity userIdentity) {
-        return given().header(userHeader, userIdentity.userId)
-                .header(groupsHeader, userIdentity.groups)
-                .header(organizationHeader, userIdentity.organization);
+        return given().header(USER_HEADER, userIdentity.userId)
+                .header(GROUPS_HEADER, userIdentity.groups)
+                .header(ORGANIZATION_HEADER, userIdentity.organization);
     }
 
     protected Map<String, Object> generateData(Integer value) {
@@ -559,7 +559,7 @@ public class PersistenceIT {
 
     protected Response createData(UserIdentity userIdentity, String key, List<String> readers, List<String> writers) {
         RequestSpecification request = givenForUser(userIdentity)
-                .pathParam("zone", dataZone)
+                .pathParam("zone", DATA_ZONE)
                 .pathParam("key", key);
 
         if (!readers.isEmpty()) {
@@ -576,7 +576,7 @@ public class PersistenceIT {
 
     protected Response createDataAsAnonymous(String key, List<String> readers, List<String> writers) {
         RequestSpecification request = given()
-                .pathParam("zone", dataZone)
+                .pathParam("zone", DATA_ZONE)
                 .pathParam("key", key);
 
         if (!readers.isEmpty()) {
@@ -607,7 +607,7 @@ public class PersistenceIT {
 
     protected void listEmpty(UserIdentity userIdentity) {
         givenForUser(userIdentity)
-                .pathParam("zone", dataZone)
+                .pathParam("zone", DATA_ZONE)
                 .param("order", "asc")
                 .param("size", "1")
                 .param("page", "1")
