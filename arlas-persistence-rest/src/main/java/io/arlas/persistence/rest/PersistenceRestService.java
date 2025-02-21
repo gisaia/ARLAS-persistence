@@ -83,7 +83,7 @@ import jakarta.ws.rs.core.UriInfo;
                 description = "Persistence REST services.",
                 license = @License(name = "Apache 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0.html"),
                 contact = @Contact(email = "contact@gisaia.com", name = "Gisaia", url = "http://www.gisaia.com/"),
-                version = "26.0.2"),
+                version = "API_VERSION"),
         externalDocs = @ExternalDocumentation(
                 description = "API documentation",
                 url="https://docs.arlas.io/arlas-api/"),
