@@ -28,7 +28,7 @@ function clean_exit {
 	rm -rf target/tmp || echo "target/tmp already removed"
 	clean_docker
 	if [ "$RELEASE" == "YES" ]; then
-        git checkout -- .
+        git checkout feat/26.0.x
         mvn clean
     else
         echo "=> Skip discard changes";
@@ -145,12 +145,6 @@ echo "Dev     : ${ARLAS_DEV_VERSION}"
 #### Ongoing release process ############
 #########################################
 
-echo "=> Get develop branch"
-if [ "$RELEASE" == "YES" ]; then
-    git checkout develop
-    git pull origin develop
-else echo "=> Skip develop checkout"; fi
-
 echo "=> Update project version"
 mvn clean
 mvn versions:set -DnewVersion=${ARLAS_persistence_VERSION}
@@ -255,7 +249,6 @@ if [ "$RELEASE" == "YES" ]; then
     docker tag gisaia/arlas-persistence-server:latest gisaia/arlas-persistence-server:${ARLAS_persistence_VERSION}
     echo "=> Push arlas-persistence-server docker image"
     docker push gisaia/arlas-persistence-server:${ARLAS_persistence_VERSION}
-    docker push gisaia/arlas-persistence-server:latest
 else echo "=> Skip docker push image"; fi
 
 if [ "$RELEASE" == "YES" ]; then
@@ -280,18 +273,7 @@ if [ "$RELEASE" == "YES" ]; then
     git commit -a -m "release version ${ARLAS_persistence_VERSION}"
     git tag v${ARLAS_persistence_VERSION}
     git push origin v${ARLAS_persistence_VERSION}
-    git push origin develop
-
-    echo "=> Merge develop into master"
-    git checkout master
-    git pull origin master
-    git merge origin/develop
-    git push origin master
-
-    echo "=> Rebase develop"
-    git checkout develop
-    git pull origin develop
-    git rebase origin/master
+    git push origin feat/26.0.x
 else echo "=> Skip git push master"; fi
 
 echo "=> Update project version for develop"
@@ -306,5 +288,5 @@ if [ "$RELEASE" == "YES" ]; then
     git add openapi/openapi.json
     git add openapi/openapi.yaml
     git commit -a -m "development version ${ARLAS_DEV_VERSION}-SNAPSHOT"
-    git push origin develop
+    git push origin feat/26.0.x
 else echo "=> Skip git push develop"; fi
