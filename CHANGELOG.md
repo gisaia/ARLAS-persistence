@@ -1,11 +1,77 @@
 # Change Log
 
+## [v24.0.6](https://github.com/gisaia/arlas-persistence/tree/v24.0.6) (2025-08-29)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v26.0.3...v24.0.6)
+
+## [v26.0.3](https://github.com/gisaia/arlas-persistence/tree/v26.0.3) (2025-07-04)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v27.0.1...v26.0.3)
+
+## [v27.0.1](https://github.com/gisaia/arlas-persistence/tree/v27.0.1) (2025-02-24)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v26.0.2...v27.0.1)
+
+## [v26.0.2](https://github.com/gisaia/arlas-persistence/tree/v26.0.2) (2025-02-21)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v27.0.0...v26.0.2)
+
+## [v27.0.0](https://github.com/gisaia/arlas-persistence/tree/v27.0.0) (2025-01-31)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v26.0.1...v27.0.0)
+
+**Miscellaneous:**
+
+- Add send message on chat when release [\#120](https://github.com/gisaia/ARLAS-persistence/issues/120)
+
+## [v26.0.1](https://github.com/gisaia/arlas-persistence/tree/v26.0.1) (2025-01-02)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v26.0.0...v26.0.1)
+
+## [v26.0.0](https://github.com/gisaia/arlas-persistence/tree/v26.0.0) (2024-08-29)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v26.0.0-rc.1...v26.0.0)
+
+## [v26.0.0-rc.1](https://github.com/gisaia/arlas-persistence/tree/v26.0.0-rc.1) (2024-08-21)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v25.0.0...v26.0.0-rc.1)
+
+**Miscellaneous:**
+
+- Add the possibility to filter the documents of a given zone by name [\#109](https://github.com/gisaia/ARLAS-persistence/issues/109)
+
+## [v25.0.0](https://github.com/gisaia/arlas-persistence/tree/v25.0.0) (2024-05-15)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v25.0.0-rc.2...v25.0.0)
+
+## [v25.0.0-rc.2](https://github.com/gisaia/arlas-persistence/tree/v25.0.0-rc.2) (2024-05-06)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v25.0.0-beta.6...v25.0.0-rc.2)
+
+## [v25.0.0-beta.6](https://github.com/gisaia/arlas-persistence/tree/v25.0.0-beta.6) (2024-04-02)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v25.0.0-beta.2...v25.0.0-beta.6)
+
+## [v25.0.0-beta.2](https://github.com/gisaia/arlas-persistence/tree/v25.0.0-beta.2) (2024-03-22)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v25.0.0-beta.1...v25.0.0-beta.2)
+
+## [v25.0.0-beta.1](https://github.com/gisaia/arlas-persistence/tree/v25.0.0-beta.1) (2024-03-15)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v24.0.5...v25.0.0-beta.1)
+
+**Miscellaneous:**
+
+- Forbid setting the 'write' right to 'public' group [\#100](https://github.com/gisaia/ARLAS-persistence/issues/100)
+- If a resource is public and the "write" right is activated, should any authenticated user be able to edit/share/duplicate/rename the resource ? [\#94](https://github.com/gisaia/ARLAS-persistence/issues/94)
+
 ## [v24.0.5](https://github.com/gisaia/arlas-persistence/tree/v24.0.5) (2024-02-05)
 
 [Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v24.0.4...v24.0.5)
 
 **Miscellaneous:**
 
+- A resource doesn't appear for its owner when a shared user removes the read and write rights to all groups [\#93](https://github.com/gisaia/ARLAS-persistence/issues/93)
 - List with no arlas-org-filter returns only public ressource [\#92](https://github.com/gisaia/ARLAS-persistence/issues/92)
 - Add organisation and public status in each element of the resouces list [\#90](https://github.com/gisaia/ARLAS-persistence/issues/90)
 - Public dashboards are not available when logged in [\#89](https://github.com/gisaia/ARLAS-persistence/issues/89)
