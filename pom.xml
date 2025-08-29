@@ -21,19 +21,19 @@
         <skipTests>true</skipTests>
         <surefire.version>2.22.2</surefire.version>
 
-        <arlas-commons.version>24.1.1</arlas-commons.version>
-        <log4j.version>2.19.0</log4j.version>
+        <arlas-commons.version>24.1.3</arlas-commons.version>
+        <log4j.version>2.23.0</log4j.version>
         <jug.version>4.0.1</jug.version>
-        <dropwizard.version>2.1.10</dropwizard.version>
+        <dropwizard.version>2.1.12</dropwizard.version>
         <postgresql.version>42.7.1</postgresql.version>
         <hibernate.utils.version>3.5.2</hibernate.utils.version>
         <google.cloud.bom.version>26.29.0</google.cloud.bom.version>
-        <jackson.version>2.15.2</jackson.version>
+        <jackson.version>2.15.4</jackson.version>
 
         <!-- TESTS -->
         <junit.version>4.13.2</junit.version>
         <org.hamcrest.version>2.2</org.hamcrest.version>
-        <io.rest-assured.version>5.3.0</io.rest-assured.version>
+        <io.rest-assured.version>5.3.2</io.rest-assured.version>
 
         <!-- DOCUMENTATION GENERATION-->
         <swagger2markup.version>1.3.4</swagger2markup.version>
