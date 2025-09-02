@@ -80,7 +80,7 @@ import io.swagger.annotations.SwaggerDefinition;
                 title = "ARLAS persistence API",
                 description = "persistence REST services",
                 license = @License(name = "Apache 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0.html"),
-                version = "API_VERSION"),
+                version = "24.0.7"),
         schemes = { SwaggerDefinition.Scheme.HTTP, SwaggerDefinition.Scheme.HTTPS })
 
 public class PersistenceRestService {
