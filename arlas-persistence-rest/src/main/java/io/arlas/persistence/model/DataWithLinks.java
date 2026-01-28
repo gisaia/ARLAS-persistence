@@ -22,7 +22,8 @@ package io.arlas.persistence.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.arlas.filter.core.IdentityParam;
 import io.arlas.persistence.server.model.Data;
-import io.dropwizard.jackson.JsonSnakeCase;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +33,7 @@ import java.util.Optional;
 import static io.arlas.filter.config.TechnicalRoles.GROUP_PUBLIC;
 import static io.arlas.persistence.server.core.PersistenceService.intersect;
 
-@JsonSnakeCase
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class DataWithLinks extends Data {
 
     @JsonProperty("_links")

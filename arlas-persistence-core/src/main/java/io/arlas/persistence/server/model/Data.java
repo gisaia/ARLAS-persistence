@@ -19,7 +19,8 @@
 
 package io.arlas.persistence.server.model;
 
-import io.dropwizard.jackson.JsonSnakeCase;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -35,7 +36,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "user_data")
-@JsonSnakeCase
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Data {
     public static final String idColumn = "id";
     public static final String keyColumn = "docKey";
