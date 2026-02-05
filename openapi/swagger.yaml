@@ -2,7 +2,7 @@
 swagger: "2.0"
 info:
   description: "persistence REST services"
-  version: "24.0.9-SNAPSHOT"
+  version: "24.1.9"
   title: "ARLAS persistence API"
   contact:
     name: "Gisaia"
