@@ -45,6 +45,9 @@ public class DataWithLinks extends Data {
     public boolean isPublic;
 
     public DataWithLinks(Data data, IdentityParam identityParam) {
+        List<String> readers = Optional.ofNullable(data.getDocReaders()).orElse(new ArrayList<>());
+        List<String> docEntities = Optional.ofNullable(data.getDocEntities()).orElse(new ArrayList<>());
+        this.setPublic(docEntities.contains(GROUP_PUBLIC) || readers.contains(GROUP_PUBLIC));
         this.setDocOrganization(data.getDocOrganization());
         this.setDocZone(data.getDocZone());
         this.setDocKey(data.getDocKey());
@@ -55,7 +58,6 @@ public class DataWithLinks extends Data {
         this.setDocOwner(data.getDocOwner());
         this.setDocReaders(data.getDocReaders());
         this.setDocWriters(data.getDocWriters());
-        this.setPublic(data.getDocEntities().contains(GROUP_PUBLIC));
     }
 
     public void setUpdatable(boolean updatable) {
