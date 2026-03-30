@@ -11,7 +11,7 @@ services:
     expose:
       - 5432
     volumes:
-      - ${ARLAS_PERSISTENCE_CREATESQL_FILE:-/opt/app/pgCreateTable.sql}:/docker-entrypoint-initdb.d/createTable.sql:ro
+      - ${ARLAS_PERSISTENCE_CREATESQL_FILE:-./pgCreateTable.sql}:/docker-entrypoint-initdb.d/createTable.sql:ro
     healthcheck:
       test: "pg_isready -d arlas_persistence"
       interval: 10s
