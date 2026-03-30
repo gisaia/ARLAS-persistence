@@ -9,7 +9,7 @@ info:
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
-  version: 27.0.1
+  version: 27.1.0
 externalDocs:
   description: API documentation
   url: https://docs.arlas.io/arlas-api/
@@ -76,13 +76,13 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/DataWithLinks'
+                $ref: "#/components/schemas/DataWithLinks"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /persist/resource/id/{id}:
     get:
       tags:
@@ -109,19 +109,19 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/DataWithLinks'
+                $ref: "#/components/schemas/DataWithLinks"
         "404":
           description: Id not found.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "500":
           description: Arlas Persistence Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
     put:
       tags:
       - persist
@@ -180,19 +180,19 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/DataWithLinks'
+                $ref: "#/components/schemas/DataWithLinks"
         "404":
           description: Key or id not found.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
     delete:
       tags:
       - persist
@@ -218,19 +218,19 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/DataWithLinks'
+                $ref: "#/components/schemas/DataWithLinks"
         "404":
           description: Key or id not found.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /persist/resource/exists/id/{id}:
     get:
       tags:
@@ -257,13 +257,13 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Exists'
+                $ref: "#/components/schemas/Exists"
         "500":
           description: Arlas Persistence Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /persist/groups/{zone}:
     get:
       tags:
@@ -297,13 +297,13 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "500":
           description: Arlas Persistence Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /persist/resources/{zone}:
     get:
       tags:
@@ -361,19 +361,19 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/DataResource'
+                $ref: "#/components/schemas/DataResource"
         "404":
           description: Zone not found.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "500":
           description: Arlas Persistence Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 components:
   schemas:
     DataWithLinks:
@@ -419,7 +419,7 @@ components:
         _links:
           type: object
           additionalProperties:
-            $ref: '#/components/schemas/Link'
+            $ref: "#/components/schemas/Link"
         updatable:
           type: boolean
         ispublic:
@@ -467,8 +467,8 @@ components:
         _links:
           type: object
           additionalProperties:
-            $ref: '#/components/schemas/Link'
+            $ref: "#/components/schemas/Link"
         data:
           type: array
           items:
-            $ref: '#/components/schemas/DataWithLinks'
+            $ref: "#/components/schemas/DataWithLinks"
