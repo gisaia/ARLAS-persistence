@@ -177,10 +177,12 @@ jobs:
       - name: Publish TypeScript API client to npm
         if: ${{ !inputs.skip_api }}
         working-directory: target/tmp/typescript-fetch/dist
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
         run: |
           cp ${{ github.workspace }}/conf/npm/package-publish.json package.json
           npm version --no-git-tag-version ${{ env.FULL_API_VERSION }}
-          npm publish || echo "npm publish failed, continuing..."
+          npm publish || (echo "npm publish failed" && exit 1)
 
       # ----------------------------------------
       # Docker image — tag & push
@@ -194,7 +196,7 @@ jobs:
       - name: Tag & push Docker image
         run: |
           docker tag gisaia/arlas-persistence-server:latest \
-            gisaia/arlas-persistence-server:${{ env.FULL_API_VERSION }}f
+            gisaia/arlas-persistence-server:${{ env.FULL_API_VERSION }}
           docker push gisaia/arlas-persistence-server:${{ env.FULL_API_VERSION }}
           docker push gisaia/arlas-persistence-server:latest
 
