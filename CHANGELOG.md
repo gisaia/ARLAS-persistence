@@ -1,6 +1,10 @@
 # Change Log
 
-## [v27.1.2](https://github.com/gisaia/arlas-persistence/tree/v27.1.2) (2026-04-14)
+## [v27.1.3](https://github.com/gisaia/arlas-persistence/tree/v27.1.3) (2026-04-15)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v27.1.2...v27.1.3)
+
+## [v27.1.2](https://github.com/gisaia/arlas-persistence/tree/v27.1.2) (2026-04-15)
 
 [Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v27.1.1...v27.1.2)
 
