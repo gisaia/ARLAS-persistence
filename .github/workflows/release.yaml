@@ -1,9 +1,5 @@
 name: Release ARLAS Persistence
 
-permissions:
-  contents: read
-  id-token: write
-
 on:
   workflow_dispatch:
     inputs:
@@ -82,7 +78,6 @@ jobs:
         with:
           node-version: "18"
           registry-url: "https://registry.npmjs.org"
-          provenance: true
 
       # ----------------------------------------
       # Set release version in pom.xml & Java source
