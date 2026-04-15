@@ -70,6 +70,8 @@ jobs:
           distribution: temurin
           java-version: "17"
           cache: maven
+          cache-dependency-path: | 
+           **/pom.xml
 
       # ----------------------------------------
       # Node / npm setup (API client generation)
@@ -95,7 +97,7 @@ jobs:
       # Build
       # ----------------------------------------
       - name: Build with Maven
-        run: mvn clean install -DskipTests --no-transfer-progress
+        run: mvn clean install -DskipTests --no-transfer-progress --no-snapshot-updates
 
       # ----------------------------------------
       # Start stack & generate OpenAPI spec
