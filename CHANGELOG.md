@@ -1,5 +1,13 @@
 # Change Log
 
+## [v28.0.0-rc.1](https://github.com/gisaia/arlas-persistence/tree/v28.0.0-rc.1) (2026-04-16)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v27.1.3...v28.0.0-rc.1)
+
+**Miscellaneous:**
+
+- implement the release script in github actions  [\#113](https://github.com/gisaia/ARLAS-persistence/issues/113)
+
 ## [v27.1.3](https://github.com/gisaia/arlas-persistence/tree/v27.1.3) (2026-04-15)
 
 [Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v27.1.2...v27.1.3)
