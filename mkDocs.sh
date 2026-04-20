@@ -12,6 +12,9 @@ trap clean_exit EXIT
 SCRIPT_PATH=`cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd`
 cd ${SCRIPT_PATH}
 
+# Get up to date openapi.json file for documentation
+cp openapi/openapi.json docs/api/openapi.json
+
 # SWAGGER DOC
 echo "=> Get swagger documentation"
 docker run --rm \
