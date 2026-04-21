@@ -14,7 +14,6 @@ server:
     port: ${ARLAS_PERSISTENCE_PORT:-9997}
   maxThreads: ${ARLAS_PERSISTENCE_MAX_THREADS:-1024}
   minThreads: ${ARLAS_PERSISTENCE_MIN_THREADS:-8}
-  maxQueuedRequests: ${ARLAS_PERSISTENCE_MAX_QUEUED_REQUESTS:-1024}
 
 
 ########################################################

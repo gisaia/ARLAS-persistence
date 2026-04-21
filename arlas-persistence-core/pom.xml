@@ -3,78 +3,48 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>io.arlas</groupId>
-    <artifactId>arlas-persistence-core</artifactId>
-    <version>28.0.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
-    <name>ARLAS persistence server core</name>
-
     <parent>
         <groupId>io.arlas</groupId>
         <artifactId>arlas-persistence-parent</artifactId>
         <version>28.0.1-SNAPSHOT</version>
     </parent>
-
+    <artifactId>arlas-persistence-core</artifactId>
+    <version>28.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>ARLAS persistence server core</name>
     <dependencies>
         <dependency>
             <groupId>io.arlas</groupId>
             <artifactId>arlas-commons</artifactId>
             <version>${arlas-commons.version}</version>
         </dependency>
-
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-hibernate</artifactId>
             <version>${dropwizard.version}</version>
         </dependency>
-
         <dependency>
             <groupId>io.hypersistence</groupId>
-            <artifactId>hypersistence-utils-hibernate-60</artifactId>
+            <artifactId>hypersistence-utils-hibernate-63</artifactId>
             <version>${hibernate.utils.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-jakarta-xmlbind-annotations</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>${postgresql.version}</version>
         </dependency>
-
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-firestore</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-firestore-admin</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.fasterxml.uuid</groupId>
             <artifactId>java-uuid-generator</artifactId>
             <version>${jug.version}</version>
         </dependency>
-
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>17</source>
-                    <target>17</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>
