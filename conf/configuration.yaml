@@ -12,8 +12,8 @@ server:
   connector:
     type: http
     port: ${ARLAS_PERSISTENCE_PORT:-9997}
-  maxThreads: ${ARLAS_PERSISTENCE_MAX_THREADS:-1024}
-  minThreads: ${ARLAS_PERSISTENCE_MIN_THREADS:-8}
+  maxThreads: ${ARLAS_PERSISTENCE_MAX_THREADS:-200}
+  minThreads: ${ARLAS_PERSISTENCE_MIN_THREADS:-10}
 
 
 ########################################################
