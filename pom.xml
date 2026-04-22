@@ -43,6 +43,8 @@
         <junit.version>4.13.2</junit.version>
         <org.hamcrest.version>2.2</org.hamcrest.version>
         <io.rest-assured.version>5.4.0</io.rest-assured.version>
+        <!-- JACKSON CORE -->
+        <jackson.core.version>2.21.1</jackson.core.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -52,6 +54,12 @@
                 <version>${google.cloud.bom.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <!-- TO FIX CVE GHSA-72hv-8253-57qq -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.core.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
