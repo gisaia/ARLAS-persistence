@@ -7,35 +7,45 @@
     <version>28.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>ARLAS persistence parent</name>
-
+    <distributionManagement>
+        <snapshotRepository>
+            <id>io.arlas.persistence.server.parent</id>
+            <url>https://maven.cloudsmith.io/gisaia/private/</url>
+        </snapshotRepository>
+        <repository>
+            <id>io.arlas.persistence.server.parent</id>
+            <url>https://maven.cloudsmith.io/gisaia/private/</url>
+        </repository>
+    </distributionManagement>
     <modules>
         <module>arlas-persistence-core</module>
         <module>arlas-persistence-rest</module>
         <module>arlas-persistence-server</module>
         <module>arlas-persistence-tests</module>
     </modules>
-
     <properties>
         <!-- PROJECT-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skipTests>true</skipTests>
-        <surefire.version>2.22.2</surefire.version>
-
-        <arlas-commons.version>27.3.2</arlas-commons.version>
-        <log4j.version>2.23.1</log4j.version>
+        <maven.surefire.version>3.2.5</maven.surefire.version>
+        <maven.failsafe.version>3.2.5</maven.failsafe.version>
+        <maven.compiler.version>3.11.0</maven.compiler.version>
+        <maven.shade.version>3.5.0</maven.shade.version>
+        <arlas-commons.version>28.0.0-rc2</arlas-commons.version>
         <jug.version>4.0.1</jug.version>
-        <dropwizard.version>4.0.12</dropwizard.version>
-        <jackson.version>2.18.2</jackson.version>
-        <postgresql.version>42.7.3</postgresql.version>
-        <hibernate.utils.version>3.7.5</hibernate.utils.version>
-        <google.cloud.bom.version>26.38.0</google.cloud.bom.version>
-
+        <dropwizard.version>5.0.1</dropwizard.version>
+        <postgresql.version>42.7.10</postgresql.version>
+        <hibernate.utils.version>3.13.3</hibernate.utils.version>
+        <google.cloud.bom.version>26.77.0</google.cloud.bom.version>
+        <!-- JETTY SERVER  -->
+        <jetty-server.version>12.1.8</jetty-server.version>
         <!-- TESTS -->
         <junit.version>4.13.2</junit.version>
         <org.hamcrest.version>2.2</org.hamcrest.version>
         <io.rest-assured.version>5.4.0</io.rest-assured.version>
+        <!-- JACKSON CORE -->
+        <jackson.core.version>2.21.1</jackson.core.version>
     </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -45,9 +55,14 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <!-- TO FIX CVE GHSA-72hv-8253-57qq -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.core.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
-
     <dependencies>
         <!-- ____________________________________________________ -->
         <!-- Tests -->
@@ -58,34 +73,28 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-
         <!-- ____________________________________________________ -->
-        <!-- LOGS -->
+        <!-- Override for fix CVE -->
         <!-- ____________________________________________________ -->
         <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>${log4j.version}</version>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>${jetty-server.version}</version>
         </dependency>
     </dependencies>
 
     <build>
+        <pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-                <configuration>
-                    <release>17</release>
-                    <source>17</source>
-                    <target>17</target>
-                </configuration>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.version}</version>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.22.2</version>
+                <version>${maven.failsafe.version}</version>
                 <configuration>
                     <argLine>-Xmx2048m</argLine>
                     <skipITs>${skipTests}</skipITs>
@@ -99,14 +108,17 @@
                     </execution>
                 </executions>
             </plugin>
+        </plugins>
+    </pluginManagement>
 
-            <!-- SUREFIRE LOCK DOWN -->
+    <plugins>
             <plugin>
-                <!-- lock down surefire version -->
-                <!-- avoid having to "download all the internet" on each docker build of arlas-persistence docker image -->
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${surefire.version}</version>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.version}</version>
+                <configuration>
+                    <release>17</release>
+                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -123,18 +135,5 @@
                 <updatePolicy>always</updatePolicy>
             </snapshots>
         </repository>
-
     </repositories>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>io.arlas.persistence.server.parent</id>
-            <url>https://maven.cloudsmith.io/gisaia/private/</url>
-        </snapshotRepository>
-        <repository>
-            <id>io.arlas.persistence.server.parent</id>
-            <url>https://maven.cloudsmith.io/gisaia/private/</url>
-        </repository>
-    </distributionManagement>
-
 </project>
