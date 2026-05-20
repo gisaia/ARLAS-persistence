@@ -1,5 +1,29 @@
 # Change Log
 
+## [v28.0.0](https://github.com/gisaia/arlas-persistence/tree/v28.0.0) (2026-05-20)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v28.0.0-rc5...v28.0.0)
+
+**Miscellaneous:**
+
+- Firestore supports up to 10 groups [\#51](https://github.com/gisaia/ARLAS-persistence/issues/51)
+
+## [v28.0.0-rc5](https://github.com/gisaia/arlas-persistence/tree/v28.0.0-rc5) (2026-05-12)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v28.0.0-rc4...v28.0.0-rc5)
+
+## [v28.0.0-rc4](https://github.com/gisaia/arlas-persistence/tree/v28.0.0-rc4) (2026-05-11)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v28.0.0-rc3...v28.0.0-rc4)
+
+## [v28.0.0-rc3](https://github.com/gisaia/arlas-persistence/tree/v28.0.0-rc3) (2026-04-28)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v28.0.0-rc2...v28.0.0-rc3)
+
+## [v28.0.0-rc2](https://github.com/gisaia/arlas-persistence/tree/v28.0.0-rc2) (2026-04-22)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v28.0.0-rc.1...v28.0.0-rc2)
+
 ## [v28.0.0-rc.1](https://github.com/gisaia/arlas-persistence/tree/v28.0.0-rc.1) (2026-04-16)
 
 [Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v27.1.3...v28.0.0-rc.1)
