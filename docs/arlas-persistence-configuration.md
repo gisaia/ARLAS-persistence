@@ -71,7 +71,6 @@ docker run -ti -d \
 | ARLAS_PERSISTENCE_PORT                | server.connector.port                                  | 9997                               |                                                                                     |
 | ARLAS_PERSISTENCE_MAX_THREADS         | server.maxThreads                                      | 1024                               |                                                                                     |
 | ARLAS_PERSISTENCE_MIN_THREADS         | server.minThreads                                      | 8                                  |                                                                                     |
-| ARLAS_PERSISTENCE_MAX_QUEUED_REQUESTS | server.maxQueuedRequests                               | 1024                               |                                                                                     |
 
 ### URL Masking
 
