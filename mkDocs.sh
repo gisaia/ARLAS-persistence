@@ -54,12 +54,6 @@ docker run --rm \
 	busybox \
         sh -c 'mv /opt/maven/target/tmp/typescript-fetch/typedoc_docs/* /opt/maven/target/generated-docs/typescript-doc'
 
-docker run --rm \
-    -v $PWD:/opt/maven \
-	-v $HOME/.m2:/root/.m2 \
-	busybox \
-        sh -c 'mv /opt/maven/target/tmp/python-api/docs/* /opt/maven/target/generated-docs/python-doc'
-
 echo "=> Generate API documentation"
 docker run --rm \
     -v $PWD:/opt/maven \
