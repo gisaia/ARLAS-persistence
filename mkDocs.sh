@@ -66,7 +66,3 @@ if [[ ! -f ${BASEDIR}/target/generated-docs/typescript-doc/classes/PersistApi.md
     echo 'File "PersistApi.md" was not generated, aborting.'
     exit -1
 fi
-if [[ ! -f ${BASEDIR}/target/generated-docs/reference.md ]] ; then
-    echo 'File "reference.md" was not generated, aborting.'
-    exit -1
-fi
