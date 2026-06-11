@@ -122,23 +122,12 @@ jobs:
             -o target/tmp/openapi.yaml
           cp target/tmp/openapi.yaml openapi/openapi.yaml
           cp target/tmp/openapi.json openapi/openapi.json
+          cp target/tmp/openapi.json docs/api/openapi.json
 
       - name: Stop arlas-persistence-server stack
         run: |
           docker compose -f docker/docker-files/docker-compose.yml \
             --project-name arlaspersist down -v
-
-      # ----------------------------------------
-      # Generate API documentation
-      # ----------------------------------------
-      - name: Generate API documentation
-        run: |
-          mkdir -p docs/api
-          docker run --rm \
-            --mount dst=/input/api.json,src="$PWD/openapi/openapi.json",type=bind,ro \
-            --mount dst=/input/env.json,src="$PWD/conf/doc/widdershins.json",type=bind,ro \
-            --mount dst=/output,src="$PWD/docs/api",type=bind \
-            gisaia/widdershins:4.0.1
 
       # ----------------------------------------
       # Integration tests

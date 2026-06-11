@@ -12,9 +12,6 @@ trap clean_exit EXIT
 SCRIPT_PATH=`cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd`
 cd ${SCRIPT_PATH}
 
-# Get up to date openapi.json file for documentation
-cp openapi/openapi.json docs/api/openapi.json
-
 # SWAGGER DOC
 echo "=> Get swagger documentation"
 docker run --rm \
@@ -56,13 +53,6 @@ docker run --rm \
 	-v $HOME/.m2:/root/.m2 \
 	busybox \
         sh -c 'mv /opt/maven/target/tmp/typescript-fetch/typedoc_docs/* /opt/maven/target/generated-docs/typescript-doc'
-
-echo "=> Generate API documentation"
-docker run --rm \
-    -v $PWD:/opt/maven \
-	-v $HOME/.m2:/root/.m2 \
-	busybox \
-        sh -c 'cat /opt/maven/docs/api/reference.md > /opt/maven/target/generated-docs/reference.md'
 
 echo "=> Copy CHANGELOG.md"
 docker run --rm \
