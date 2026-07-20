@@ -12,7 +12,11 @@
       "name" : "Apache 2.0",
       "url" : "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
+<<<<<<< HEAD
     "version" : "28.0.4"
+=======
+    "version" : "29.0.0-rc1"
+>>>>>>> 541b46d (release version 29.0.0-rc1)
   },
   "externalDocs" : {
     "description" : "API documentation",
@@ -611,6 +615,7 @@
         }
       },
       "Error" : {
+        "required" : [ "error", "message", "status" ],
         "type" : "object",
         "properties" : {
           "status" : {

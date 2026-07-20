@@ -441,6 +441,10 @@ components:
         method:
           type: string
     Error:
+      required:
+      - error
+      - message
+      - status
       type: object
       properties:
         status:

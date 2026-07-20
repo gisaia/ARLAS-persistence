@@ -611,6 +611,7 @@
         }
       },
       "Error" : {
+        "required" : [ "error", "message", "status" ],
         "type" : "object",
         "properties" : {
           "status" : {
