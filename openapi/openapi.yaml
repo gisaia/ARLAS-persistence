@@ -9,7 +9,7 @@ info:
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
-  version: 28.0.3
+  version: 29.0.0-rc1
 externalDocs:
   description: API documentation
   url: https://docs.arlas.io/arlas-api/
@@ -441,6 +441,10 @@ components:
         method:
           type: string
     Error:
+      required:
+      - error
+      - message
+      - status
       type: object
       properties:
         status:
