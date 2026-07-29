@@ -38,7 +38,7 @@
         <hibernate.utils.version>3.13.3</hibernate.utils.version>
         <google.cloud.bom.version>26.77.0</google.cloud.bom.version>
         <!-- JETTY SERVER  -->
-        <jetty-server.version>12.1.8</jetty-server.version>
+        <jetty-server.version>12.1.10</jetty-server.version>
         <!-- TESTS -->
         <junit.version>4.13.2</junit.version>
         <org.hamcrest.version>2.2</org.hamcrest.version>
@@ -68,6 +68,7 @@
                 <version>${jackson.core.version}</version>
             </dependency>
             <!-- TO FIX CVE-2026-2332  -->
+            <!-- TO FIX CVE-2026-10050 -->
             <!-- TO NOT MIX JETTY VERSION  -->
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
