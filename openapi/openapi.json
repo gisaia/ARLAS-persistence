@@ -405,7 +405,10 @@
             "content" : {
               "application/json;charset=utf-8" : {
                 "schema" : {
-                  "type" : "string"
+                  "type" : "array",
+                  "items" : {
+                    "type" : "string"
+                  }
                 }
               }
             }

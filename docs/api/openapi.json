@@ -13,10 +13,14 @@
       "url" : "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
 <<<<<<< HEAD
+<<<<<<< HEAD
     "version" : "28.0.4"
 =======
     "version" : "29.0.0-rc1"
 >>>>>>> 541b46d (release version 29.0.0-rc1)
+=======
+    "version" : "29.0.0-rc2"
+>>>>>>> 06d18cf (release version 29.0.0-rc2)
   },
   "externalDocs" : {
     "description" : "API documentation",
@@ -409,7 +413,10 @@
             "content" : {
               "application/json;charset=utf-8" : {
                 "schema" : {
-                  "type" : "string"
+                  "type" : "array",
+                  "items" : {
+                    "type" : "string"
+                  }
                 }
               }
             }
