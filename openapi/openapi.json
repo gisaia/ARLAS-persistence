@@ -12,7 +12,7 @@
       "name" : "Apache 2.0",
       "url" : "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "version" : "29.0.1-SNAPSHOT"
+    "version" : "29.0.0-rc2"
   },
   "externalDocs" : {
     "description" : "API documentation",
@@ -405,7 +405,10 @@
             "content" : {
               "application/json;charset=utf-8" : {
                 "schema" : {
-                  "type" : "string"
+                  "type" : "array",
+                  "items" : {
+                    "type" : "string"
+                  }
                 }
               }
             }

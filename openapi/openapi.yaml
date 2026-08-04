@@ -9,7 +9,7 @@ info:
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
-  version: 29.0.0-rc1
+  version: 29.0.0-rc2
 externalDocs:
   description: API documentation
   url: https://docs.arlas.io/arlas-api/
@@ -291,7 +291,9 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                type: string
+                type: array
+                items:
+                  type: string
         "404":
           description: Zone not found.
           content:
