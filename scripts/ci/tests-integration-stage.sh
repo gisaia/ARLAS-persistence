@@ -14,9 +14,12 @@ function clean_docker {
 
 function clean_exit {
   ARG=$?
+  if [[ "$ARG" != 0 ]]; then
+    # In case of error, print containers logs (if any)
+    docker logs db
+    docker logs arlas-persistence-server
+  fi
 	echo "===> Exit stage ${STAGE} = ${ARG}"
-  docker logs db
-  docker logs arlas-persistence-server
   clean_docker
   rm -rf /tmp/persist
   exit $ARG
