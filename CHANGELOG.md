@@ -1,5 +1,81 @@
 # Change Log
 
+## [v24.0.11](https://github.com/gisaia/arlas-persistence/tree/v24.0.11) (2026-09-25)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v28.0.4...v24.0.11)
+
+## [v28.0.4](https://github.com/gisaia/arlas-persistence/tree/v28.0.4) (2026-09-11)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v29.0.0-rc2...v28.0.4)
+
+## [v29.0.0-rc2](https://github.com/gisaia/arlas-persistence/tree/v29.0.0-rc2) (2026-08-04)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v29.0.0-rc1...v29.0.0-rc2)
+
+## [v29.0.0-rc1](https://github.com/gisaia/arlas-persistence/tree/v29.0.0-rc1) (2026-07-20)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v28.0.3...v29.0.0-rc1)
+
+## [v28.0.3](https://github.com/gisaia/arlas-persistence/tree/v28.0.3) (2026-06-11)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v28.0.2...v28.0.3)
+
+## [v28.0.2](https://github.com/gisaia/arlas-persistence/tree/v28.0.2) (2026-06-11)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v28.0.1...v28.0.2)
+
+## [v28.0.1](https://github.com/gisaia/arlas-persistence/tree/v28.0.1) (2026-06-05)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v28.0.0...v28.0.1)
+
+## [v28.0.0](https://github.com/gisaia/arlas-persistence/tree/v28.0.0) (2026-05-20)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v28.0.0-rc5...v28.0.0)
+
+**Miscellaneous:**
+
+- Firestore supports up to 10 groups [\#51](https://github.com/gisaia/ARLAS-persistence/issues/51)
+
+## [v28.0.0-rc5](https://github.com/gisaia/arlas-persistence/tree/v28.0.0-rc5) (2026-05-12)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v28.0.0-rc4...v28.0.0-rc5)
+
+## [v28.0.0-rc4](https://github.com/gisaia/arlas-persistence/tree/v28.0.0-rc4) (2026-05-11)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v28.0.0-rc3...v28.0.0-rc4)
+
+## [v28.0.0-rc3](https://github.com/gisaia/arlas-persistence/tree/v28.0.0-rc3) (2026-04-28)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v28.0.0-rc2...v28.0.0-rc3)
+
+## [v28.0.0-rc2](https://github.com/gisaia/arlas-persistence/tree/v28.0.0-rc2) (2026-04-22)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v28.0.0-rc.1...v28.0.0-rc2)
+
+## [v28.0.0-rc.1](https://github.com/gisaia/arlas-persistence/tree/v28.0.0-rc.1) (2026-04-16)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v27.1.3...v28.0.0-rc.1)
+
+**Miscellaneous:**
+
+- implement the release script in github actions  [\#113](https://github.com/gisaia/ARLAS-persistence/issues/113)
+
+## [v27.1.3](https://github.com/gisaia/arlas-persistence/tree/v27.1.3) (2026-04-15)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v27.1.2...v27.1.3)
+
+## [v27.1.2](https://github.com/gisaia/arlas-persistence/tree/v27.1.2) (2026-04-15)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v27.1.1...v27.1.2)
+
+## [v27.1.1](https://github.com/gisaia/arlas-persistence/tree/v27.1.1) (2026-04-14)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v26.0.9...v27.1.1)
+
+## [v26.0.9](https://github.com/gisaia/arlas-persistence/tree/v26.0.9) (2026-04-01)
+
+[Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v24.0.10...v26.0.9)
+
 ## [v24.0.10](https://github.com/gisaia/arlas-persistence/tree/v24.0.10) (2026-04-01)
 
 [Full Changelog](https://github.com/gisaia/arlas-persistence/compare/v27.1.0...v24.0.10)
