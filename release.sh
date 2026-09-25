@@ -185,9 +185,6 @@ cp target/tmp/swagger.json openapi
 echo "=> Stop arlas-persistence-server stack"
 docker compose -f ${DOCKER_COMPOSE} --project-name arlaspersist down -v
 
-echo "=> Generate API documentation"
-# mvn "-Dswagger.output=docs/api" swagger2markup:convertSwagger2markup
-
 itests() {
 	echo "=> Run integration tests"
     ./scripts/tests-integration.sh
