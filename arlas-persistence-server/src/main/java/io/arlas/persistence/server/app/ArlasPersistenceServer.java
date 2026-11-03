@@ -21,6 +21,7 @@ package io.arlas.persistence.server.app;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.arlas.commons.cache.CacheFactory;
 import io.arlas.commons.config.ArlasConfiguration;
@@ -31,6 +32,7 @@ import io.arlas.commons.exceptions.IllegalArgumentExceptionMapper;
 import io.arlas.commons.exceptions.JsonProcessingExceptionMapper;
 import io.arlas.commons.rest.utils.InsensitiveCaseFilter;
 import io.arlas.commons.rest.utils.PrettyPrintFilter;
+import io.arlas.commons.utils.SafeConfigRenderer;
 import io.arlas.filter.config.ResourceDefinitions;
 import io.arlas.filter.config.TechnicalRoles;
 import io.arlas.filter.core.PolicyEnforcer;
@@ -93,8 +95,13 @@ public class ArlasPersistenceServer extends Application<ArlasPersistenceServerCo
     public void run(ArlasPersistenceServerConfiguration configuration, Environment environment) throws Exception {
 
         configuration.check();
-        LOGGER.info("Checked configuration: " + environment.getObjectMapper().writer().writeValueAsString(configuration));
-
+        if (LOGGER.isDebugEnabled()) {
+            ObjectMapper mapper = environment.getObjectMapper();
+            LOGGER.debug(
+                    "Checked configuration: {}",
+                    SafeConfigRenderer.render(mapper, mapper.valueToTree(configuration))
+            );
+        }
         environment.getObjectMapper().setSerializationInclusion(Include.NON_NULL);
         environment.getObjectMapper().configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false);
         environment.jersey().register(MultiPartFeature.class);
