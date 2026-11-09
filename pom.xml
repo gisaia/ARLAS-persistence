@@ -44,7 +44,8 @@
         <org.hamcrest.version>2.2</org.hamcrest.version>
         <io.rest-assured.version>5.4.0</io.rest-assured.version>
         <!-- JACKSON CORE -->
-        <jackson.core.version>2.21.4</jackson.core.version>
+        <jackson.core.version>2.21.7</jackson.core.version>
+        <guava.version>33.7.2-jre</guava.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -75,6 +76,11 @@
                 <version>${jetty-server.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
