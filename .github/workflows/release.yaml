@@ -168,7 +168,7 @@ jobs:
         run: |
           cp ${{ github.workspace }}/conf/npm/package-publish.json package.json
           npm version --no-git-tag-version ${{ env.FULL_API_VERSION }}
-          npm publish || (echo "npm publish failed" && exit 1)
+          npm publish --tag 28.0.x || (echo "npm publish failed" && exit 1)
 
       # ----------------------------------------
       # Docker image — tag & push
