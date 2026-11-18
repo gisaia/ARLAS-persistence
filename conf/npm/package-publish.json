@@ -9,6 +9,13 @@
     "arlas",
     "persistence"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gisaia/ARLAS-persistence.git"
+  },
+  "publishConfig": {
+    "tag": "28.0.x"
+  },
   "dependencies": {
     "isomorphic-fetch": "3.0.0",
     "url": "0.11.0"
